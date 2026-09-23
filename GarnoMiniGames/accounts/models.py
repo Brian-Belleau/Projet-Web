@@ -30,6 +30,12 @@ class Profile(models.Model):
         verbose_name="Biographie",
         help_text="Décrivez-vous en quelques mots.",
     )
+    photo = models.ImageField(
+        upload_to="profile_photos/",
+        blank=True,
+        null=True,
+        verbose_name="Photo de profil",
+    )
     games_played = models.PositiveIntegerField(
         default=0,
         verbose_name="Parties jouées",
