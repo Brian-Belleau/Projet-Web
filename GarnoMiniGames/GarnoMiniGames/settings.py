@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'accounts',
     'friends',
     'games',
@@ -84,6 +85,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GarnoMiniGames.wsgi.application'
 
+ASGI_APPLICATION = 'GarnoMiniGames.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
