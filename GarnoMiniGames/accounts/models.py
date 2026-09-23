@@ -1,11 +1,19 @@
 from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+
+class CustomUser(AbstractUser):
+    """Utilisateur personnalisé pour l'application GarnoMiniGames."""
+    class Meta:
+        verbose_name = "Utilisateur"
+        verbose_name_plural = "Utilisateurs"
 
 
 class Profile(models.Model):
     """Profil de jeu lié à un utilisateur de la plateforme GarnoMiniGames."""
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+        "CustomUser",
         on_delete=models.CASCADE,
         related_name="profile",
         verbose_name="Utilisateur",
@@ -39,6 +47,16 @@ class Profile(models.Model):
         verbose_name = "Profil"
         verbose_name_plural = "Profils"
         ordering = ["pseudonym"]
+
+    @property
+    def win_rate(self):
+        if self.games_played == 0:
+            return 0
+        return round((self.wins / self.games_played) * 100)
+
+    @property
+    def total_games(self):
+        return self.games_played
 
     def __str__(self):
         return self.pseudonym
