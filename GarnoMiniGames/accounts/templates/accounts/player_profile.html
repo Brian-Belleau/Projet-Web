@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Mon Profil{% endblock %}
+{% block title %}Profil de {{ profile.pseudonym }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -13,15 +13,14 @@
                             <h2 class="mb-1">{{ profile.pseudonym }}</h2>
                             <p class="text-muted mb-0">{{ profile.user.username }}</p>
                         </div>
-                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">Modifier le profil</a>
                     </div>
 
                     <div class="mb-4">
                         <h5>Biographie</h5>
                         {% if profile.bio %}
-                        <p class="mb-0">{{ profile.bio }}</p>
+                            <p class="mb-0">{{ profile.bio }}</p>
                         {% else %}
-                        <p class="text-muted mb-0">Aucune biographie renseignée.</p>
+                            <p class="text-muted mb-0">Ce joueur n'a pas encore renseigné sa biographie.</p>
                         {% endif %}
                     </div>
 
@@ -53,9 +52,8 @@
                     </div>
 
                     <div class="mt-4">
-                        <h5>Progression</h5>
-                        <div class="progress" role="progressbar" aria-label="Progression du joueur"
-                            aria-valuenow="{{ win_rate }}" aria-valuemin="0" aria-valuemax="100">
+                        <h5>Performances</h5>
+                        <div class="progress" role="progressbar" aria-label="Performance du joueur" aria-valuenow="{{ win_rate }}" aria-valuemin="0" aria-valuemax="100">
                             <div class="progress-bar bg-success">{{ win_rate }}%</div>
                         </div>
                     </div>
