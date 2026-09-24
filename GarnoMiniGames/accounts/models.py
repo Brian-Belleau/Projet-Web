@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -60,9 +59,17 @@ class Profile(models.Model):
             return 0
         return round((self.wins / self.games_played) * 100)
 
-    @property
-    def total_games(self):
-        return self.games_played
-
     def __str__(self):
         return self.pseudonym
+
+
+def generate_pseudonym(user):
+    """Génère un pseudonyme unique (max 30 caractères) pour un nouvel utilisateur."""
+    base = user.username[:20]
+    candidate = f"{base}_{user.pk}"[:30]
+    n = 1
+    while Profile.objects.filter(pseudonym__iexact=candidate).exists():
+        suffix = f"_{user.pk}_{n}"
+        candidate = f"{base[:30 - len(suffix)]}{suffix}"
+        n += 1
+    return candidate

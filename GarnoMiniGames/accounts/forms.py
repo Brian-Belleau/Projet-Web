@@ -1,12 +1,17 @@
 from django import forms
-from .models import CustomUser
-from .models import Profile
+from django.core.files.uploadedfile import UploadedFile
+from django.core.validators import MinLengthValidator, RegexValidator
+from django.db import transaction
+from .models import CustomUser, Profile
+
+MAX_PHOTO_SIZE = 5 * 1024 * 1024
 
 
 class ProfileForm(forms.ModelForm):
     username = forms.CharField(
         label="Nom d'utilisateur",
         max_length=150,
+        validators=CustomUser._meta.get_field("username").validators,
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     first_name = forms.CharField(
@@ -48,6 +53,15 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["pseudonym"].validators.extend([
+            MinLengthValidator(
+                3, "Le pseudonyme doit contenir au moins 3 caractères."),
+            RegexValidator(
+                r"^[\w.@+-]+$",
+                "Le pseudonyme ne peut contenir que des lettres, chiffres "
+                "et les caractères . @ + - _ (sans espace).",
+            ),
+        ])
         self.user = self.instance.user
         self.fields["username"].initial = self.user.username
         self.fields["first_name"].initial = self.user.first_name
@@ -55,12 +69,26 @@ class ProfileForm(forms.ModelForm):
         self.fields["email"].initial = self.user.email
 
     def clean_username(self):
-        username = self.cleaned_data["username"].strip()
-        if CustomUser.objects.filter(username=username).exclude(
+        username = self.cleaned_data["username"]
+        if CustomUser.objects.filter(username__iexact=username).exclude(
                 pk=self.user.pk).exists():
             raise forms.ValidationError(
                 "Ce nom d'utilisateur est déjà utilisé.")
         return username
+
+    def clean_pseudonym(self):
+        pseudonym = self.cleaned_data["pseudonym"]
+        if Profile.objects.filter(pseudonym__iexact=pseudonym).exclude(
+                pk=self.instance.pk).exists():
+            raise forms.ValidationError("Ce pseudonyme est déjà utilisé.")
+        return pseudonym
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if isinstance(photo, UploadedFile) and photo.size > MAX_PHOTO_SIZE:
+            raise forms.ValidationError(
+                "La photo est trop volumineuse (5 Mo maximum).")
+        return photo
 
     def save(self, commit=True):
         profile = super().save(commit=False)
@@ -69,25 +97,7 @@ class ProfileForm(forms.ModelForm):
         self.user.last_name = self.cleaned_data["last_name"]
         self.user.email = self.cleaned_data["email"]
         if commit:
-            self.user.save()
-            profile.save()
+            with transaction.atomic():
+                self.user.save()
+                profile.save()
         return profile
-
-    def clean(self):
-        cleaned_data = super().clean()
-        pseudonym = cleaned_data.get("pseudonym", "").strip()
-        if pseudonym:
-            if len(pseudonym) < 3:
-                self.add_error(
-                    "pseudonym",
-                    "Le pseudonyme doit contenir au moins 3 caractères.",
-                )
-            existing_profiles = Profile.objects.filter(
-                pseudonym__iexact=pseudonym)
-            if self.instance and self.instance.pk:
-                existing_profiles = existing_profiles.exclude(
-                    pk=self.instance.pk)
-            if existing_profiles.exists():
-                self.add_error("pseudonym", "Ce pseudonyme est déjà utilisé.")
-            cleaned_data["pseudonym"] = pseudonym
-        return cleaned_data
