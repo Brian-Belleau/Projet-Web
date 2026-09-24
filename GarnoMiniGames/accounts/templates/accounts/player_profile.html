@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Profil de {{ profile.pseudonym }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% include "accounts/_profile_card.html" with own=False %}
+    </div>
+</div>
+{% endblock %}

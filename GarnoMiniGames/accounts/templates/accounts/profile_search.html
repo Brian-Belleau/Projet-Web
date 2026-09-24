@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Rechercher un joueur{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0"><i class="bi bi-search me-2"></i>Rechercher un joueur</h2>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Revenir au profil
+            </a>
+        </div>
+
+        <form method="get" class="input-group mb-4">
+            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pseudonyme…"
+                aria-label="Pseudonyme">
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+
+        <div class="row g-3">
+            {% for p in profiles %}
+            <div class="col-md-6">
+                <a href="{% url 'accounts:player_profile' p.pseudonym %}"
+                    class="card-gmg card-hover d-flex align-items-center gap-3 p-3 text-decoration-none text-body">
+                    {% include "accounts/_avatar.html" with profile=p size="sm" %}
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">{{ p.pseudonym }}</div>
+                        <div class="small text-body-secondary">
+                            {{ p.games_played }} partie{% if p.games_played > 1 %}s{%endif %}
+                        </div>
+                    </div>
+                    <span class="badge text-bg-primary">{{ p.win_rate }}%</span>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center text-body-secondary py-4">
+                    {% if query %}Aucun joueur trouvé pour « {{ query }} ».{% else %}Aucun joueur à afficher.{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
