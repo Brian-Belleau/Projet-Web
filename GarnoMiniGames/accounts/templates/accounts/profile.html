@@ -1,67 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Mon Profil{% endblock %}
+{% block title %}Mon profil{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="mb-1">{{ profile.pseudonym }}</h2>
-                            <p class="text-muted mb-0">{{ profile.user.username }}</p>
-                        </div>
-                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">Modifier le profil</a>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5>Biographie</h5>
-                        {% if profile.bio %}
-                        <p class="mb-0">{{ profile.bio }}</p>
-                        {% else %}
-                        <p class="text-muted mb-0">Aucune biographie renseignée.</p>
-                        {% endif %}
-                    </div>
-
-                    <div class="row g-3 text-center">
-                        <div class="col-md-3">
-                            <div class="border rounded p-3 bg-light">
-                                <div class="text-muted small">Parties jouées</div>
-                                <div class="fs-4 fw-bold">{{ profile.games_played }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-3 bg-light">
-                                <div class="text-muted small">Victoires</div>
-                                <div class="fs-4 fw-bold text-success">{{ profile.wins }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-3 bg-light">
-                                <div class="text-muted small">Défaites</div>
-                                <div class="fs-4 fw-bold text-danger">{{ profile.losses }}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="border rounded p-3 bg-light">
-                                <div class="text-muted small">Taux de victoire</div>
-                                <div class="fs-4 fw-bold">{{ win_rate }}%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5>Progression</h5>
-                        <div class="progress" role="progressbar" aria-label="Progression du joueur"
-                            aria-valuenow="{{ win_rate }}" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar bg-success">{{ win_rate }}%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        {% include "accounts/_profile_card.html" with own=True %}
     </div>
 </div>
 {% endblock %}

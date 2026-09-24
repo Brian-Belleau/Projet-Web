@@ -1,0 +1,8 @@
+{% if profile.photo %}
+<img src="{{ profile.photo.url }}" alt="Photo de {{ profile.pseudonym }}"
+    class="avatar {% if size == 'lg' %}avatar-lg{% else %}avatar-sm{% endif %}">
+{% else %}
+<span class="avatar {% if size == 'lg' %}avatar-lg{% else %}avatar-sm{% endif %}" aria-hidden="true">
+    {{ profile.pseudonym|slice:":1"|upper }}
+</span>
+{% endif %}
