@@ -1,9 +1,19 @@
 body {
-    background-color: black;
+    background-color: #f5f5f5;
+    color: #0050a0;
 }
 
 header {
     padding: 2rem;
     text-align: center;
-    color: white;
+    background-color: #818f9e;
+    color: rgb(255, 35, 35);
+}
+
+.jeu-image {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
 }
