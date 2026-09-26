@@ -1,10 +1,15 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-
 from . import views
+
+app_name = "accounts"
 
 urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path("profil/", views.profile, name="profile"),
+    path("profil/recherche/", views.search_profiles, name="search_profiles"),
+    path("profil/modifier/", views.profile_edit, name="profile_edit"),
+    path("joueur/<str:pseudonym>/", views.player_profile, name="player_profile"),
 ]

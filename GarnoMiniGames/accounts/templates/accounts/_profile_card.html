@@ -1,0 +1,72 @@
+<div class="card-gmg">
+    <div class="card-gmg-banner"></div>
+    <div class="p-4 pt-0">
+        <div class="d-flex flex-wrap justify-content-between align-items-end">
+            <div class="avatar-overlap">
+                {% include "accounts/_avatar.html" with profile=profile size="lg" %}
+            </div>
+            {% if own %}
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-search me-1"></i>Rechercher un profil
+                </a>
+                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
+                    <i class="bi bi-pencil-square me-1"></i>Modifier le profil
+                </a>
+            </div>
+            {% else %}
+            <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary mt-3">
+                <i class="bi bi-arrow-left me-1"></i>Retour à la recherche
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="mt-3">
+            <h2 class="h3 mb-0">{{ profile.pseudonym }}</h2>
+            {% if own %}
+            <p class="text-body-secondary mb-0">@{{ profile.user.username }}</p>
+            {% endif %}
+        </div>
+
+        <section class="mt-4">
+            <h3 class="h6 text-uppercase text-body-secondary">Biographie</h3>
+            {% if profile.bio %}
+            <p class="bio-text mb-0">{{ profile.bio }}</p>
+            {% elif own %}
+            <p class="text-body-secondary fst-italic mb-0">Aucune biographie renseignée.</p>
+            {% else %}
+            <p class="text-body-secondary fst-italic mb-0">Ce joueur n'a pas encore renseigné sa biographie.</p>
+            {% endif %}
+        </section>
+
+        <section class="row g-3 text-center mt-2">
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value">{{ profile.games_played }}</div>
+                    <div class="stat-label">Parties</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value text-success">{{ profile.wins }}</div>
+                    <div class="stat-label">Victoires</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value text-danger">{{ profile.losses }}</div>
+                    <div class="stat-label">Défaites</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-4">
+            <div class="d-flex justify-content-between mb-2">
+                <h3 class="h6 text-uppercase text-body-secondary mb-0">Taux de victoire</h3>
+                <span class="small text-body-secondary">{{ profile.win_rate }}%</span>
+            </div>
+            <progress class="progress-win" value="{{ profile.win_rate }}" max="100" aria-label="Taux de victoire">
+                {{ profile.win_rate }}%</progress>
+        </section>
+    </div>
+</div>

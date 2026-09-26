@@ -42,6 +42,7 @@ CSRF_TRUSTED_ORIGINS = (
 )
 
 # Application definition
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,13 +56,12 @@ INSTALLED_APPS = [
     'games',
     'history',
 ]
-# Pourquoi des doublons ici ?
+
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -128,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-ca'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Toronto'
 
 USE_I18N = True
 
