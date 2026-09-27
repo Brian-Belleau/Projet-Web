@@ -33,7 +33,7 @@ class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
     email = forms.EmailField(required=True, label="Adresse courriel")
 
     class Meta(UserCreationForm.Meta):
-        model = UserCreationForm.Meta.model
+        model = CustomUser
         fields = UserCreationForm.Meta.fields + ('email',)
 
 class ProfileForm(forms.ModelForm):

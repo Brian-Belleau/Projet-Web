@@ -3,8 +3,8 @@
 {% block title %}Connexion - GarnoMiniGames{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center bg-light">
-    <div class="col-md-6">
+<div class="row justify-content-center">
+    <div class="col-md-6 card-gmg p-4">
         <h2>Connexion</h2>
 
         {% if form.non_field_errors %}
@@ -47,7 +47,7 @@
         </form>
 
         <p class="mt-3">
-            <a href="{% url 'signup' %}">Pas encore de compte ? S'inscrire</a>
+            <a href="{% url 'accounts:signup' %}">Pas encore de compte ? S'inscrire</a>
         </p>
     </div>
 </div>
