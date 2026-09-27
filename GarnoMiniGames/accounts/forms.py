@@ -7,6 +7,7 @@ from .models import CustomUser, Profile
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024
 
+
 class BootstrapMixin:
     """Ajoute les classes Bootstrap aux widgets de tous les champs."""
 
@@ -24,8 +25,10 @@ class BootstrapMixin:
             existing = widget.attrs.get('class', '')
             widget.attrs['class'] = f'{existing} {css}'.strip()
 
+
 class LoginForm(BootstrapMixin, AuthenticationForm):
     """Formulaire de connexion avec les classes Bootstrap."""
+
 
 class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
     """Formulaire d'inscription avec les classes Bootstrap, incluant l'email."""
@@ -36,27 +39,47 @@ class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
         model = CustomUser
         fields = UserCreationForm.Meta.fields + ('email',)
 
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if CustomUser.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "Cette adresse courriel est déjà utilisée.")
+        return email
+
+
 class ProfileForm(forms.ModelForm):
     username = forms.CharField(
         label="Nom d'utilisateur",
         max_length=150,
         validators=CustomUser._meta.get_field("username").validators,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Veuillez inscrire un nom d'utilisateur",
+        }),
     )
     first_name = forms.CharField(
         label="Prénom",
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Veuillez inscrire votre prénom",
+        }),
     )
     last_name = forms.CharField(
         label="Nom",
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Veuillez inscrire votre nom",
+        }),
     )
     email = forms.EmailField(
         label="Adresse e-mail",
-        required=False,
-        widget=forms.EmailInput(attrs={"class": "form-control"}),
+        required=True,
+        widget=forms.EmailInput(attrs={
+            "class": "form-control",
+            "placeholder": "Veuillez inscrire votre adresse e-mail",
+        }),
     )
 
     class Meta:
@@ -75,8 +98,15 @@ class ProfileForm(forms.ModelForm):
             "bio": "Biographie",
         }
         widgets = {
-            "pseudonym": forms.TextInput(attrs={"class": "form-control"}),
-            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "pseudonym": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Veuillez inscrire un pseudonyme",
+            }),
+            "bio": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3,
+                "placeholder": "Veuillez inscrire une courte biographie",
+            }),
             "photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
@@ -104,6 +134,14 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Ce nom d'utilisateur est déjà utilisé.")
         return username
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if CustomUser.objects.filter(email__iexact=email).exclude(
+                pk=self.user.pk).exists():
+            raise forms.ValidationError(
+                "Cette adresse courriel est déjà utilisée.")
+        return email
 
     def clean_pseudonym(self):
         pseudonym = self.cleaned_data["pseudonym"]

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
+from django.contrib.messages import constants as message_constants
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -21,6 +22,10 @@ load_dotenv(BASE_DIR / ".env")
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/

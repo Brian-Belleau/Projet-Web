@@ -12,10 +12,54 @@
             </a>
         </div>
 
-        <form method="get" class="input-group mb-4">
-            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pseudonyme…"
-                aria-label="Pseudonyme">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-12 col-md-5">
+                <label for="search-q" class="form-label small text-body-secondary mb-1">Pseudonyme</label>
+                <input type="search" id="search-q" name="q" value="{{ query }}" class="form-control"
+                    placeholder="Pseudonyme…" aria-label="Pseudonyme">
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label for="search-min-games" class="form-label small text-body-secondary mb-1">
+                    Parties jouées (min.)
+                </label>
+                <input type="number" id="search-min-games" name="min_games" value="{{ min_games }}" min="0"
+                    class="form-control" placeholder="0" aria-label="Nombre minimum de parties jouées">
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label for="search-sort" class="form-label small text-body-secondary mb-1">Trier par</label>
+                <select id="search-sort" name="sort" class="form-select" aria-label="Trier les résultats">
+                    <option value="pseudonym" {% if sort=="pseudonym" %}selected{% endif %}>
+                        Pseudonyme (A → Z)
+                    </option>
+                    <option value="pseudonym_desc" {% if sort=="pseudonym_desc" %}selected{% endif %}>
+                        Pseudonyme (Z → A)
+                    </option>
+                    <option value="games_played_desc" {% if sort=="games_played_desc" %}selected{% endif %}>
+                        Parties jouées (plus → moins)
+                    </option>
+                    <option value="games_played_asc" {% if sort=="games_played_asc" %}selected{% endif %}>
+                        Parties jouées (moins → plus)
+                    </option>
+                    <option value="win_rate_desc" {% if sort=="win_rate_desc" %}selected{% endif %}>
+                        Taux de victoire (plus → moins)
+                    </option>
+                    <option value="win_rate_asc" {% if sort=="win_rate_asc" %}selected{% endif %}>
+                        Taux de victoire (moins → plus)
+                    </option>
+                    <option value="wins_desc" {% if sort=="wins_desc" %}selected{% endif %}>
+                        Victoires (plus → moins)
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i>
+                    <span class="d-md-none ms-1">Rechercher</span>
+                </button>
+            </div>
         </form>
 
         <div class="row g-3">
@@ -36,7 +80,11 @@
             {% empty %}
             <div class="col-12">
                 <p class="text-center text-body-secondary py-4">
-                    {% if query %}Aucun joueur trouvé pour « {{ query }} ».{% else %}Aucun joueur à afficher.{% endif %}
+                    {% if query or min_games %}
+                    Aucun joueur ne correspond à ces critères.
+                    {% else %}
+                    Aucun joueur à afficher.
+                    {% endif %}
                 </p>
             </div>
             {% endfor %}
