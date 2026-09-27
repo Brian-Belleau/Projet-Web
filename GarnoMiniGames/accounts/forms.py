@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
 from django.core.files.uploadedfile import UploadedFile
 from django.core.validators import MinLengthValidator, RegexValidator
@@ -6,6 +7,34 @@ from .models import CustomUser, Profile
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024
 
+class BootstrapMixin:
+    """Ajoute les classes Bootstrap aux widgets de tous les champs."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialise les champs du formulaire avec les classes Bootstrap appropriées."""
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, (forms.CheckboxInput, forms.RadioSelect)):
+                css = 'form-check-input'
+            elif isinstance(widget, forms.Select):
+                css = 'form-select'
+            else:
+                css = 'form-control'
+            existing = widget.attrs.get('class', '')
+            widget.attrs['class'] = f'{existing} {css}'.strip()
+
+class LoginForm(BootstrapMixin, AuthenticationForm):
+    """Formulaire de connexion avec les classes Bootstrap."""
+
+class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
+    """Formulaire d'inscription avec les classes Bootstrap, incluant l'email."""
+
+    email = forms.EmailField(required=True, label="Adresse courriel")
+
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = UserCreationForm.Meta.fields + ('email',)
 
 class ProfileForm(forms.ModelForm):
     username = forms.CharField(

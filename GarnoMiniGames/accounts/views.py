@@ -1,8 +1,41 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from .forms import LoginForm
 from .forms import ProfileForm
+from .forms import CustomUserCreationForm
 from .models import Profile, generate_pseudonym
+from django.contrib.auth.views import LoginView
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+    authentication_form = LoginForm
+
+
+def signup_view(request):
+    """Affiche et traite le formulaire d'inscription."""
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request,
+                "Inscription réussie ! Vous pouvez maintenant vous connecter."
+            )
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm()
+
+    return render(
+        request,
+        'registration/signup.html',
+        {'form': form},
+    )
 
 
 def get_user_profile(user, request=None):
@@ -80,3 +113,5 @@ def player_profile(request, pseudonym):
         return redirect("accounts:profile")
     return render(
         request, "accounts/player_profile.html", {"profile": profile_data})
+
+

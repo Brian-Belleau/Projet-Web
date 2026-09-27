@@ -10,17 +10,27 @@
     --bs-primary-rgb: 124, 92, 255;
     --bs-link-color: #a99bff;
     --bs-link-hover-color: #cfc7ff;
+
+    /* Couleurs de texte pour thème sombre */
+    --bs-body-color: #e8e8f0;
+    --bs-body-color-rgb: 232, 232, 240;
+    --bs-secondary-color: rgba(232, 232, 240, .65);
+    --bs-heading-color: #ffffff;
+    --bs-card-color: #e8e8f0;
+    --bs-card-cap-color: #ffffff;
 }
 
 /* ---------- Base ---------- */
 header {
     padding: 2rem;
     text-align: center;
-    color: white;
+    background-color: #818f9e;
+    color: rgb(255, 35, 35);
 }
 
 body {
     min-height: 100vh;
+    color: #e8e8f0;
     background:
         radial-gradient(circle at 15% 0%, rgba(124, 92, 255, .18), transparent 40%),
         radial-gradient(circle at 90% 20%, rgba(0, 209, 178, .10), transparent 35%),
@@ -138,6 +148,15 @@ body {
 }
 
 /* ---------- Autre ---------- */
+
+.jeu-image {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
 .bio-text {
     white-space: pre-line;
 }
@@ -156,4 +175,15 @@ body {
 .footer-gmg {
     border-top: 1px solid var(--gmg-border);
     color: var(--bs-secondary-color);
+}
+
+/* ---------- Dropdown (menu profil/déconnexion) ---------- */
+.dropdown-menu {
+    --bs-dropdown-bg: var(--gmg-surface);
+    --bs-dropdown-color: #e8e8f0;
+    --bs-dropdown-link-color: #e8e8f0;
+    --bs-dropdown-link-hover-color: #ffffff;
+    --bs-dropdown-link-hover-bg: rgba(255, 255, 255, .08);
+    --bs-dropdown-border-color: var(--gmg-border);
+    --bs-dropdown-divider-bg: var(--gmg-border);
 }
