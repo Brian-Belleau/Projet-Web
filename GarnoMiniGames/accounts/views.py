@@ -88,6 +88,15 @@ SORT_OPTIONS = {
     "win_rate_asc": ("win_rate_calc", "-games_played", "pseudonym"),
     "wins_desc": ("-wins", "pseudonym"),
 }
+SORT_LABELS = {
+    "pseudonym": "Pseudonyme (A → Z)",
+    "pseudonym_desc": "Pseudonyme (Z → A)",
+    "games_played_desc": "Parties jouées (plus → moins)",
+    "games_played_asc": "Parties jouées (moins → plus)",
+    "win_rate_desc": "Taux de victoire (plus → moins)",
+    "win_rate_asc": "Taux de victoire (moins → plus)",
+    "wins_desc": "Victoires (plus → moins)",
+}
 DEFAULT_SORT = "pseudonym"
 
 
@@ -118,12 +127,17 @@ def search_profiles(request):
         profiles = profiles.filter(games_played__gte=int(min_games))
 
     profiles = profiles.order_by(*SORT_OPTIONS[sort])
+    sort_choices = [
+        {"value": value, "label": label, "selected": value == sort}
+        for value, label in SORT_LABELS.items()
+    ]
 
     context = {
         "profiles": profiles,
         "query": query,
         "min_games": min_games,
         "sort": sort,
+        "sort_choices": sort_choices,
     }
     return render(request, "accounts/profile_search.html", context)
 

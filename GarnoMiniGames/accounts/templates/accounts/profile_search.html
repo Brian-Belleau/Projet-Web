@@ -30,27 +30,11 @@
             <div class="col-6 col-md-3">
                 <label for="search-sort" class="form-label small text-body-secondary mb-1">Trier par</label>
                 <select id="search-sort" name="sort" class="form-select" aria-label="Trier les résultats">
-                    <option value="pseudonym" {% if sort=="pseudonym" %}selected{% endif %}>
-                        Pseudonyme (A → Z)
+                    {% for choice in sort_choices %}
+                    <option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>
+                        {{ choice.label }}
                     </option>
-                    <option value="pseudonym_desc" {% if sort=="pseudonym_desc" %}selected{% endif %}>
-                        Pseudonyme (Z → A)
-                    </option>
-                    <option value="games_played_desc" {% if sort=="games_played_desc" %}selected{% endif %}>
-                        Parties jouées (plus → moins)
-                    </option>
-                    <option value="games_played_asc" {% if sort=="games_played_asc" %}selected{% endif %}>
-                        Parties jouées (moins → plus)
-                    </option>
-                    <option value="win_rate_desc" {% if sort=="win_rate_desc" %}selected{% endif %}>
-                        Taux de victoire (plus → moins)
-                    </option>
-                    <option value="win_rate_asc" {% if sort=="win_rate_asc" %}selected{% endif %}>
-                        Taux de victoire (moins → plus)
-                    </option>
-                    <option value="wins_desc" {% if sort=="wins_desc" %}selected{% endif %}>
-                        Victoires (plus → moins)
-                    </option>
+                    {% endfor %}
                 </select>
             </div>
 
