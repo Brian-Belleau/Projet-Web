@@ -3,7 +3,7 @@ import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class RoomConsumerBase(AsyncWebsocketConsumer):
-    ROOMS = {}  # à définir dans les sous-classes si tu veux séparer les états par jeu
+    ROOMS = {}  # à définir dans les sous-classes pour ne pas avoir de room principale
     MAX_PLAYERS = 2
     GAME_PREFIX = "room"  # à écraser dans chaque sous-classe
 

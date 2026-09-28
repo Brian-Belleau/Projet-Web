@@ -1,5 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Jeu
+from django.contrib import messages
 
 
 def jeu_detail(request, pk):
