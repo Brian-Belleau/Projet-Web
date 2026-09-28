@@ -60,6 +60,7 @@ if (preview && photoInput) {
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 const USERNAME_PATTERN = /^[\w.@+-]+$/;
 const PSEUDONYM_PATTERN = /^[\w.@+-]+$/;
+const NAME_PATTERN = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[ '’-][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
 
 /**
  * Fonctions de validation explicites
@@ -71,17 +72,19 @@ function validateUsername(value) {
     if (value.length > 150) {
         return "Ce champ ne peut pas dépasser 150 caractères.";
     }
-    if (!USERNAME_PATTERN.test(value)) {
+    if (!USERNAME_PATTERN.test(value.trim())) {
         return "Ce champ ne peut contenir que des lettres, chiffres et les caractères . @ + - _.";
     }
     return null;
 }
+const EMAIL_PATTERN = /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,63}$/;
 
 function validateEmail(value, input) {
-    if (!value.trim()) {
+    const email = value.trim();
+    if (!email) {
         return "Ce champ est obligatoire.";
     }
-    if (input.validity.typeMismatch) {
+    if (input.validity.typeMismatch || !EMAIL_PATTERN.test(email)) {
         return "Saisissez une adresse e-mail valide.";
     }
     return null;
@@ -99,6 +102,19 @@ function validatePseudonym(value) {
     }
     if (!PSEUDONYM_PATTERN.test(value)) {
         return "Le pseudonyme ne peut contenir que des lettres, chiffres et les caractères . @ + - _ (sans espace).";
+    }
+    return null;
+}
+
+function validateName(value) {
+    if (value.trim() === "") {
+        return null;
+    }
+    if (value.trim().length > 150) {
+        return "Ce champ ne peut pas dépasser 150 caractères.";
+    }
+    if (!NAME_PATTERN.test(value.trim())) {
+        return "Ce champ ne doit contenir que des lettres, espaces, traits d'union ou apostrophes (pas de chiffres ni de caractères spéciaux).";
     }
     return null;
 }
@@ -137,6 +153,12 @@ const FIELD_CONFIGS = {
             param: "pseudonym",
             message: "Ce pseudonyme est déjà utilisé."
         }
+    },
+    "id_first_name": {
+        validate: validateName
+    },
+    "id_last_name": {
+        validate: validateName
     },
     "id_bio": {
         validate: validateBio
@@ -289,7 +311,7 @@ function initProfileFormValidation() {
                 if (input) {
                     if (feedback.dataset.serverError === "true") {
                         input.classList.add("is-invalid");
-                    } else if (input.id !== "id_photo") {
+                    } else if (input.id !== "id_photo" && input.value.trim() !== "") {
                         input.classList.add("is-valid");
                     }
                 }
@@ -297,6 +319,13 @@ function initProfileFormValidation() {
         }
 
         const fieldIds = Object.keys(FIELD_CONFIGS);
+        for (let i = 0; i < fieldIds.length; i++) {
+            const input = document.getElementById(fieldIds[i]);
+            if (input && input.value.trim() !== "" && !input.classList.contains("is-invalid")) {
+                validateTextField(input);
+            }
+        }
+
         for (let j = 0; j < fieldIds.length; j++) {
             const domId = fieldIds[j];
             const input = document.getElementById(domId);

@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import CustomUserCreationForm, ProfileForm, LoginForm
 from .models import CustomUser, Profile, generate_pseudonym
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 
 
 def is_ajax(request):
@@ -17,6 +17,15 @@ def is_ajax(request):
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     authentication_form = LoginForm
+
+
+class CustomLogoutView(LogoutView):
+    """Déconnecte l'utilisateur et affiche un message flash de confirmation."""
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        messages.success(request, "Vous avez été déconnecté avec succès.")
+        return response
 
 
 def signup(request):
