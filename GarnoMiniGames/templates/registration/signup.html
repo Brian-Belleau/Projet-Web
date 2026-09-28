@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Inscription - GarnoMiniGames{% endblock %}
 
@@ -7,15 +8,15 @@
     <div class="col-md-6 card-gmg p-4">
         <h2>Créer un compte</h2>
 
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">
+        <div class="alert alert-danger {% if not form.non_field_errors %}d-none{% endif %}" id="signup-non-field-errors"
+            role="alert">
             {% for error in form.non_field_errors %}
             <p class="mb-0">{{ error }}</p>
             {% endfor %}
         </div>
-        {% endif %}
 
-        <form method="post" novalidate>
+        <form method="post" novalidate id="signup-form"
+            data-bound="{% if form.is_bound %}true{% else %}false{% endif %}">
             {% csrf_token %}
 
             {% for field in form.visible_fields %}
@@ -31,18 +32,17 @@
                 <small class="form-text text-muted">{{ field.help_text }}</small>
                 {% endif %}
 
-                {% if field.errors %}
-                <div class="text-danger mt-1">
-                    {% for error in field.errors %}
-                    <small>{{ error }}</small><br>
-                    {% endfor %}
+                <div class="invalid-feedback" data-field="{{ field.id_for_label }}"
+                    data-server-error="{% if field.errors %}true{% else %}false{% endif %}">
+                    {% for error in field.errors %}{{ error }} {% endfor %}
                 </div>
-                {% endif %}
             </div>
             {% endfor %}
 
-            <button class="btn btn-primary mt-2" type="submit">
-                S'inscrire
+            <button class="btn btn-primary mt-2" type="submit" id="signup-submit-btn">
+                <span class="spinner-border spinner-border-sm me-1 d-none" id="signup-submit-spinner" role="status"
+                    aria-hidden="true"></span>
+                <span id="signup-submit-label">S'inscrire</span>
             </button>
         </form>
 
@@ -51,4 +51,8 @@
         </p>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'accounts/js/signup.js' %}"></script>
 {% endblock %}

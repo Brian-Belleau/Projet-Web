@@ -25,6 +25,12 @@
             <h2 class="h3 mb-0">{{ profile.pseudonym }}</h2>
             {% if own %}
             <p class="text-body-secondary mb-0">@{{ profile.user.username }}</p>
+            {% if profile.user.first_name or profile.user.last_name %}
+            <p class="text-body-secondary mb-0">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+            {% endif %}
+            {% if profile.user.email %}
+            <p class="text-body-secondary mb-0"><i class="bi bi-envelope me-1"></i>{{ profile.user.email }}</p>
+            {% endif %}
             {% endif %}
         </div>
 
