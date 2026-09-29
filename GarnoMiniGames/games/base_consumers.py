@@ -45,19 +45,22 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             room["task"] = asyncio.create_task(self.start_round())
 
     async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
         room = self.ROOMS.get(self.room_name)
-        if not room or self.channel_name not in room["player"]:
+        if not room or self.channel_name not in room["players"]:
             return
 
         room["players"].pop(self.channel_name, None)
         room["scores"].pop(self.channel_name, None)
+        room["round_active"] = False
+        room["button_visible"] = False
         if room["task"]:
             room["task"].cancel()
 
-        await self.channel_layer.group_send(self.group_name, {
-            "type": "opponent_left",
-        })
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
-
-        if not room["players"]:
+        if room["players"]:
+            await self.channel_layer.group_send(self.group_name, {
+                "type": "opponent_left",
+            })
+        else:
             self.ROOMS.pop(self.room_name, None)
