@@ -14,7 +14,8 @@
                 </a>
             </div>
 
-            <form method="post" enctype="multipart/form-data" novalidate>
+            <form method="post" enctype="multipart/form-data" novalidate id="profile-edit-form"
+                data-bound="{% if form.is_bound %}true{% else %}false{% endif %}">
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
@@ -43,22 +44,28 @@
                     {% if form.photo.help_text %}
                     <div class="form-text">{{ form.photo.help_text }}</div>
                     {% endif %}
-                    {% if form.photo.errors %}
-                    <div class="text-danger small mt-1">{{ form.photo.errors|join:", " }}</div>
-                    {% endif %}
+                    <div class="invalid-feedback {% if not form.photo.errors %}d-none{% endif %}" id="photo-error"
+                        data-field="{{ form.photo.id_for_label }}"
+                        data-server-error="{% if form.photo.errors %}true{% else %}false{% endif %}">
+                        {{ form.photo.errors|join:", " }}
+                    </div>
                 </div>
 
                 {% for field in form %}
                 {% if field.name != "photo" %}
                 <div class="mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                    </label>
                     {{ field }}
                     {% if field.help_text %}
                     <div class="form-text">{{ field.help_text }}</div>
                     {% endif %}
-                    {% if field.errors %}
-                    <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
-                    {% endif %}
+                    <div class="invalid-feedback" data-field="{{ field.id_for_label }}"
+                        data-server-error="{% if field.errors %}true{% else %}false{% endif %}">
+                        {{ field.errors|join:", " }}
+                    </div>
                 </div>
                 {% endif %}
                 {% endfor %}

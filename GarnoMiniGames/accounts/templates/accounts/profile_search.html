@@ -12,10 +12,38 @@
             </a>
         </div>
 
-        <form method="get" class="input-group mb-4">
-            <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Pseudonyme…"
-                aria-label="Pseudonyme">
-            <button type="submit" class="btn btn-primary">Rechercher</button>
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-12 col-md-5">
+                <label for="search-q" class="form-label small text-body-secondary mb-1">Pseudonyme</label>
+                <input type="search" id="search-q" name="q" value="{{ query }}" class="form-control"
+                    placeholder="Pseudonyme…" aria-label="Pseudonyme">
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label for="search-min-games" class="form-label small text-body-secondary mb-1">
+                    Parties jouées (min.)
+                </label>
+                <input type="number" id="search-min-games" name="min_games" value="{{ min_games }}" min="0"
+                    class="form-control" placeholder="0" aria-label="Nombre minimum de parties jouées">
+            </div>
+
+            <div class="col-6 col-md-3">
+                <label for="search-sort" class="form-label small text-body-secondary mb-1">Trier par</label>
+                <select id="search-sort" name="sort" class="form-select" aria-label="Trier les résultats">
+                    {% for choice in sort_choices %}
+                    <option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>
+                        {{ choice.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-12 col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i>
+                    <span class="d-md-none ms-1">Rechercher</span>
+                </button>
+            </div>
         </form>
 
         <div class="row g-3">
@@ -36,7 +64,11 @@
             {% empty %}
             <div class="col-12">
                 <p class="text-center text-body-secondary py-4">
-                    {% if query %}Aucun joueur trouvé pour « {{ query }} ».{% else %}Aucun joueur à afficher.{% endif %}
+                    {% if query or min_games %}
+                    Aucun joueur ne correspond à ces critères.
+                    {% else %}
+                    Aucun joueur à afficher.
+                    {% endif %}
                 </p>
             </div>
             {% endfor %}

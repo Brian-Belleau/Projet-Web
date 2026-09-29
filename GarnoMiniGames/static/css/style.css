@@ -161,9 +161,50 @@ body {
     white-space: pre-line;
 }
 
-.form-control:focus {
+/* ---------- Champs de formulaire ---------- */
+.form-control,
+.form-select {
+    background-color: var(--gmg-surface);
+    color: var(--bs-body-color);
+    border: 1px solid var(--gmg-border);
+}
+
+.form-control::placeholder {
+    color: rgba(232, 232, 240, .5);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--gmg-surface);
+    color: var(--bs-body-color);
     border-color: var(--gmg-accent);
     box-shadow: 0 0 0 .2rem rgba(124, 92, 255, .25);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: rgba(255, 255, 255, .04);
+    color: var(--bs-secondary-color);
+}
+
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--bs-body-color);
+    -webkit-box-shadow: 0 0 0 1000px var(--gmg-surface) inset;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ---------- Bouton de fermeture des messages flash ---------- */
+.btn-close-custom {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
 }
 
 .error-code {
