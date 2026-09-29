@@ -59,3 +59,13 @@ btn.addEventListener("click", () => {
   btn.style.display = "none";
   socket.send(JSON.stringify({ action: "click" }));
 });
+
+// Pour permmettre la déconnexion de façon à ce que le retour en arrière et le click ex:titre arrete aussi le jeu.
+window.addEventListener("pagehide", () => {
+  gameOver = true;
+  socket.close(1000);
+});
+
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) window.location.reload();
+});

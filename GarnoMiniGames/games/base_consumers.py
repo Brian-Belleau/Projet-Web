@@ -51,7 +51,6 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         )
 
         room = self._get_room()
-        print("CONNECT", self.channel_name[-6:], "déjà présents:", [c[-6:] for c in room["players"]])
 
         if len(room["players"]) >= self.MAX_PLAYERS:
             # Laisse le temps à une ancienne connexion (retour, rechargement) de se fermer
@@ -80,7 +79,6 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """Déconnexion des joueurs"""
-        print("DISCONNECT", self.channel_name[-6:])
         room = self._remove_player()          # d'abord, sans await
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         if room and room["players"]:          # il reste quelqu'un à prévenir
