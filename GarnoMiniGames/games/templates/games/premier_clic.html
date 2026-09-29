@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h2 id="game-status">Connexion...</h2>
+<button id="click-btn" class="btn btn-danger btn-lg">CLIQUE !</button>
+<p id="game-score"></p>
+<script src="{% static 'games/js/premier_clic.js' %}"></script>
+{% endblock %}

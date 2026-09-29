@@ -45,6 +45,7 @@ CSRF_TRUSTED_ORIGINS = (
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
