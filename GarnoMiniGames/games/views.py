@@ -1,7 +1,9 @@
-from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Jeu
+from django.contrib import messages
 
+def premier_clic(request, room_name):
+    return render(request, "games/premier_clic.html", {"room_name": room_name})
 
 def jeu_detail(request, pk):
     """Affiche le détail d'un jeu, ou refuse l'accès s'il est inactif."""

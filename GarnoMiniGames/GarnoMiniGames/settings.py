@@ -50,12 +50,14 @@ CSRF_TRUSTED_ORIGINS = (
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'accounts',
     'friends',
     'games',
@@ -93,6 +95,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GarnoMiniGames.wsgi.application'
 
+ASGI_APPLICATION = 'GarnoMiniGames.asgi.application'
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases

@@ -13,4 +13,18 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GarnoMiniGames.settings')
 
-application = get_asgi_application()
+django_asgi_app = get_asgi_application() # doit être initialisé AVANT les imports channels
+
+from channels.security.websocket import AllowedHostsOriginValidator
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+import games.routing
+
+application = ProtocolTypeRouter({
+    "http": django_asgi_app,
+    "websocket": AllowedHostsOriginValidator(AuthMiddlewareStack(
+        URLRouter(
+            games.routing.websocket_urlpatterns
+        )
+    )),
+})

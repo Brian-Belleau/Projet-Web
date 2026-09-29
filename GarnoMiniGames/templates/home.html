@@ -29,7 +29,10 @@
         </div>
     </div>
     {% empty %}
-        <p>Aucun jeu disponible pour le moment.</p>
+    <div class="col">
+        <p class="col-12">Aucun jeu disponible pour le moment.</p>
+        <a href="{% url 'premier_clic' 'TEST123'%}" class="btn btn-primary">Jeu test</a>
+    </div>
     {% endfor %}
 </div>
 
