@@ -46,7 +46,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         room = self.ROOMS.get(self.room_name)
-        if not room:
+        if not room or self.channel_name not in room["player"]:
             return
 
         room["players"].pop(self.channel_name, None)
