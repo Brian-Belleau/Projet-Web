@@ -17,15 +17,17 @@ function validateUsername(value) {
     }
     return error;
 }
+const EMAIL_PATTERN = /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.[A-Za-z]{2,63}$/;
 
 function validateEmail(value, input) {
-    let error = null;
-    if (!value.trim()) {
-        error = "Ce champ est obligatoire.";
-    } else if (input.validity.typeMismatch) {
-        error = "Saisissez une adresse e-mail valide.";
+    const email = value.trim();
+    if (!email) {
+        return "Ce champ est obligatoire.";
     }
-    return error;
+    if (input.validity.typeMismatch || !EMAIL_PATTERN.test(email)) {
+        return "Saisissez une adresse e-mail valide.";
+    }
+    return null;
 }
 
 function validatePassword1(value) {

@@ -103,13 +103,9 @@
 
 		{% if messages %}
 		{% for message in messages %}
-		<div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex justify-content-between align-items-center"
-			role="alert">
-			<span>{{ message }}</span>
-
-			<button type="button" class="btn-close-custom" onclick="this.parentElement.remove();" aria-label="Fermer">
-				&times;
-			</button>
+		<div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+			{{ message }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
 		</div>
 		{% endfor %}
 		{% endif %}

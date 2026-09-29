@@ -4,9 +4,23 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     """Utilisateur personnalisé pour l'application GarnoMiniGames."""
+    email = models.EmailField(
+        verbose_name="adresse courriel",
+        unique=True,
+        error_messages={
+            "unique": "Cette adresse courriel est déjà utilisée.",
+        },
+    )
+
     class Meta:
         verbose_name = "Utilisateur"
         verbose_name_plural = "Utilisateurs"
+
+    def save(self, *args, **kwargs):
+        """Normalise le courriel (minuscules, sans espaces) avant l'enregistrement."""
+        if self.email:
+            self.email = self.email.strip().lower()
+        super().save(*args, **kwargs)
 
 
 class Profile(models.Model):

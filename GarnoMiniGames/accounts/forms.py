@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import transaction
 from .models import CustomUser, Profile
+from .validators import valider_nom_propre
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024
 
@@ -40,7 +41,7 @@ class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
         fields = UserCreationForm.Meta.fields + ('email',)
 
     def clean_email(self):
-        email = self.cleaned_data["email"]
+        email = self.cleaned_data["email"].strip().lower()
         if CustomUser.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(
                 "Cette adresse courriel est déjà utilisée.")
@@ -60,6 +61,8 @@ class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(
         label="Prénom",
         required=False,
+        max_length=150,
+        validators=[valider_nom_propre],
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "Veuillez inscrire votre prénom",
@@ -68,6 +71,8 @@ class ProfileForm(forms.ModelForm):
     last_name = forms.CharField(
         label="Nom",
         required=False,
+        max_length=150,
+        validators=[valider_nom_propre],
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "Veuillez inscrire votre nom",
@@ -136,7 +141,7 @@ class ProfileForm(forms.ModelForm):
         return username
 
     def clean_email(self):
-        email = self.cleaned_data["email"]
+        email = self.cleaned_data["email"].strip().lower()
         if CustomUser.objects.filter(email__iexact=email).exclude(
                 pk=self.user.pk).exists():
             raise forms.ValidationError(
