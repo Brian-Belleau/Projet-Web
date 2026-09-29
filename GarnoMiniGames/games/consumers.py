@@ -10,13 +10,16 @@ class PremierClicConsumer(RoomConsumerBase):
     WINNING_SCORE = 5
 
     async def receive(self, text_data):
-        data = json.load(text_data)
+        try:
+            data = json.loads(text_data)
+        except json.JSONDecodeError:
+            return
         if data.get("action") == "click":
             await self.handle_click()
 
     async def handle_click(self):
         room = self.ROOMS.get(self.room_name)
-        if not room or not room["room_active"] or not room["button_visible"]:
+        if not room or not room["round_active"] or not room["button_visible"]:
             return
 
         room["round_active"] = False
@@ -43,10 +46,10 @@ class PremierClicConsumer(RoomConsumerBase):
             return
 
         await self.channel_layer.group_send(self.group_name, {"type": "round_waiting"})
-        await asyncio.sleep(random.uniform(2, 5))  # délai aléatoire anti-triche
+        await asyncio.sleep(random.uniform(2, 5))
 
         room = self.ROOMS.get(self.room_name)
-        if not room:  # la room a pu être fermée pendant l'attente
+        if not room:
             return
 
         room["round_active"] = True

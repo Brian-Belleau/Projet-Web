@@ -3,12 +3,16 @@ import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class RoomConsumerBase(AsyncWebsocketConsumer):
-    ROOMS = {}  # à définir dans les sous-classes pour ne pas avoir de room principale
+    ROOMS = None  # à définir dans les sous-classes pour ne pas avoir de room principale
     MAX_PLAYERS = 2
     GAME_PREFIX = "room"  # à écraser dans chaque sous-classe
 
 
     async def connect(self):
+        if self.ROOMS is None:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} doit définir son propre ROOMS = {{}}"
+            )
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.group_name = f"{self.GAME_PREFIX}_{self.room_name}"
         self.username = self.scope["user"].username if self.scope["user"].is_authenticated else f"Joueur-{self.channel_name[-4:]}"
@@ -21,7 +25,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             "task": None,
         })
 
-        if len(room["players"]) >= 2:
+        if len(room["players"]) >= self.MAX_PLAYERS:
             await self.close()
             return
 
