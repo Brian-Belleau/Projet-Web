@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Non authentifié - 401{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div class="error-code">401</div>
+    <h2 class="mt-3">Authentification requise</h2>
+    <p class="text-body-secondary">Vous devez être connecté pour accéder à cette ressource.</p>
+    <a href="{% url 'accounts:login' %}" class="btn btn-primary mt-3 me-2">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+    </a>
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-3">
+        <i class="bi bi-house me-1"></i>Retour à l'accueil
+    </a>
+</div>
+{% endblock %}
