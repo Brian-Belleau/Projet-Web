@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer mon profil{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card-gmg p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Supprimer le profil</h2>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Revenir au profil
+                </a>
+            </div>
+
+            <div class="alert alert-danger" role="alert">
+                <strong>Cette action est définitive et irréversible.</strong>
+            </div>
+
+            <p>En supprimant votre profil, les informations suivantes seront retirées de GarnoMiniGames :</p>
+            <ul>
+                <li>Votre nom d'utilisateur, votre prénom, votre nom et votre adresse courriel.</li>
+                <li>Votre pseudonyme, votre biographie et votre photo de profil.</li>
+                <li>Vos statistiques (parties jouées, victoires et défaites).</li>
+            </ul>
+            <p>Vous serez déconnecté et vous ne pourrez plus récupérer votre compte.</p>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors|join:" " }}</div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        Pour confirmer, entrez votre mot de passe <span class="text-danger">*</span>
+                    </label>
+                    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+                        class="form-control{% if form.password.errors %} is-invalid{% endif %}"
+                        autocomplete="current-password" required>
+                    <div class="invalid-feedback">{{ form.password.errors|join:", " }}</div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
