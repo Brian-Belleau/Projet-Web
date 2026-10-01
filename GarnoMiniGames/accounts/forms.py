@@ -173,3 +173,22 @@ class ProfileForm(forms.ModelForm):
                 self.user.save()
                 profile.save()
         return profile
+
+
+class ProfileDeleteForm(BootstrapMixin, forms.Form):
+    """Demande le mot de passe de l'utilisateur pour confirmer la suppression de son compte."""
+    password = forms.CharField(
+        label="Mot de passe",
+        strip=False,
+        widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}),
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+        if not self.user.check_password(password):
+            raise forms.ValidationError("Mot de passe incorrect.")
+        return password

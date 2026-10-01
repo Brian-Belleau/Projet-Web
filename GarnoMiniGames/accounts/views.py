@@ -1,10 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Case, ExpressionWrapper, F, FloatField, Value, When
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from .forms import CustomUserCreationForm, ProfileForm, LoginForm
+from .forms import CustomUserCreationForm, LoginForm, ProfileDeleteForm, ProfileForm
 from .models import CustomUser, Profile, generate_pseudonym
 from django.contrib.auth.views import LoginView, LogoutView
 
@@ -174,6 +176,27 @@ def profile_edit(request):
     else:
         form = ProfileForm(instance=user_profile)
     return render(request, "accounts/profile_edit.html", {"form": form})
+
+
+@login_required
+def profile_delete(request):
+    """Supprime définitivement le compte du joueur connecté après confirmation."""
+    if request.method == "POST":
+        form = ProfileDeleteForm(request.user, request.POST)
+        if form.is_valid():
+            user = request.user
+            with transaction.atomic():
+                user.delete()
+            logout(request)
+            messages.success(
+                request,
+                "Votre profil a été supprimé définitivement. "
+                "Toutes vos informations ont été retirées.",
+            )
+            return redirect("home")
+    else:
+        form = ProfileDeleteForm(request.user)
+    return render(request, "accounts/profile_delete.html", {"form": form})
 
 
 @login_required
