@@ -19,6 +19,7 @@ def is_ajax(request):
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     authentication_form = LoginForm
+    redirect_authenticated_user = True
 
 
 class CustomLogoutView(LogoutView):
