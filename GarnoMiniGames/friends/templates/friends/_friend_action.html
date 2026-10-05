@@ -1,0 +1,45 @@
+{# Boutons d'amitié affichés sur le profil d'un autre joueur. #}
+{% if friendship_status == "friends" %}
+<button type="button" class="btn btn-outline-success mt-3" disabled>
+    <i class="bi bi-check2-circle me-1"></i>Amis
+</button>
+<button type="button" class="btn btn-outline-danger mt-3" data-bs-toggle="modal"
+    data-bs-target="#remove-friend-modal" data-remove-url="{% url 'friends:remove' friendship.pk %}"
+    data-pseudonym="{{ profile.pseudonym }}" data-next="{{ request.path }}">
+    <i class="bi bi-person-dash me-1"></i>Retirer
+</button>
+{% elif friendship_status == "sent" %}
+<button type="button" class="btn btn-outline-secondary mt-3" disabled>
+    <i class="bi bi-hourglass-split me-1"></i>Demande envoyée
+</button>
+<form method="post" action="{% url 'friends:cancel' friendship.pk %}" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" class="btn btn-outline-danger">
+        <i class="bi bi-x-lg me-1"></i>Annuler la demande
+    </button>
+</form>
+{% elif friendship_status == "received" %}
+<form method="post" action="{% url 'friends:accept' friendship.pk %}" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-lg me-1"></i>Accepter la demande
+    </button>
+</form>
+<form method="post" action="{% url 'friends:decline' friendship.pk %}" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" class="btn btn-outline-danger">
+        <i class="bi bi-x-lg me-1"></i>Refuser
+    </button>
+</form>
+{% else %}
+<form method="post" action="{% url 'friends:send_request' profile.pseudonym %}" class="mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>Ajouter en ami
+    </button>
+</form>
+{% endif %}

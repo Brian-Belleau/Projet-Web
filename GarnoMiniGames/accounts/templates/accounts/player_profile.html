@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Profil de {{ profile.pseudonym }}{% endblock %}
 
@@ -8,4 +9,9 @@
         {% include "accounts/_profile_card.html" with own=False %}
     </div>
 </div>
+{% include "friends/_remove_friend_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'friends/js/friends.js' %}"></script>
 {% endblock %}
