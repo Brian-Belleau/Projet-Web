@@ -54,12 +54,28 @@
 						<a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown"
 							aria-expanded="false">
 							{{ user.username }}
+							{% if pending_friend_requests_count %}
+							<span class="badge rounded-pill text-bg-primary ms-1">
+								{{ pending_friend_requests_count }}
+							</span>
+							{% endif %}
 						</a>
 
 						<ul class="dropdown-menu dropdown-menu-end">
 							<li>
 								<a class="dropdown-item" href="{% url 'accounts:profile' %}">
 									Mon profil
+								</a>
+							</li>
+
+							<li>
+								<a class="dropdown-item" href="{% url 'friends:list' %}">
+									Amis
+									{% if pending_friend_requests_count %}
+									<span class="badge rounded-pill text-bg-primary ms-1">
+										{{ pending_friend_requests_count }}
+									</span>
+									{% endif %}
 								</a>
 							</li>
 
