@@ -1,0 +1,26 @@
+{# Fenêtre de confirmation pour retirer un ami (remplie par friends.js). #}
+<div class="modal fade" id="remove-friend-modal" tabindex="-1" aria-labelledby="remove-friend-title"
+    aria-hidden="true" data-bs-theme="dark">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="remove-friend-title">Retirer un ami</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    Voulez-vous vraiment retirer <strong id="remove-friend-name"></strong> de votre liste d'amis ?
+                    Cette personne ne sera pas avertie.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-person-dash me-1"></i>Retirer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

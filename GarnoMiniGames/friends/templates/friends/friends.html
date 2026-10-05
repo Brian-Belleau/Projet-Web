@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mes amis{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0"><i class="bi bi-people me-2"></i>Mes amis</h2>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse"
+                data-bs-target="#add-friend-panel" aria-expanded="false" aria-controls="add-friend-panel">
+                <i class="bi bi-person-plus me-1"></i>Ajouter un ami
+            </button>
+        </div>
+
+        <div class="collapse mb-4" id="add-friend-panel">
+            <div class="card-gmg p-3">
+                {% csrf_token %}
+                <label for="friend-search" class="form-label small text-body-secondary mb-1">
+                    Rechercher un joueur
+                </label>
+                <input type="search" id="friend-search" class="form-control" placeholder="Pseudonyme…"
+                    autocomplete="off" data-search-url="{% url 'friends:search' %}">
+                <div id="friend-search-status" class="small text-body-secondary mt-2" role="status"
+                    aria-live="polite"></div>
+                <div id="friend-suggestions" class="d-grid gap-2 mt-2"></div>
+            </div>
+        </div>
+
+        {% if received %}
+        <section id="friend-requests" class="mb-4">
+            <h3 class="h6 text-uppercase text-body-secondary mb-2">
+                Demandes reçues
+                <span class="badge rounded-pill text-bg-primary ms-1">{{ received|length }}</span>
+            </h3>
+            <div class="d-grid gap-2">
+                {% for request_item in received %}
+                <div class="card-gmg d-flex flex-wrap align-items-center gap-3 p-3">
+                    {% include "accounts/_avatar.html" with profile=request_item.from_user.profile size="sm" %}
+                    <a href="{% url 'accounts:player_profile' request_item.from_user.profile.pseudonym %}"
+                        class="fw-semibold text-decoration-none text-body flex-grow-1">
+                        {{ request_item.from_user.profile.pseudonym }}
+                    </a>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{% url 'friends:accept' request_item.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-check-lg me-1"></i>Accepter
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'friends:decline' request_item.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-x-lg me-1"></i>Refuser
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="mb-4">
+            <h3 class="h6 text-uppercase text-body-secondary mb-2">
+                Amis
+                <span class="badge rounded-pill text-bg-secondary ms-1">{{ friends|length }}</span>
+            </h3>
+            <div class="d-grid gap-2">
+                {% for item in friends %}
+                <div class="card-gmg d-flex align-items-center gap-3 p-3">
+                    {% include "accounts/_avatar.html" with profile=item.profile size="sm" %}
+                    <div class="flex-grow-1">
+                        <a href="{% url 'accounts:player_profile' item.profile.pseudonym %}"
+                            class="fw-semibold text-decoration-none text-body">
+                            {{ item.profile.pseudonym }}
+                        </a>
+                        <div class="small text-body-secondary">
+                            {{ item.profile.games_played }} partie{% if item.profile.games_played > 1 %}s{% endif %}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#remove-friend-modal" data-remove-url="{% url 'friends:remove' item.friendship.pk %}"
+                        data-pseudonym="{{ item.profile.pseudonym }}">
+                        <i class="bi bi-person-dash me-1"></i>Retirer
+                    </button>
+                </div>
+                {% empty %}
+                <p class="text-center text-body-secondary py-4 mb-0">
+                    Vous n'avez pas encore d'amis. Cliquez sur « Ajouter un ami » pour en trouver.
+                </p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if sent %}
+        <section class="mb-4">
+            <h3 class="h6 text-uppercase text-body-secondary mb-2">
+                Demandes envoyées
+                <span class="badge rounded-pill text-bg-secondary ms-1">{{ sent|length }}</span>
+            </h3>
+            <div class="d-grid gap-2">
+                {% for request_item in sent %}
+                <div class="card-gmg d-flex flex-wrap align-items-center gap-3 p-3">
+                    {% include "accounts/_avatar.html" with profile=request_item.to_user.profile size="sm" %}
+                    <div class="flex-grow-1">
+                        <a href="{% url 'accounts:player_profile' request_item.to_user.profile.pseudonym %}"
+                            class="fw-semibold text-decoration-none text-body">
+                            {{ request_item.to_user.profile.pseudonym }}
+                        </a>
+                        <div class="small text-body-secondary">En attente de réponse</div>
+                    </div>
+                    <form method="post" action="{% url 'friends:cancel' request_item.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-lg me-1"></i>Annuler la demande
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</div>
+
+{% include "friends/_remove_friend_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'friends/js/friends.js' %}"></script>
+{% endblock %}
