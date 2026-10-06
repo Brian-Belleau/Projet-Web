@@ -4,6 +4,17 @@ from django.db.models import F, Q
 from django.db.models.functions import Greatest, Least
 
 
+class FriendshipManager(models.Manager):
+    def status_between(self, user, other):
+        """Retourne (statut, lien) entre deux utilisateurs."""
+        friendship = self.filter(
+            Q(from_user=user, to_user=other) | Q(from_user=other, to_user=user)
+        ).first()
+        if friendship is None:
+            return Friendship.NONE, None
+        return friendship.status_for(user), friendship
+
+
 class Friendship(models.Model):
     PENDING = "pending"
     ACCEPTED = "accepted"
@@ -32,6 +43,8 @@ class Friendship(models.Model):
         default=PENDING,
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = FriendshipManager()
 
     class Meta:
         ordering = ["-created_at"]
