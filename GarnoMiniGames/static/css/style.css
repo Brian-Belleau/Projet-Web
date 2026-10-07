@@ -2,217 +2,229 @@
    GarnoMiniGames
    ========================================================== */
 :root {
-    --gmg-accent: #7c5cff;
-    --gmg-accent-2: #00d1b2;
-    --gmg-surface: #15151f;
-    --gmg-border: rgba(255, 255, 255, .08);
-    --bs-primary: var(--gmg-accent);
-    --bs-primary-rgb: 124, 92, 255;
-    --bs-link-color: #a99bff;
-    --bs-link-hover-color: #cfc7ff;
+  --gmg-accent: #7c5cff;
+  --gmg-accent-2: #00d1b2;
+  --gmg-surface: #15151f;
+  --gmg-border: rgba(255, 255, 255, 0.08);
+  --bs-primary: var(--gmg-accent);
+  --bs-primary-rgb: 124, 92, 255;
+  --bs-link-color: #a99bff;
+  --bs-link-hover-color: #cfc7ff;
 
-    /* Couleurs de texte pour thème sombre */
-    --bs-body-color: #e8e8f0;
-    --bs-body-color-rgb: 232, 232, 240;
-    --bs-secondary-color: rgba(232, 232, 240, .65);
-    --bs-heading-color: #ffffff;
-    --bs-card-color: #e8e8f0;
-    --bs-card-cap-color: #ffffff;
+  /* Couleurs de texte pour thème sombre */
+  --bs-body-color: #e8e8f0;
+  --bs-body-color-rgb: 232, 232, 240;
+  --bs-secondary-color: rgba(232, 232, 240, 0.65);
+  --bs-heading-color: #ffffff;
+  --bs-card-color: #e8e8f0;
+  --bs-card-cap-color: #ffffff;
 }
 
 /* ---------- Base ---------- */
 header {
-    padding: 2rem;
-    text-align: center;
-    background-color: #818f9e;
-    color: rgb(255, 35, 35);
+  padding: 2rem;
+  text-align: center;
+  background-color: #818f9e;
+  color: rgb(255, 35, 35);
 }
 
 body {
-    min-height: 100vh;
-    color: #e8e8f0;
-    background:
-        radial-gradient(circle at 15% 0%, rgba(124, 92, 255, .18), transparent 40%),
-        radial-gradient(circle at 90% 20%, rgba(0, 209, 178, .10), transparent 35%),
-        #0b0b12;
-    background-attachment: fixed;
+  min-height: 100vh;
+  color: #e8e8f0;
+  background:
+    radial-gradient(
+      circle at 15% 0%,
+      rgba(124, 92, 255, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(circle at 90% 20%, rgba(0, 209, 178, 0.1), transparent 35%),
+    #0b0b12;
+  background-attachment: fixed;
 }
 
 .btn-primary {
-    --bs-btn-bg: var(--gmg-accent);
-    --bs-btn-border-color: var(--gmg-accent);
-    --bs-btn-hover-bg: #6a49f0;
-    --bs-btn-hover-border-color: #6a49f0;
-    --bs-btn-active-bg: #5b3ce0;
-    --bs-btn-active-border-color: #5b3ce0;
+  --bs-btn-bg: var(--gmg-accent);
+  --bs-btn-border-color: var(--gmg-accent);
+  --bs-btn-hover-bg: #6a49f0;
+  --bs-btn-hover-border-color: #6a49f0;
+  --bs-btn-active-bg: #5b3ce0;
+  --bs-btn-active-border-color: #5b3ce0;
 }
 
 /* ---------- Cartes ---------- */
 .card-gmg {
-    background: var(--gmg-surface);
-    border: 1px solid var(--gmg-border);
-    border-radius: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-    overflow: hidden;
+  background: var(--gmg-surface);
+  border: 1px solid var(--gmg-border);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
 }
 
 .card-gmg-banner {
-    height: 90px;
-    background: linear-gradient(120deg, var(--gmg-accent), var(--gmg-accent-2));
+  height: 90px;
+  background: linear-gradient(120deg, var(--gmg-accent), var(--gmg-accent-2));
 }
 
 .card-hover {
-    transition: transform .15s ease, border-color .15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .card-hover:hover {
-    transform: translateY(-3px);
-    border-color: var(--gmg-accent);
+  transform: translateY(-3px);
+  border-color: var(--gmg-accent);
 }
 
 /* ---------- Avatar ---------- */
 .avatar {
-    width: 112px;
-    height: 112px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--gmg-surface);
-    background: linear-gradient(135deg, var(--gmg-accent), var(--gmg-accent-2));
-    color: #fff;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--gmg-surface);
+  background: linear-gradient(135deg, var(--gmg-accent), var(--gmg-accent-2));
+  color: #fff;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-lg {
-    font-size: 2.75rem;
+  font-size: 2.75rem;
 }
 
 .avatar-sm {
-    width: 48px;
-    height: 48px;
-    font-size: 1.2rem;
-    border-width: 2px;
+  width: 48px;
+  height: 48px;
+  font-size: 1.2rem;
+  border-width: 2px;
 }
 
 .avatar-overlap {
-    margin-top: -56px;
+  margin-top: -56px;
 }
 
 /* ---------- Statistiques ---------- */
 .stat-tile {
-    background: rgba(255, 255, 255, .03);
-    border: 1px solid var(--gmg-border);
-    border-radius: .75rem;
-    padding: 1rem .5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--gmg-border);
+  border-radius: 0.75rem;
+  padding: 1rem 0.5rem;
 }
 
 .stat-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.1;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .stat-label {
-    font-size: .75rem;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
 }
 
 /* ---------- Barre de progression ---------- */
 .progress-win {
-    width: 100%;
-    height: 14px;
-    border: 0;
-    border-radius: 999px;
-    overflow: hidden;
-    appearance: none;
-    -webkit-appearance: none;
-    background: rgba(255, 255, 255, .08);
+  width: 100%;
+  height: 14px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .progress-win::-webkit-progress-bar {
-    background: rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .progress-win::-webkit-progress-value {
-    background: linear-gradient(90deg, var(--gmg-accent), var(--gmg-accent-2));
-    border-radius: 999px;
+  background: linear-gradient(90deg, var(--gmg-accent), var(--gmg-accent-2));
+  border-radius: 999px;
 }
 
 .progress-win::-moz-progress-bar {
-    background: linear-gradient(90deg, var(--gmg-accent), var(--gmg-accent-2));
-    border-radius: 999px;
+  background: linear-gradient(90deg, var(--gmg-accent), var(--gmg-accent-2));
+  border-radius: 999px;
 }
 
 /* ---------- Autre ---------- */
 
 .jeu-image {
-    width: 100%;
-    max-width: 300px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .bio-text {
-    white-space: pre-line;
+  white-space: pre-line;
 }
 
 /* ---------- Champs de formulaire ---------- */
 .form-control,
 .form-select {
-    background-color: var(--gmg-surface);
-    color: var(--bs-body-color);
-    border: 1px solid var(--gmg-border);
+  background-color: var(--gmg-surface);
+  color: var(--bs-body-color);
+  border: 1px solid var(--gmg-border);
 }
 
 .form-control::placeholder {
-    color: rgba(232, 232, 240, .5);
+  color: rgba(232, 232, 240, 0.5);
 }
 
 .form-control:focus,
 .form-select:focus {
-    background-color: var(--gmg-surface);
-    color: var(--bs-body-color);
-    border-color: var(--gmg-accent);
-    box-shadow: 0 0 0 .2rem rgba(124, 92, 255, .25);
+  background-color: var(--gmg-surface);
+  color: var(--bs-body-color);
+  border-color: var(--gmg-accent);
+  box-shadow: 0 0 0 0.2rem rgba(124, 92, 255, 0.25);
 }
 
 .form-control:disabled,
 .form-control[readonly] {
-    background-color: rgba(255, 255, 255, .04);
-    color: var(--bs-secondary-color);
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--bs-secondary-color);
 }
 
 .form-control:-webkit-autofill,
 .form-control:-webkit-autofill:hover,
 .form-control:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--bs-body-color);
-    -webkit-box-shadow: 0 0 0 1000px var(--gmg-surface) inset;
-    transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: var(--bs-body-color);
+  -webkit-box-shadow: 0 0 0 1000px var(--gmg-surface) inset;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .error-code {
-    font-size: 6rem;
-    font-weight: 800;
-    line-height: 1;
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .footer-gmg {
-    border-top: 1px solid var(--gmg-border);
-    color: var(--bs-secondary-color);
+  border-top: 1px solid var(--gmg-border);
+  color: var(--bs-secondary-color);
 }
 
 /* ---------- Dropdown (menu profil/déconnexion) ---------- */
 .dropdown-menu {
-    --bs-dropdown-bg: var(--gmg-surface);
-    --bs-dropdown-color: #e8e8f0;
-    --bs-dropdown-link-color: #e8e8f0;
-    --bs-dropdown-link-hover-color: #ffffff;
-    --bs-dropdown-link-hover-bg: rgba(255, 255, 255, .08);
-    --bs-dropdown-border-color: var(--gmg-border);
-    --bs-dropdown-divider-bg: var(--gmg-border);
+  --bs-dropdown-bg: var(--gmg-surface);
+  --bs-dropdown-color: #e8e8f0;
+  --bs-dropdown-link-color: #e8e8f0;
+  --bs-dropdown-link-hover-color: #ffffff;
+  --bs-dropdown-link-hover-bg: rgba(255, 255, 255, 0.08);
+  --bs-dropdown-border-color: var(--gmg-border);
+  --bs-dropdown-divider-bg: var(--gmg-border);
+}
+
+/* ---------- Fenêtre modale ---------- */
+.modal {
+  --bs-modal-bg: var(--gmg-surface);
+  --bs-modal-border-color: var(--gmg-border);
 }

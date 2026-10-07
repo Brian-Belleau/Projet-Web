@@ -18,9 +18,12 @@
                 </a>
             </div>
             {% else %}
-            <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary mt-3">
-                <i class="bi bi-arrow-left me-1"></i>Retour à la recherche
-            </a>
+            <div class="d-flex flex-wrap gap-2">
+                {% include "friends/_friend_action.html" %}
+                <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary mt-3">
+                    <i class="bi bi-arrow-left me-1"></i>Retour à la recherche
+                </a>
+            </div>
             {% endif %}
         </div>
 

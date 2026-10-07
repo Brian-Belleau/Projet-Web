@@ -28,6 +28,7 @@ urlpatterns = [
     path('games/', include('games.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
+    path('amis/', include('friends.urls')),
     re_path(
         r'^media/(?P<path>.*)$',
         serve,

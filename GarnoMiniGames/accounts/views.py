@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from .forms import CustomUserCreationForm, LoginForm, ProfileDeleteForm, ProfileForm
 from .models import CustomUser, Profile, generate_pseudonym
+from friends.models import Friendship
 from django.contrib.auth.views import LoginView, LogoutView
 
 
@@ -19,6 +20,7 @@ def is_ajax(request):
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     authentication_form = LoginForm
+    redirect_authenticated_user = True
 
 
 class CustomLogoutView(LogoutView):
@@ -211,8 +213,14 @@ def player_profile(request, pseudonym):
         return redirect("accounts:search_profiles")
     if profile_data.user_id == request.user.pk:
         return redirect("accounts:profile")
-    return render(
-        request, "accounts/player_profile.html", {"profile": profile_data})
+    friendship_status, friendship = Friendship.objects.status_between(
+        request.user, profile_data.user)
+    context = {
+        "profile": profile_data,
+        "friendship_status": friendship_status,
+        "friendship": friendship,
+    }
+    return render(request, "accounts/player_profile.html", context)
 
 
 def check_username(request):
