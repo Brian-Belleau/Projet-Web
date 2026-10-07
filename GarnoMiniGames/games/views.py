@@ -1,14 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 import uuid
-import re
 
 from .models import Jeu
 from .consumers import PremierClicConsumer
 from .forms import RejoindreJeuForm
+from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
 
 
 def premier_clic(request, room_name):
+    get_identity(request.user, request.session, create=True)
     return render(request, "games/premier_clic.html", {"room_name": room_name})
 
 
@@ -41,6 +42,11 @@ def lancer_jeu(request, slug):
         messages.error(request, "Ce jeu n'est pas disponible actuellement.")
         return redirect('home')
 
+    identity = get_identity(request.user, request.session, create=True)
+    if identity in ACTIVE_PLAYERS:
+        messages.error(request, MESSAGES["already_in_game"])
+        return redirect('jeu_detail', slug=jeu.slug)
+
     room_name = uuid.uuid4().hex[:6].upper()
 
     if jeu.slug == "premier-clic":
@@ -66,17 +72,25 @@ def rejoindre_jeu(request, slug):
 
         if jeu.slug == "premier-clic":
             room = PremierClicConsumer.ROOMS.get(room_name)
+            identity = get_identity(
+                request.user, request.session, create=True
+            )
+            refus = check_join(
+                identity,
+                request.user.is_authenticated,
+                PremierClicConsumer.GAME_PREFIX,
+                room_name,
+                room,
+                PremierClicConsumer.MAX_PLAYERS,
+            )
 
             if room is None:
                 form.add_error(
                     "room_name",
                     "Cette partie n'existe pas."
                 )
-            elif len(room["players"]) >= PremierClicConsumer.MAX_PLAYERS:
-                form.add_error(
-                    "room_name",
-                    "Cette partie est déjà pleine."
-                )
+            elif refus:
+                form.add_error("room_name", MESSAGES[refus])
             else:
                 return redirect(
                     'premier_clic',

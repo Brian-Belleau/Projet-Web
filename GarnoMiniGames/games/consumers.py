@@ -8,6 +8,7 @@ from django.db.models import F
 
 from .base_consumers import RoomConsumerBase
 
+
 @sync_to_async
 def update_game_stats(winner_id, loser_id):
     """Met à jour les statistiques des deux joueurs après une victoire."""
@@ -27,12 +28,15 @@ def update_game_stats(winner_id, loser_id):
                 losses=F("losses") + 1,
             )
 
+
 class PremierClicConsumer(RoomConsumerBase):
     ROOMS = {}
     GAME_PREFIX = "premier_clic"
     WINNING_SCORE = 5
 
     async def receive(self, text_data):
+        if not self.registered:
+            return
         try:
             data = json.loads(text_data)
         except json.JSONDecodeError:
