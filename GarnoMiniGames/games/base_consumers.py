@@ -12,6 +12,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         """Regarde information sur la room"""
         return self.ROOMS.setdefault(self.room_name, {
             "players": {},
+            "user_ids": {},
             "scores": {},
             "button_visible": False,
             "round_active": False,
@@ -24,6 +25,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         if not room or self.channel_name not in room["players"]:
             return None
         room["players"].pop(self.channel_name, None)
+        room["user_ids"].pop(self.channel_name, None)
         room["scores"].pop(self.channel_name, None)
         for ch in room["scores"]:
             room["scores"][ch] = 0
@@ -61,6 +63,12 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
                 return
 
         room["players"][self.channel_name] = self.username
+
+        if self.scope["user"].is_authenticated:
+            room["user_ids"][self.channel_name] = self.scope["user"].pk
+        else:
+            room["user_ids"][self.channel_name] = None
+
         room["scores"].setdefault(self.channel_name, 0)
 
         try:

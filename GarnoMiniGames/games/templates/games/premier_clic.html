@@ -1,8 +1,75 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
-<h2 id="game-status">Connexion...</h2>
-<button id="click-btn" class="btn btn-danger btn-lg">CLIQUE !</button>
-<p id="game-score"></p>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+
+        <div class="card bg-dark text-light border-secondary shadow text-center">
+            <div class="card-body p-4 p-md-5">
+
+                <h1 class="mb-4">Premier Clic</h1>
+
+                <div class="mb-4">
+                    <p class="text-secondary mb-2">
+                        Code de la partie
+                    </p>
+
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <strong id="room-code" class="fs-4">
+                            {{ room_name }}
+                        </strong>
+
+                        <button id="copy-room-code" class="btn btn-secondary btn-sm">
+                            Copier
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-secondary">
+
+                <h3 id="game-status" class="mt-4">
+                    Connexion...
+                </h3>
+
+                <p id="game-score" class="text-secondary mt-3"></p>
+
+                <button id="click-btn" class="btn btn-danger btn-lg px-5 py-3 mt-3">
+                    CLIQUE !
+                </button>
+
+                <div id="game-result" class="card bg-dark text-light border-secondary shadow mt-4 d-none">
+                    <div class="card-body p-4">
+                        <h2 id="result-title" class="mb-3"></h2>
+
+                        <p class="text-secondary mb-2">
+                            Retour à l'accueil dans
+                        </p>
+
+                        <div id="countdown" class="display-1 fw-bold">
+                            5
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="btn btn-outline-light">
+                ← Quitter la partie
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const roomName = "{{ room_name }}";
+</script>
+
 <script src="{% static 'games/js/premier_clic.js' %}"></script>
+
 {% endblock %}
