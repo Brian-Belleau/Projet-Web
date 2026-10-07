@@ -13,6 +13,9 @@
                 <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
                     <i class="bi bi-pencil-square me-1"></i>Modifier le profil
                 </a>
+                <a href="{% url 'accounts:profile_delete' %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>Supprimer mon profil
+                </a>
             </div>
             {% else %}
             <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary mt-3">
