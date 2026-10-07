@@ -3,8 +3,105 @@
 {% block title %}{{ jeu.nom }} - GarnoMiniGames{% endblock %}
 
 {% block content %}
-<!-- A compléter - étape intermédiaire avant de lancer le jeu -->
-<h1>{{ jeu.nom }}</h1>
-<p>{{ jeu.description }}</p>
-<p><a href="{% url 'home' %}">Retour à l'accueil</a></p>
+
+<a href="{% url 'home' %}" class="btn btn-outline-light mb-4">
+    ← Retour à l'accueil
+</a>
+
+<div class="card bg-dark text-light border-secondary shadow text-center mb-4">
+    <div class="card-body p-4 p-md-5">
+
+    {% if jeu.image %}
+    <img src="{{ jeu.image.url }}"
+         alt="{{ jeu.nom }}"
+         class="jeu-detail-image rounded mb-4">
+    {% endif %}
+
+    <h1 class="mb-3">{{ jeu.nom }}</h1>
+
+    <p class="text-secondary mb-0">
+        {{ jeu.description }}
+    </p>
+
+</div>
+
+</div>
+
+<div class="row g-4">
+
+<div class="col-md-6">
+    <div class="card h-100 bg-dark text-light border-secondary shadow">
+        <div class="card-body text-center p-4">
+
+            <h3 class="card-title">Créer une partie</h3>
+
+            <p class="card-text text-secondary">
+                Crée une nouvelle partie et partage le code
+                avec ton adversaire.
+            </p>
+
+            <a href="{% url 'lancer_jeu' jeu.slug %}"
+               class="btn btn-primary w-100">
+                Créer la partie
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<div id="rejoindre-form" class="col-md-6">
+    <div class="card h-100 bg-dark text-light border-secondary shadow">
+        <div class="card-body text-center p-4">
+
+            <h3 class="card-title">Rejoindre une partie</h3>
+
+            <p class="card-text text-secondary">
+                Entre le code de la partie que ton adversaire
+                t'a partagé.
+            </p>
+
+            <form method="post"
+                  action="{% url 'rejoindre_jeu' jeu.slug %}"
+                  novalidate>
+
+                {% csrf_token %}
+
+                <div class="mb-3 text-start">
+                    <label for="{{ form.room_name.id_for_label }}"
+                           class="form-label">
+                        Code de la partie
+                    </label>
+
+                    {{ form.room_name }}
+
+                    {% if form.room_name.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.room_name.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-secondary w-100">
+                    Rejoindre la partie
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% if form.errors %}
+
+<script>
+    document.getElementById("rejoindre-form").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+</script>
+
+{% endif %}
+
 {% endblock %}

@@ -5,6 +5,7 @@ class Jeu(models.Model):
     """Représente un jeu disponible sur GarnoMiniGames."""
 
     nom = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
     description = models.TextField()
     image = models.ImageField(upload_to='games/', blank=True, null=True)
     date_creation = models.DateTimeField(auto_now_add=True)
