@@ -29,6 +29,19 @@ def update_game_stats(winner_id, loser_id):
             )
 
 
+@sync_to_async
+def update_draw_stats(user_ids):
+    """Compte une partie jouée pour chaque joueur connecté (égalité)."""
+
+    from accounts.models import Profile
+
+    ids = [uid for uid in user_ids if uid is not None]
+    if ids:
+        Profile.objects.filter(user_id__in=ids).update(
+            games_played=F("games_played") + 1,
+        )
+
+
 class PremierClicConsumer(RoomConsumerBase):
     ROOMS = {}
     GAME_PREFIX = "premier_clic"
