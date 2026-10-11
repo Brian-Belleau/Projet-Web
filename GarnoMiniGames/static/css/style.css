@@ -236,3 +236,37 @@ body {
   --bs-modal-bg: var(--gmg-surface);
   --bs-modal-border-color: var(--gmg-border);
 }
+
+/* ---------- Tic-Tac-Toe ---------- */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.ttt-cell {
+  aspect-ratio: 1 / 1;
+  font-size: 3rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.ttt-cell:disabled {
+  opacity: 1;
+}
+
+.ttt-x {
+  color: var(--gmg-accent);
+  border-color: var(--gmg-accent);
+}
+
+.ttt-o {
+  color: var(--gmg-accent-2);
+  border-color: var(--gmg-accent-2);
+}
+
+.ttt-cell-win {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0.75rem rgba(124, 92, 255, 0.6);
+}
