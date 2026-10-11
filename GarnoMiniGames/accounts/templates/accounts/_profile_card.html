@@ -52,19 +52,25 @@
         </section>
 
         <section class="row g-3 text-center mt-2">
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value">{{ profile.games_played }}</div>
                     <div class="stat-label">Parties</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value text-success">{{ profile.wins }}</div>
                     <div class="stat-label">Victoires</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-tile">
+                    <div class="stat-value text-warning">{{ profile.draws }}</div>
+                    <div class="stat-label">Égalités</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value text-danger">{{ profile.losses }}</div>
                     <div class="stat-label">Défaites</div>

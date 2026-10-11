@@ -31,7 +31,7 @@ def update_game_stats(winner_id, loser_id):
 
 @sync_to_async
 def update_draw_stats(user_ids):
-    """Compte une partie jouée pour chaque joueur connecté (égalité)."""
+    """Compte une partie jouée et une égalité pour chaque joueur connecté."""
 
     from accounts.models import Profile
 
@@ -39,6 +39,7 @@ def update_draw_stats(user_ids):
     if ids:
         Profile.objects.filter(user_id__in=ids).update(
             games_played=F("games_played") + 1,
+            draws=F("draws") + 1,
         )
 
 

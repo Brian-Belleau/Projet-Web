@@ -126,7 +126,7 @@ def search_profiles(request):
         win_rate_calc=Case(
             When(games_played=0, then=Value(0.0)),
             default=ExpressionWrapper(
-                F("wins") * 100.0 / F("games_played"),
+                (F("wins") + F("draws") * 0.5) * 100.0 / F("games_played"),
                 output_field=FloatField(),
             ),
             output_field=FloatField(),
