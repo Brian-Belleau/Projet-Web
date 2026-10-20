@@ -3,7 +3,7 @@ from django.contrib import messages
 import uuid
 
 from .models import Jeu
-from .consumers import PremierClicConsumer, TicTacToeConsumer
+from .consumers import PremierClicConsumer, TicTacToeConsumer, Connect4Consumer
 from .forms import RejoindreJeuForm
 from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
 
@@ -12,6 +12,7 @@ from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
 JEUX_MULTIJOUEUR = {
     "premier-clic": ("premier_clic", PremierClicConsumer),
     "tic-tac-toe": ("tic_tac_toe", TicTacToeConsumer),
+    "connect-4": ("connect_4", Connect4Consumer),
 }
 
 
@@ -24,6 +25,14 @@ def tic_tac_toe(request, room_name):
     get_identity(request.user, request.session, create=True)
     return render(request, "games/tic_tac_toe.html", {"room_name": room_name})
 
+def connect_4(request, room_name):
+    """Affiche le plateau de Puissance 4."""
+    get_identity(request.user, request.session, create=True)
+    return render(
+        request,
+        "games/connect_4.html",
+        {"room_name": room_name},
+    )
 
 def jeu_detail(request, slug):
     """Affiche le détail d'un jeu, ou refuse l'accès s'il est inactif."""

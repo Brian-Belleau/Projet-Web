@@ -1,0 +1,79 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Puissance 4 - GarnoMiniGames{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card bg-dark text-light border-secondary shadow text-center">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="mb-4">Puissance 4</h1>
+
+                <div class="mb-4">
+                    <p class="text-secondary mb-2">Code de la partie</p>
+
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <strong id="room-code" class="fs-4">{{ room_name }}</strong>
+                        <button id="copy-room-code" class="btn btn-secondary btn-sm">
+                            Copier
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-secondary">
+
+                <h3 id="game-status" class="mt-4">Connexion...</h3>
+                <p id="game-info" class="text-secondary mt-3"></p>
+
+                <div id="board" class="mt-3 d-none">
+                    <div id="column-controls" class="connect4-columns mb-2">
+                        {% for col in "0123456" %}
+                            <button
+                                type="button"
+                                class="btn btn-outline-light connect4-column-btn"
+                                data-column="{{ forloop.counter0 }}"
+                                aria-label="Jouer dans la colonne {{ forloop.counter }}">
+                                ↓
+                            </button>
+                        {% endfor %}
+                    </div>
+
+                    <div id="connect4-grid" class="connect4-grid mx-auto">
+                        {% for row in "012345" %}
+                            {% for col in "0123456" %}
+                                <div
+                                    class="connect4-cell"
+                                    data-row="{{ forloop.parentloop.counter0 }}"
+                                    data-column="{{ forloop.counter0 }}">
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="game-result"
+                     class="card bg-dark text-light border-secondary shadow mt-4 d-none">
+                    <div class="card-body p-4">
+                        <h2 id="result-title" class="mb-3"></h2>
+                        <p class="text-secondary mb-2">Retour à l'accueil dans</p>
+                        <div id="countdown" class="display-1 fw-bold">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="btn btn-outline-light">
+                ← Quitter la partie
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const roomName = "{{ room_name }}";
+</script>
+<script src="{% static 'games/js/connect_4.js' %}"></script>
+{% endblock %}
