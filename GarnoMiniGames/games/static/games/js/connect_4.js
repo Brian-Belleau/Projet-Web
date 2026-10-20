@@ -1,6 +1,8 @@
+"use strict";
 
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
-    `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/games/connect-4/${roomName}/`
+  `${protocol}://${window.location.host}/ws/games/connect-4/${roomName}/`,
 );
 
 const gameStatus = document.getElementById("game-status");
