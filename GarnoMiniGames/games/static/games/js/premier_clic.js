@@ -1,8 +1,8 @@
-'use strict'
+"use strict";
 
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
-  `${protocol}://${window.location.host}/ws/games/premier-clic/${roomName}/`
+  `${protocol}://${window.location.host}/ws/games/premier-clic/${roomName}/`,
 );
 
 const statusEl = document.getElementById("game-status");
@@ -62,6 +62,12 @@ socket.onmessage = (e) => {
 
       break;
     }
+    case "rejected":
+      gameOver = true;
+      btn.style.display = "none";
+      statusEl.textContent = data.message;
+      statusEl.classList.add("text-danger");
+      break;
     case "opponent_left": {
       btn.style.display = "none";
       gameOver = true;
@@ -90,7 +96,8 @@ socket.onmessage = (e) => {
 
 socket.onclose = () => {
   if (gameOver) return;
-  statusEl.textContent = "Connexion fermée (salle pleine ou serveur indisponible).";
+  statusEl.textContent =
+    "Connexion fermée (salle pleine ou serveur indisponible).";
   btn.style.display = "none";
 };
 
