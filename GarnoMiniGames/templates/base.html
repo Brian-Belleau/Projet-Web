@@ -22,8 +22,10 @@
 		<div class="container">
 
 			<!-- Nom du site -->
-			<a class="navbar-brand fw-bold" href="{% url 'home' %}">
-				GarnoMiniGames
+			<a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+				<img src="{% static 'favicon/favicon.ico' %}" alt="Logo" width="32" height="32"
+					class="d-inline-block align-middle me-1">
+				<span class="gaming-title">arnoMiniGames</span>
 			</a>
 
 			<!-- Bouton mobile -->
