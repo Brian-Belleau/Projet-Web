@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Classement - GarnoMiniGames{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0"></i>Classement</h1>
+            <span class="small text-body-secondary">
+                {{ total_players }} joueurs classés
+            </span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="card-gmg p-3 mb-4">
+            {% if my_profile %}
+            <div class="d-flex align-items-center gap-3">
+                <span class="rank-badge rank-me">#{{ my_position }}</span>
+                {% include "accounts/_avatar.html" with profile=my_profile size="sm" %}
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">Votre position</div>
+                    <div class="small text-body-secondary">
+                        {{ my_profile.wins }} victoire{{ my_profile.wins|pluralize }} ·
+                        {{ my_profile.losses }} défaite{{ my_profile.losses|pluralize }}
+                    </div>
+                </div>
+                <span class="badge text-bg-primary">{{ my_profile.win_rate }}%</span>
+            </div>
+            {% else %}
+            <p class="mb-0 text-body-secondary">
+                <i class="bi bi-info-circle me-1"></i>
+                Jouez au moins une partie pour apparaître au classement.
+            </p>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle me-1"></i>
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="alert-link">Connectez-vous</a>
+            ou
+            <a href="{% url 'accounts:signup' %}" class="alert-link">créez un compte</a>
+            pour consulter le profil des joueurs et interagir avec eux.
+        </div>
+        {% endif %}
+
+        <div class="d-flex flex-column gap-2">
+            {% for p in page_obj %}
+            {% with position=forloop.counter0|add:page_obj.start_index %}
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'accounts:player_profile' p.pseudonym %}"
+                class="card-gmg card-hover ranking-row d-flex align-items-center gap-3 p-3 text-decoration-none text-body{% if p.user_id == user.pk %} ranking-row-me{% endif %}">
+            {% else %}
+            <div class="card-gmg ranking-row d-flex align-items-center gap-3 p-3">
+            {% endif %}
+
+                <span class="rank-badge {% if position == 1 %}rank-1{% elif position == 2 %}rank-2{% elif position == 3 %}rank-3{% endif %}">
+                    {{ position }}
+                </span>
+
+                {% include "accounts/_avatar.html" with profile=p size="sm" %}
+
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">
+                        {{ p.pseudonym }}
+                        {% if p.user_id == user.pk %}<span class="badge text-bg-secondary ms-1">Vous</span>{% endif %}
+                    </div>
+                    <div class="small text-body-secondary">
+                        {{ p.games_played }} partie{{ p.games_played|pluralize }} ·
+                        <span class="text-success">{{ p.wins }} V</span> ·
+                        <span class="text-danger">{{ p.losses }} D</span>
+                    </div>
+                </div>
+
+                <span class="badge text-bg-primary">{{ p.win_rate }}%</span>
+
+            {% if user.is_authenticated %}
+            </a>
+            {% else %}
+            </div>
+            {% endif %}
+
+            {% endwith %}
+            {% empty %}
+            <p class="text-center text-body-secondary py-4">
+                Aucun joueur n'est encore classé. Jouez une partie pour ouvrir le bal !
+            </p>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-4" aria-label="Pagination du classement">
+            <ul class="pagination justify-content-center flex-wrap mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Page précédente">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                </li>
+                {% endif %}
+
+                {% for num in page_range %}
+                {% if num == ellipsis %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% elif num == page_obj.number %}
+                <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Page suivante">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+            <p class="text-center small text-body-secondary mt-2 mb-0">
+                Joueurs {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ total_players }}
+            </p>
+        </nav>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
