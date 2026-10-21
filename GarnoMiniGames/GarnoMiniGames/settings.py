@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'friends',
     'games',
     'history',
+    'ranking',
 ]
 
 MIDDLEWARE = [

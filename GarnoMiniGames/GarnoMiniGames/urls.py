@@ -34,6 +34,7 @@ urlpatterns = [
         serve,
         {'document_root': settings.MEDIA_ROOT},
     ),
+    path('classement/', include('ranking.urls')),
 ]
 
 if settings.DEBUG:
