@@ -225,4 +225,5 @@ local_settings.py
 *.log
 
 # Media
-media/
+**/media/*
+!**/media/games/

@@ -20,6 +20,15 @@
   --bs-card-cap-color: #ffffff;
 }
 
+.gaming-title {
+  background: linear-gradient(45deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(168, 85, 247, 0.3));
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.5px;
+}
 /* ---------- Base ---------- */
 header {
   padding: 2rem;
@@ -164,11 +173,11 @@ body {
 }
 
 .jeu-detail-image {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    object-fit: cover;
-    border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .bio-text {
