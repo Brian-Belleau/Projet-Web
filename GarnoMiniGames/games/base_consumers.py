@@ -3,7 +3,7 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
+from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, consume_reservation
 
 
 class RoomConsumerBase(AsyncWebsocketConsumer):
@@ -68,6 +68,11 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         )
         if reason:
             return reason
+
+        if room is None and not consume_reservation(
+            self.identity, self.GAME_PREFIX, self.room_name
+        ):
+            return "room_not_found"
 
         room = self._get_room()
         if not room["players"]:
