@@ -1,9 +1,16 @@
+import time
 import uuid
 
 # Registre global des joueurs actuellement connectés à une partie :
 ACTIVE_PLAYERS = {}
+PENDING_ROOMS = {}
+PENDING_TTL = 60
 
 MESSAGES = {
+    "room_not_found": (
+        "Cette partie n'existe pas. "
+        "Crée une partie depuis la page du jeu."
+    ),
     "self_play": "Tu ne peux pas jouer contre toi-même.",
     "already_in_game": (
         "Tu es déjà dans une partie (autre onglet ou autre appareil). "
@@ -57,3 +64,31 @@ def check_join(identity, is_auth, game, room_name, room, max_players):
             return "room_users_only" if room["is_auth"] else "room_guests_only"
 
     return None
+
+
+def _purge_pending():
+    now = time.monotonic()
+    for key in [k for k, (_, exp) in PENDING_ROOMS.items() if exp < now]:
+        PENDING_ROOMS.pop(key, None)
+
+
+def reserve_room(identity, game, room_name):
+    """Autorise `identity` (et elle seule) à ouvrir la salle `room_name`."""
+    _purge_pending()
+    PENDING_ROOMS[(game, room_name)] = (
+        identity, time.monotonic() + PENDING_TTL)
+
+
+def has_reservation(identity, game, room_name):
+    """Vrai si cette identité a créé la salle via le bouton « Créer la partie »."""
+    _purge_pending()
+    entry = PENDING_ROOMS.get((game, room_name))
+    return entry is not None and entry[0] == identity
+
+
+def consume_reservation(identity, game, room_name):
+    """Utilise la réservation (une seule fois). Retourne True si elle était valide."""
+    if not has_reservation(identity, game, room_name):
+        return False
+    PENDING_ROOMS.pop((game, room_name), None)
+    return True
