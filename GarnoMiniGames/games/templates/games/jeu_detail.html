@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ jeu.nom }} - GarnoMiniGames{% endblock %}
 
@@ -12,7 +13,7 @@
     <div class="card-body p-4 p-md-5">
 
     {% if jeu.image %}
-    <img src="{{ jeu.image.url }}"
+    <img src="{% static jeu.image.name %}"
          alt="{{ jeu.nom }}"
          class="jeu-detail-image rounded mb-4">
     {% endif %}

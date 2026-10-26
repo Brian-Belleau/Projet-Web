@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Accueil - GarnoMiniGames{% endblock %}
 
@@ -13,7 +14,7 @@
     <div class="col">
         <div class="card-gmg h-100">
             {% if jeu.image %}
-                <img src="{{ jeu.image.url }}" alt="{{ jeu.nom }}" class="card-img-top jeu-thumbnail">
+                <img src="{% static jeu.image.name %}" alt="{{ jeu.nom }}" class="card-img-top jeu-thumbnail">
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ jeu.nom }}</h5>
