@@ -23,6 +23,7 @@
                     <div class="fw-semibold">Votre position</div>
                     <div class="small text-body-secondary">
                         {{ my_profile.wins }} victoire{{ my_profile.wins|pluralize }} ·
+                        {{ my_profile.draws }} égalité{{ my_profile.draws|pluralize }} ·
                         {{ my_profile.losses }} défaite{{ my_profile.losses|pluralize }}
                     </div>
                 </div>
@@ -72,6 +73,7 @@
                     <div class="small text-body-secondary">
                         {{ p.games_played }} partie{{ p.games_played|pluralize }} ·
                         <span class="text-success">{{ p.wins }} V</span> ·
+                        <span class="text-warning">{{ p.draws }} É</span> ·
                         <span class="text-danger">{{ p.losses }} D</span>
                     </div>
                 </div>

@@ -269,6 +269,7 @@ class Connect4Consumer(RoomConsumerBase):
 
     ROOMS = {}
     GAME_PREFIX = "connect_4"
+    GAME_SLUG = "connect-4"
 
     ROWS = 6
     COLS = 7
