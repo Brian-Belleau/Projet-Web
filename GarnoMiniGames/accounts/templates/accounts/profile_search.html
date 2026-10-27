@@ -58,7 +58,9 @@
                             {{ p.games_played }} partie{% if p.games_played > 1 %}s{%endif %}
                         </div>
                     </div>
-                    <span class="badge text-bg-primary">{{ p.win_rate }}%</span>
+                    <span class="badge text-bg-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Taux de victoire (une égalité compte pour une demi-victoire)">
+                        {{ p.win_rate }}%</span>
                 </a>
             </div>
             {% empty %}
