@@ -26,7 +26,9 @@
                         {{ my_profile.losses }} défaite{{ my_profile.losses|pluralize }}
                     </div>
                 </div>
-                <span class="badge text-bg-primary">{{ my_profile.win_rate }}%</span>
+                <span class="badge text-bg-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-bs-title="Taux de victoire (une égalité compte pour une demi-victoire)">
+                    {{ my_profile.win_rate }}%</span>
             </div>
             {% else %}
             <p class="mb-0 text-body-secondary">
@@ -74,7 +76,9 @@
                     </div>
                 </div>
 
-                <span class="badge text-bg-primary">{{ p.win_rate }}%</span>
+                <span class="badge text-bg-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-bs-title="Taux de victoire (une égalité compte pour une demi-victoire)">
+                    {{ p.win_rate }}%</span>
 
             {% if user.is_authenticated %}
             </a>
