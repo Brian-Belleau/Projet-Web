@@ -35,6 +35,7 @@ urlpatterns = [
         {'document_root': settings.MEDIA_ROOT},
     ),
     path('historique/', include('history.urls')),
+    path('classement/', include('ranking.urls')),
 ]
 
 if settings.DEBUG:

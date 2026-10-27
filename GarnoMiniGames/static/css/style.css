@@ -363,3 +363,45 @@ body {
   min-width: 5.5rem;
   padding: 0.5rem 0.75rem;
 }
+/* ---------- Classement ---------- */
+.rank-badge {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--gmg-border);
+}
+
+.rank-1 { color: #ffd54a; border-color: #ffd54a; }
+.rank-2 { color: #cfd8dc; border-color: #cfd8dc; }
+.rank-3 { color: #d98a52; border-color: #d98a52; }
+.rank-me { color: #fff; background: var(--gmg-accent); border-color: var(--gmg-accent); }
+
+.ranking-row-me {
+  border-color: var(--gmg-accent);
+  box-shadow: 0 0 0 1px var(--gmg-accent), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+  --bs-pagination-bg: var(--gmg-surface);
+  --bs-pagination-color: var(--bs-body-color);
+  --bs-pagination-border-color: var(--gmg-border);
+  --bs-pagination-hover-bg: rgba(255, 255, 255, 0.08);
+  --bs-pagination-hover-color: #ffffff;
+  --bs-pagination-hover-border-color: var(--gmg-border);
+  --bs-pagination-focus-bg: rgba(255, 255, 255, 0.08);
+  --bs-pagination-focus-color: #ffffff;
+  --bs-pagination-active-bg: var(--gmg-accent);
+  --bs-pagination-active-border-color: var(--gmg-accent);
+  --bs-pagination-active-color: #ffffff;
+  --bs-pagination-disabled-bg: rgba(255, 255, 255, 0.03);
+  --bs-pagination-disabled-color: rgba(232, 232, 240, 0.35);
+  --bs-pagination-disabled-border-color: var(--gmg-border);
+}
