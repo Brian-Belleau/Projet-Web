@@ -13,7 +13,7 @@
     <div class="col">
         <div class="card-gmg h-100">
             {% if jeu.image %}
-                <img src="{{ jeu.image.url }}" alt="{{ jeu.nom }}" class="card-img-top jeu-thumbnail">
+            <img src="/static/{{ jeu.image.name }}" alt="{{ jeu.nom }}" class="card-img-top jeu-thumbnail">
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ jeu.nom }}</h5>
@@ -21,9 +21,9 @@
             </div>
             <div class="card-footer bg-transparent border-top-0">
                 {% if jeu.actif %}
-                    <a href="{% url 'jeu_detail' jeu.slug %}" class="btn btn-primary w-100">Jouer</a>
+                <a href="{% url 'jeu_detail' jeu.slug %}" class="btn btn-primary w-100">Jouer</a>
                 {% else %}
-                    <button class="btn btn-secondary w-100" disabled>Indisponible</button>
+                <button class="btn btn-secondary w-100" disabled>Indisponible</button>
                 {% endif %}
             </div>
         </div>

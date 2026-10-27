@@ -80,7 +80,12 @@
 
         <section class="mt-4">
             <div class="d-flex justify-content-between mb-2">
-                <h3 class="h6 text-uppercase text-body-secondary mb-0">Taux de victoire</h3>
+                <h3 class="h6 text-uppercase text-body-secondary mb-0">
+                    Taux de victoire
+                    <i class="bi bi-info-circle ms-1" role="img" tabindex="0" data-bs-toggle="tooltip"
+                        data-bs-placement="top" data-bs-title="Une égalité compte pour une demi-victoire."
+                        aria-label="Une égalité compte pour une demi-victoire."></i>
+                </h3>
                 <span class="small text-body-secondary">{{ profile.win_rate }}%</span>
             </div>
             <progress class="progress-win" value="{{ profile.win_rate }}" max="100" aria-label="Taux de victoire">
