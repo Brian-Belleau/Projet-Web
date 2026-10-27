@@ -5,7 +5,7 @@ import uuid
 from .models import Jeu
 from .consumers import PremierClicConsumer, TicTacToeConsumer, Connect4Consumer
 from .forms import RejoindreJeuForm
-from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
+from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, has_reservation, reserve_room
 
 
 # slug du jeu -> (nom de l'URL de la partie, consumer qui gère les salles)
@@ -16,13 +16,32 @@ JEUX_MULTIJOUEUR = {
 }
 
 
+def _acces_partie(request, slug, room_name):
+    """Autorise l'accès à la page d'une partie seulement si la salle existe
+    (quelqu'un l'a créée) ou si le joueur vient de la créer lui-même.
+    Empêche de créer une salle en modifiant l'URL à la main."""
+    _, consumer = JEUX_MULTIJOUEUR[slug]
+    identity = get_identity(request.user, request.session, create=True)
+
+    if (
+        consumer.ROOMS.get(room_name) is not None
+        or has_reservation(identity, consumer.GAME_PREFIX, room_name)
+    ):
+        return True
+
+    messages.error(request, MESSAGES["room_not_found"])
+    return False
+
+
 def premier_clic(request, room_name):
-    get_identity(request.user, request.session, create=True)
+    if not _acces_partie(request, "premier-clic", room_name):
+        return redirect("jeu_detail", slug="premier-clic")
     return render(request, "games/premier_clic.html", {"room_name": room_name})
 
 
 def tic_tac_toe(request, room_name):
-    get_identity(request.user, request.session, create=True)
+    if not _acces_partie(request, "tic-tac-toe", room_name):
+        return redirect("jeu_detail", slug="tic-tac-toe")
     return render(request, "games/tic_tac_toe.html", {"room_name": room_name})
 
 def connect_4(request, room_name):
@@ -71,7 +90,8 @@ def lancer_jeu(request, slug):
     room_name = uuid.uuid4().hex[:6].upper()
 
     if jeu.slug in JEUX_MULTIJOUEUR:
-        url_name, _ = JEUX_MULTIJOUEUR[jeu.slug]
+        url_name, consumer = JEUX_MULTIJOUEUR[jeu.slug]
+        reserve_room(identity, consumer.GAME_PREFIX, room_name)
         return redirect(url_name, room_name=room_name)
 
     messages.error(request, "Ce jeu n'est pas encore disponible.")
