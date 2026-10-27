@@ -52,19 +52,25 @@
         </section>
 
         <section class="row g-3 text-center mt-2">
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value">{{ profile.games_played }}</div>
                     <div class="stat-label">Parties</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value text-success">{{ profile.wins }}</div>
                     <div class="stat-label">Victoires</div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-tile">
+                    <div class="stat-value text-warning">{{ profile.draws }}</div>
+                    <div class="stat-label">Égalités</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
                 <div class="stat-tile">
                     <div class="stat-value text-danger">{{ profile.losses }}</div>
                     <div class="stat-label">Défaites</div>
@@ -74,7 +80,12 @@
 
         <section class="mt-4">
             <div class="d-flex justify-content-between mb-2">
-                <h3 class="h6 text-uppercase text-body-secondary mb-0">Taux de victoire</h3>
+                <h3 class="h6 text-uppercase text-body-secondary mb-0">
+                    Taux de victoire
+                    <i class="bi bi-info-circle ms-1" role="img" tabindex="0" data-bs-toggle="tooltip"
+                        data-bs-placement="top" data-bs-title="Une égalité compte pour une demi-victoire."
+                        aria-label="Une égalité compte pour une demi-victoire."></i>
+                </h3>
                 <span class="small text-body-secondary">{{ profile.win_rate }}%</span>
             </div>
             <progress class="progress-win" value="{{ profile.win_rate }}" max="100" aria-label="Taux de victoire">

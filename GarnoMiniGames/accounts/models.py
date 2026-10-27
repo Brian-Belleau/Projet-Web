@@ -57,6 +57,10 @@ class Profile(models.Model):
         default=0,
         verbose_name="Victoires",
     )
+    draws = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Égalités",
+    )
     losses = models.PositiveIntegerField(
         default=0,
         verbose_name="Défaites",
@@ -69,9 +73,10 @@ class Profile(models.Model):
 
     @property
     def win_rate(self):
+        """Taux de victoire en %. Une égalité compte pour une demi-victoire."""
         if self.games_played == 0:
             return 0
-        return round((self.wins / self.games_played) * 100)
+        return round(((self.wins + self.draws * 0.5) / self.games_played) * 100)
 
     def __str__(self):
         return self.pseudonym

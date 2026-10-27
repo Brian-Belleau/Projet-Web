@@ -20,6 +20,15 @@
   --bs-card-cap-color: #ffffff;
 }
 
+.gaming-title {
+  background: linear-gradient(45deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(168, 85, 247, 0.3));
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.5px;
+}
 /* ---------- Base ---------- */
 header {
   padding: 2rem;
@@ -164,11 +173,11 @@ body {
 }
 
 .jeu-detail-image {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    object-fit: cover;
-    border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .bio-text {
@@ -235,6 +244,118 @@ body {
 .modal {
   --bs-modal-bg: var(--gmg-surface);
   --bs-modal-border-color: var(--gmg-border);
+}
+
+/* ---------- Tic-Tac-Toe ---------- */
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.ttt-cell {
+  aspect-ratio: 1 / 1;
+  font-size: 3rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.ttt-cell:disabled {
+  opacity: 1;
+}
+
+.ttt-x {
+  color: var(--gmg-accent);
+  border-color: var(--gmg-accent);
+}
+
+.ttt-o {
+  color: var(--gmg-accent-2);
+  border-color: var(--gmg-accent-2);
+}
+
+.ttt-cell-win {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0.75rem rgba(124, 92, 255, 0.6);
+}
+
+
+/* Plateau de Puissance 4 */
+.connect4-columns,
+.connect4-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    width: min(100%, 560px);
+}
+
+.connect4-column-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.connect4-grid {
+    padding: 10px;
+    background-color: #0d6efd;
+    border-radius: 12px;
+    border: 2px solid #084298;
+}
+
+.connect4-cell {
+    aspect-ratio: 1;
+    min-width: 0;
+    border-radius: 50%;
+    background-color: #15151f;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.15s ease;
+}
+
+.connect4-cell.connect4-red {
+    background-color: #dc3545;
+    border-color: #b02a37;
+}
+
+.connect4-cell.connect4-yellow {
+    background-color: #ffc107;
+    border-color: #ffcd39;
+}
+
+.connect4-cell.connect4-win {
+    outline: 3px solid white;
+    outline-offset: -3px;
+}
+
+.connect4-column-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+    .connect4-columns,
+    .connect4-grid {
+        gap: 4px;
+    }
+
+    .connect4-grid {
+        padding: 6px;
+    }
+
+    .connect4-cell {
+        border-width: 1px;
+    }
+}
+
+#column-controls {
+    width: min(100%, 560px);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    box-sizing: border-box;
 }
 
 /* ---------- Classement ---------- */
