@@ -29,7 +29,9 @@ def ranked_profiles():
         .filter(games_played__gte=MIN_GAMES_PLAYED)
         .annotate(
             win_rate_calc=ExpressionWrapper(
-                Cast("wins", FloatField()) * 100 / F("games_played"),
+                (Cast("wins", FloatField())
+                 + Cast("draws", FloatField()) * 0.5)
+                * 100 / F("games_played"),
                 output_field=FloatField(),
             )
         )
