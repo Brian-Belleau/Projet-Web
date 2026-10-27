@@ -420,7 +420,7 @@ class Connect4Consumer(RoomConsumerBase):
                 if channel_name != self.channel_name:
                     loser_id = room["user_ids"].get(channel_name)
 
-            await update_game_stats(winner_id, loser_id)
+            await update_game_stats(winner_id, loser_id, game_slug=self.GAME_SLUG)
 
         self.ROOMS.pop(self.room_name, None)
 
