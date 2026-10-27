@@ -34,6 +34,7 @@ urlpatterns = [
         serve,
         {'document_root': settings.MEDIA_ROOT},
     ),
+    path('historique/', include('history.urls')),
 ]
 
 if settings.DEBUG:

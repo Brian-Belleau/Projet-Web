@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Historique - GarnoMiniGames{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0"><i class="bi bi-clock-history me-2"></i>Historique</h1>
+            <span class="small text-body-secondary">{{ history_size }} dernières parties</span>
+        </div>
+
+        {% if results %}
+        {# Résumé #}
+        <section class="row g-3 text-center mb-4" aria-label="Résumé des dernières parties">
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value text-success">{{ wins }}</div>
+                    <div class="stat-label">Victoire{{ wins|pluralize }}</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value text-danger">{{ losses }}</div>
+                    <div class="stat-label">Défaite{{ losses|pluralize }}</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-tile">
+                    <div class="stat-value text-warning">{{ draws }}</div>
+                    <div class="stat-label">Égalité{{ draws|pluralize }}</div>
+                </div>
+            </div>
+        </section>
+
+        {# Liste des parties #}
+        <div class="d-flex flex-column gap-2">
+            {% for r in results %}
+            <div class="card-gmg d-flex align-items-center gap-3 p-3">
+
+                <span class="badge result-badge
+                    {% if r.result == 'win' %}text-bg-success
+                    {% elif r.result == 'loss' %}text-bg-danger
+                    {% else %}text-bg-warning{% endif %}">
+                    {{ r.get_result_display }}
+                </span>
+
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ r.jeu_nom }}</div>
+                    <div class="small text-body-secondary">
+                        contre
+                        {% if r.opponent and r.opponent.profile %}
+                        <a href="{% url 'accounts:player_profile' r.opponent.profile.pseudonym %}">
+                            {{ r.opponent.profile.pseudonym }}</a>
+                        {% else %}
+                        {{ r.opponent_name }} <span class="fst-italic">(compte supprimé)</span>
+                        {% endif %}
+                        {% if r.forfeit %}
+                        · <span class="text-warning">
+                            <i class="bi bi-flag-fill"></i>
+                            {% if r.result == 'win' %}adversaire parti{% else %}abandon{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <div class="fw-semibold">
+                        {% if r.player_score is not None and r.opponent_score is not None %}
+                        {{ r.player_score }} – {{ r.opponent_score }}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </div>
+                    <div class="small text-body-secondary">{{ r.played_at|date:"d M Y, H:i" }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="card-gmg p-4 text-center">
+            <p class="mb-3 text-body-secondary">Vous n'avez encore joué aucune partie en étant connecté.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="bi bi-controller me-1"></i>Jouer maintenant
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

@@ -3,6 +3,8 @@ import json
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+from .results import update_game_stats
+
 from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity
 
 
@@ -10,6 +12,8 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
     ROOMS = None  # à définir dans les sous-classes pour ne pas avoir de room principale
     MAX_PLAYERS = 2
     GAME_PREFIX = "room"  # à écraser dans chaque sous-classe
+    GAME_SLUG = None  # slug du Jeu (ex. "premier-clic"), pour l'historique
+    RECORD_SCORES = False  # True si le jeu a un score final à enregistrer
 
     registered = False
 
@@ -30,6 +34,25 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         active = ACTIVE_PLAYERS.get(self.identity)
         if self.registered and active and active[2] == self.channel_name:
             ACTIVE_PLAYERS.pop(self.identity, None)
+
+    def _abandon_info(self):
+        """Infos de la partie si ce joueur la quitte en cours de route."""
+        room = self.ROOMS.get(self.room_name)
+        if (
+            not room
+            or room.get("finished")
+            or len(room["players"]) < 2
+            or self.channel_name not in room["players"]
+        ):
+            return None
+        other = next(ch for ch in room["players"] if ch != self.channel_name)
+        scores = room["scores"] if self.RECORD_SCORES else {}
+        return {
+            "leaver_id": room["user_ids"].get(self.channel_name),
+            "other_id": room["user_ids"].get(other),
+            "leaver_score": scores.get(self.channel_name),
+            "other_score": scores.get(other),
+        }
 
     def _remove_player(self):
         """Nettoyage"""
@@ -136,10 +159,21 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         """Déconnexion des joueurs"""
         if not self.registered:
             return
+        abandon = self._abandon_info()
         room = self._remove_player()
         self._release_identity()
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        if room and room["players"]:          # il reste quelqu'un à prévenir
+        if room and room["players"]:
             await self.channel_layer.group_send(self.group_name, {
                 "type": "opponent_left",
             })
+        if abandon:
+            # Abandon : défaite pour celui qui part, victoire pour l'autre.
+            await update_game_stats(
+                abandon["other_id"],
+                abandon["leaver_id"],
+                game_slug=self.GAME_SLUG,
+                winner_score=abandon["other_score"],
+                loser_score=abandon["leaver_score"],
+                forfeit=True,
+            )
