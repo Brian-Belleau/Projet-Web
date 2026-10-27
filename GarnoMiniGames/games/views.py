@@ -44,14 +44,17 @@ def tic_tac_toe(request, room_name):
         return redirect("jeu_detail", slug="tic-tac-toe")
     return render(request, "games/tic_tac_toe.html", {"room_name": room_name})
 
+
 def connect_4(request, room_name):
     """Affiche le plateau de Puissance 4."""
-    get_identity(request.user, request.session, create=True)
+    if not _acces_partie(request, "connect-4", room_name):
+        return redirect("jeu_detail", slug="connect-4")
     return render(
         request,
         "games/connect_4.html",
         {"room_name": room_name},
     )
+
 
 def jeu_detail(request, slug):
     """Affiche le détail d'un jeu, ou refuse l'accès s'il est inactif."""
