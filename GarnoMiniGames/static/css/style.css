@@ -358,6 +358,11 @@ body {
     box-sizing: border-box;
 }
 
+/* ---------- Historique ---------- */
+.result-badge {
+  min-width: 5.5rem;
+  padding: 0.5rem 0.75rem;
+}
 /* ---------- Classement ---------- */
 .rank-badge {
   min-width: 2.75rem;

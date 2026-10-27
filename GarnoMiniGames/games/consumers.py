@@ -2,50 +2,14 @@ import asyncio
 import random
 import json
 
-from asgiref.sync import sync_to_async
-from django.db import transaction
-from django.db.models import F
-
 from .base_consumers import RoomConsumerBase
-
-
-@sync_to_async
-def update_game_stats(winner_id, loser_id):
-    """Met à jour les statistiques des deux joueurs après une victoire."""
-
-    from accounts.models import Profile
-
-    with transaction.atomic():
-        if winner_id is not None:
-            Profile.objects.filter(user_id=winner_id).update(
-                games_played=F("games_played") + 1,
-                wins=F("wins") + 1,
-            )
-
-        if loser_id is not None:
-            Profile.objects.filter(user_id=loser_id).update(
-                games_played=F("games_played") + 1,
-                losses=F("losses") + 1,
-            )
-
-
-@sync_to_async
-def update_draw_stats(user_ids):
-    """Compte une partie jouée et une égalité pour chaque joueur connecté."""
-
-    from accounts.models import Profile
-
-    ids = [uid for uid in user_ids if uid is not None]
-    if ids:
-        Profile.objects.filter(user_id__in=ids).update(
-            games_played=F("games_played") + 1,
-            draws=F("draws") + 1,
-        )
-
+from .results import update_draw_stats, update_game_stats
 
 class PremierClicConsumer(RoomConsumerBase):
     ROOMS = {}
     GAME_PREFIX = "premier_clic"
+    GAME_SLUG = "premier-clic"
+    RECORD_SCORES = True
     WINNING_SCORE = 5
 
     async def receive(self, text_data):
@@ -71,6 +35,9 @@ class PremierClicConsumer(RoomConsumerBase):
         winner_score = room["scores"][self.channel_name]
         game_over = winner_score >= self.WINNING_SCORE
 
+        if game_over:
+            room["finished"] = True
+
         await self.channel_layer.group_send(self.group_name, {
             "type": "round_result",
             "winner": room["players"][self.channel_name],
@@ -85,12 +52,19 @@ class PremierClicConsumer(RoomConsumerBase):
             winner_id = room["user_ids"].get(self.channel_name)
 
             loser_id = None
+            loser_score = None
 
             for channel_name in room["players"]:
                 if channel_name != self.channel_name:
                     loser_id = room["user_ids"].get(channel_name)
+                    loser_score = room["scores"].get(channel_name)
 
-            await update_game_stats(winner_id, loser_id)
+            await update_game_stats(
+                winner_id, loser_id,
+                game_slug=self.GAME_SLUG,
+                winner_score=winner_score,
+                loser_score=loser_score,
+            )
 
             self.ROOMS.pop(self.room_name, None)
         else:
@@ -144,6 +118,7 @@ class TicTacToeConsumer(RoomConsumerBase):
 
     ROOMS = {}
     GAME_PREFIX = "tic_tac_toe"
+    GAME_SLUG = "tic-tac-toe"
 
     WINNING_LINES = (
         (0, 1, 2), (3, 4, 5), (6, 7, 8),  # lignes
@@ -231,14 +206,18 @@ class TicTacToeConsumer(RoomConsumerBase):
         })
 
         if is_draw:
-            await update_draw_stats(list(room["user_ids"].values()))
+            await update_draw_stats(
+                list(room["user_ids"].values()), game_slug=self.GAME_SLUG
+            )
         else:
             winner_id = room["user_ids"].get(self.channel_name)
             loser_id = None
             for channel_name in room["players"]:
                 if channel_name != self.channel_name:
                     loser_id = room["user_ids"].get(channel_name)
-            await update_game_stats(winner_id, loser_id)
+            await update_game_stats(
+                winner_id, loser_id, game_slug=self.GAME_SLUG
+            )
 
         self.ROOMS.pop(self.room_name, None)
 
