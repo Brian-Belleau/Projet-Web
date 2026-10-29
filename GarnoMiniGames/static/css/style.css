@@ -26,7 +26,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 4px rgba(168, 85, 247, 0.3));
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 0.5px;
 }
 /* ---------- Base ---------- */
@@ -280,82 +280,81 @@ body {
   box-shadow: 0 0 0.75rem rgba(124, 92, 255, 0.6);
 }
 
-
-/* Plateau de Puissance 4 */
+/* Plateau de Connect 4 */
 .connect4-columns,
 .connect4-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 6px;
-    width: min(100%, 560px);
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 560px);
 }
 
 .connect4-column-btn {
-    width: 100%;
-    aspect-ratio: 1;
-    padding: 0;
-    font-size: 1.4rem;
-    font-weight: bold;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
 }
 
 .connect4-grid {
-    padding: 10px;
-    background-color: #0d6efd;
-    border-radius: 12px;
-    border: 2px solid #084298;
+  padding: 10px;
+  background-color: #0d6efd;
+  border-radius: 12px;
+  border: 2px solid #084298;
 }
 
 .connect4-cell {
-    aspect-ratio: 1;
-    min-width: 0;
-    border-radius: 50%;
-    background-color: #15151f;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: background-color 0.15s ease;
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 50%;
+  background-color: #15151f;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.15s ease;
 }
 
 .connect4-cell.connect4-red {
-    background-color: #dc3545;
-    border-color: #b02a37;
+  background-color: #dc3545;
+  border-color: #b02a37;
 }
 
 .connect4-cell.connect4-yellow {
-    background-color: #ffc107;
-    border-color: #ffcd39;
+  background-color: #ffc107;
+  border-color: #ffcd39;
 }
 
 .connect4-cell.connect4-win {
-    outline: 3px solid white;
-    outline-offset: -3px;
+  outline: 3px solid white;
+  outline-offset: -3px;
 }
 
 .connect4-column-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 @media (max-width: 576px) {
-    .connect4-columns,
-    .connect4-grid {
-        gap: 4px;
-    }
+  .connect4-columns,
+  .connect4-grid {
+    gap: 4px;
+  }
 
-    .connect4-grid {
-        padding: 6px;
-    }
+  .connect4-grid {
+    padding: 6px;
+  }
 
-    .connect4-cell {
-        border-width: 1px;
-    }
+  .connect4-cell {
+    border-width: 1px;
+  }
 }
 
 #column-controls {
-    width: min(100%, 560px);
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 12px;
-    padding-right: 12px;
-    box-sizing: border-box;
+  width: min(100%, 560px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 12px;
+  padding-right: 12px;
+  box-sizing: border-box;
 }
 
 /* ---------- Historique ---------- */
@@ -378,14 +377,29 @@ body {
   border: 1px solid var(--gmg-border);
 }
 
-.rank-1 { color: #ffd54a; border-color: #ffd54a; }
-.rank-2 { color: #cfd8dc; border-color: #cfd8dc; }
-.rank-3 { color: #d98a52; border-color: #d98a52; }
-.rank-me { color: #fff; background: var(--gmg-accent); border-color: var(--gmg-accent); }
+.rank-1 {
+  color: #ffd54a;
+  border-color: #ffd54a;
+}
+.rank-2 {
+  color: #cfd8dc;
+  border-color: #cfd8dc;
+}
+.rank-3 {
+  color: #d98a52;
+  border-color: #d98a52;
+}
+.rank-me {
+  color: #fff;
+  background: var(--gmg-accent);
+  border-color: var(--gmg-accent);
+}
 
 .ranking-row-me {
   border-color: var(--gmg-accent);
-  box-shadow: 0 0 0 1px var(--gmg-accent), 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 0 1px var(--gmg-accent),
+    0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 /* ---------- Pagination ---------- */

@@ -1,5 +1,8 @@
+from functools import wraps
+
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required as django_login_required
+from django.db import IntegrityError, transaction
 from django.db.models import Case, IntegerField, Q, Value, When
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -11,6 +14,12 @@ from accounts.models import Profile
 from accounts.views import get_user_profile, is_ajax
 
 from .models import Friendship
+
+LEVEL_NAMES = {
+    messages.SUCCESS: "success",
+    messages.INFO: "info",
+    messages.ERROR: "error",
+}
 
 SUGGESTION_LIMIT = 8
 
@@ -33,6 +42,38 @@ def redirect_back(request):
     ):
         return redirect(next_url)
     return redirect("friends:list")
+
+
+def login_required(view):
+    """Comme `login_required`, mais répond en JSON (401) aux requêtes AJAX
+    au lieu de rediriger vers la page de connexion."""
+    protected = django_login_required(view)
+
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated and is_ajax(request):
+            return JsonResponse(
+                {
+                    "success": False,
+                    "level": "error",
+                    "message": "Votre session a expiré. Veuillez vous reconnecter.",
+                },
+                status=401,
+            )
+        return protected(request, *args, **kwargs)
+
+    return wrapper
+
+
+def respond(request, level, message, success=True):
+    """Réponse JSON pour AJAX, sinon message flash + redirection."""
+    if is_ajax(request):
+        return JsonResponse(
+            {"success": success, "level": LEVEL_NAMES.get(
+                level, "info"), "message": message}
+        )
+    messages.add_message(request, level, message)
+    return redirect_back(request)
 
 
 @login_required
@@ -127,8 +168,26 @@ def send_request(request, pseudonym):
         ).first()
 
         if existing is None:
-            Friendship.objects.create(from_user=sender, to_user=target.user)
-            outcome = "sent"
+            try:
+                with transaction.atomic():
+                    Friendship.objects.create(
+                        from_user=sender, to_user=target.user)
+                outcome = "sent"
+            except IntegrityError:
+                existing = Friendship.objects.filter(
+                    Q(from_user=sender, to_user=target.user) | Q(
+                        from_user=target.user, to_user=sender)
+                ).first()
+                if existing is None:
+                    outcome = "already_sent"
+                elif existing.status == Friendship.ACCEPTED:
+                    outcome = "already_friends"
+                elif existing.from_user_id == sender.pk:
+                    outcome = "already_sent"
+                else:
+                    existing.status = Friendship.ACCEPTED
+                    existing.save(update_fields=["status"])
+                    outcome = "accepted"
         elif existing.status == Friendship.ACCEPTED:
             outcome = "already_friends"
         elif existing.from_user_id == sender.pk:
@@ -142,12 +201,17 @@ def send_request(request, pseudonym):
         message = template.format(pseudonym=target.pseudonym)
 
         if is_ajax(request):
-            return JsonResponse({"success": True, "status": status, "message": message})
+            return JsonResponse(
+                {"success": True, "level": LEVEL_NAMES.get(
+                    level, "info"), "status": status, "message": message}
+            )
         messages.add_message(request, level, message)
         return redirect_back(request)
 
     if is_ajax(request):
-        return JsonResponse({"success": False, "message": message}, status=status_code)
+        return JsonResponse(
+            {"success": False, "level": "error", "message": message}, status=status_code
+        )
     messages.error(request, message)
     return redirect_back(request)
 
@@ -161,15 +225,14 @@ def _pending_request_for(request, pk):
 def accept_request(request, pk):
     friendship = _pending_request_for(request, pk)
     if friendship is None:
-        messages.info(request, "Cette demande d'ami n'existe plus.")
-    else:
-        friendship.status = Friendship.ACCEPTED
-        friendship.save(update_fields=["status"])
-        messages.success(
-            request,
-            f"Vous êtes maintenant ami avec {friendship.from_user.profile.pseudonym}.",
-        )
-    return redirect_back(request)
+        return respond(request, messages.INFO, "Cette demande d'ami n'existe plus.", success=False)
+    friendship.status = Friendship.ACCEPTED
+    friendship.save(update_fields=["status"])
+    return respond(
+        request,
+        messages.SUCCESS,
+        f"Vous êtes maintenant ami avec {friendship.from_user.profile.pseudonym}.",
+    )
 
 
 @login_required
@@ -177,12 +240,10 @@ def accept_request(request, pk):
 def decline_request(request, pk):
     friendship = _pending_request_for(request, pk)
     if friendship is None:
-        messages.info(request, "Cette demande d'ami n'existe plus.")
-    else:
-        pseudonym = friendship.from_user.profile.pseudonym
-        friendship.delete()
-        messages.info(request, f"Vous avez refusé la demande de {pseudonym}.")
-    return redirect_back(request)
+        return respond(request, messages.INFO, "Cette demande d'ami n'existe plus.", success=False)
+    pseudonym = friendship.from_user.profile.pseudonym
+    friendship.delete()
+    return respond(request, messages.INFO, f"Vous avez refusé la demande de {pseudonym}.")
 
 
 @login_required
@@ -195,12 +256,10 @@ def cancel_request(request, pk):
         .first()
     )
     if friendship is None:
-        messages.info(request, "Cette demande d'ami n'existe plus.")
-    else:
-        pseudonym = friendship.to_user.profile.pseudonym
-        friendship.delete()
-        messages.info(request, f"Votre demande à {pseudonym} a été annulée.")
-    return redirect_back(request)
+        return respond(request, messages.INFO, "Cette demande d'ami n'existe plus.", success=False)
+    pseudonym = friendship.to_user.profile.pseudonym
+    friendship.delete()
+    return respond(request, messages.INFO, f"Votre demande à {pseudonym} a été annulée.")
 
 
 @login_required
@@ -216,16 +275,12 @@ def remove_friend(request, pk):
         .first()
     )
     if friendship is None:
-        messages.info(
-            request, "Cette personne ne fait plus partie de vos amis.")
-    else:
-        other = (
-            friendship.to_user
-            if friendship.from_user_id == request.user.pk
-            else friendship.from_user
-        )
-        pseudonym = other.profile.pseudonym
-        friendship.delete()
-        messages.info(
-            request, f"{pseudonym} a été retiré de votre liste d'amis.")
-    return redirect_back(request)
+        return respond(request, messages.INFO, "Cette personne ne fait plus partie de vos amis.", success=False)
+    other = (
+        friendship.to_user
+        if friendship.from_user_id == request.user.pk
+        else friendship.from_user
+    )
+    pseudonym = other.profile.pseudonym
+    friendship.delete()
+    return respond(request, messages.INFO, f"{pseudonym} a été retiré de votre liste d'amis.")
