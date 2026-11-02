@@ -1,11 +1,12 @@
 from django.urls import path
-from . import views
+from . import api, views
 
 app_name = "friends"
 
 urlpatterns = [
     path("", views.friends_list, name="list"),
     path("api/rechercher/", views.search_users, name="search"),
+    path("api/notifications/", api.poll, name="poll"),
     path("demander/<str:pseudonym>/", views.send_request, name="send_request"),
     path("demandes/<int:pk>/accepter/", views.accept_request, name="accept"),
     path("demandes/<int:pk>/refuser/", views.decline_request, name="decline"),

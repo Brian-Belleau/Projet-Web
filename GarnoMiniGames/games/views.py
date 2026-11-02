@@ -46,7 +46,7 @@ def tic_tac_toe(request, room_name):
 
 
 def connect_4(request, room_name):
-    """Affiche le plateau de Puissance 4."""
+    """Affiche le plateau de Connect 4."""
     if not _acces_partie(request, "connect-4", room_name):
         return redirect("jeu_detail", slug="connect-4")
     return render(

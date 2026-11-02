@@ -265,7 +265,7 @@ class TicTacToeConsumer(RoomConsumerBase):
         await self.send(text_data=json.dumps({"event": "opponent_left"}))
 
 class Connect4Consumer(RoomConsumerBase):
-    """Gère une partie multijoueur de Puissance 4."""
+    """Gère une partie multijoueur de Connect 4."""
 
     ROOMS = {}
     GAME_PREFIX = "connect_4"

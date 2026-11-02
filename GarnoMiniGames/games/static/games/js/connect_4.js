@@ -183,7 +183,9 @@ socket.onmessage = (event) => {
             break;
 
         case "rejected":
+            gameOver = true;
             gameStatus.textContent = data.message || "Impossible de rejoindre la partie.";
+            gameStatus.classList.add("text-danger");
             boardElement.classList.add("d-none");
             break;
     }

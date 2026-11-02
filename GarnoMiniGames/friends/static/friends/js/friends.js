@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * Structure d'un résultat de recherche de joueur.
@@ -15,25 +15,25 @@
  * Champ de saisie pour la recherche d'amis.
  * @type {HTMLInputElement|null}
  */
-const searchInput = document.getElementById("friend-search");
+const searchInput = document.getElementById('friend-search');
 
 /**
  * Conteneur d'affichage des suggestions de recherche.
  * @type {HTMLElement|null}
  */
-const suggestionsBox = document.getElementById("friend-suggestions");
+const suggestionsBox = document.getElementById('friend-suggestions');
 
 /**
  * Zone d'affichage des messages de statut de la recherche.
  * @type {HTMLElement|null}
  */
-const statusBox = document.getElementById("friend-search-status");
+const statusBox = document.getElementById('friend-search-status');
 
 /**
  * Panneau pliable contenant l'interface d'ajout d'amis.
  * @type {HTMLElement|null}
  */
-const addFriendPanel = document.getElementById("add-friend-panel");
+const addFriendPanel = document.getElementById('add-friend-panel');
 
 /**
  * Délai d'attente (en ms) avant le déclenchement de la recherche (anti-rebond).
@@ -72,8 +72,8 @@ function debounce(fn, delay) {
  * @returns {string} Le jeton CSRF ou une chaîne vide si absent.
  */
 function getCsrfToken() {
-  const field = document.querySelector("[name=csrfmiddlewaretoken]");
-  return field ? field.value : "";
+  const field = document.querySelector('[name=csrfmiddlewaretoken]');
+  return field ? field.value : '';
 }
 
 /**
@@ -94,15 +94,15 @@ function setStatusMessage(text) {
 function buildAvatar(result) {
   let avatar;
   if (result.photo_url) {
-    avatar = document.createElement("img");
+    avatar = document.createElement('img');
     avatar.src = result.photo_url;
-    avatar.alt = "Photo de " + result.pseudonym;
+    avatar.alt = 'Photo de ' + result.pseudonym;
   } else {
-    avatar = document.createElement("span");
+    avatar = document.createElement('span');
     avatar.textContent = result.initial;
-    avatar.setAttribute("aria-hidden", "true");
+    avatar.setAttribute('aria-hidden', 'true');
   }
-  avatar.className = "avatar avatar-sm flex-shrink-0";
+  avatar.className = 'avatar avatar-sm flex-shrink-0';
   return avatar;
 }
 
@@ -114,8 +114,8 @@ function buildAvatar(result) {
  * @returns {HTMLSpanElement} L'élément badge créé.
  */
 function buildBadge(text, colorClass) {
-  const badge = document.createElement("span");
-  badge.className = "badge " + colorClass;
+  const badge = document.createElement('span');
+  badge.className = 'badge ' + colorClass;
   badge.textContent = text;
   return badge;
 }
@@ -127,25 +127,25 @@ function buildBadge(text, colorClass) {
  * @returns {HTMLElement} L'élément HTML d'action approprié.
  */
 function buildAction(result) {
-  if (result.status === "friends") {
-    return buildBadge("Déjà amis", "text-bg-success");
+  if (result.status === 'friends') {
+    return buildBadge('Déjà amis', 'text-bg-success');
   }
-  if (result.status === "sent") {
-    return buildBadge("Demande envoyée", "text-bg-secondary");
+  if (result.status === 'sent') {
+    return buildBadge('Demande envoyée', 'text-bg-secondary');
   }
-  if (result.status === "received") {
-    const link = document.createElement("a");
-    link.href = "#friend-requests";
-    link.className = "btn btn-outline-primary btn-sm";
-    link.textContent = "Voir sa demande";
+  if (result.status === 'received') {
+    const link = document.createElement('a');
+    link.href = '#friend-requests';
+    link.className = 'btn btn-outline-primary btn-sm';
+    link.textContent = 'Voir sa demande';
     return link;
   }
 
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "btn btn-primary btn-sm";
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'btn btn-primary btn-sm';
   button.innerHTML = '<i class="bi bi-person-plus me-1"></i>Ajouter';
-  button.addEventListener("click", function () {
+  button.addEventListener('click', function () {
     sendFriendRequest(result, button);
   });
   return button;
@@ -158,15 +158,15 @@ function buildAction(result) {
  * @returns {HTMLDivElement} Le conteneur HTML de la ligne.
  */
 function buildSuggestion(result) {
-  const row = document.createElement("div");
-  row.className = "stat-tile d-flex align-items-center gap-3 text-start";
+  const row = document.createElement('div');
+  row.className = 'stat-tile d-flex align-items-center gap-3 text-start';
 
-  const link = document.createElement("a");
+  const link = document.createElement('a');
   link.href = result.profile_url;
-  link.className = "fw-semibold text-decoration-none text-body flex-grow-1";
+  link.className = 'fw-semibold text-decoration-none text-body flex-grow-1';
   link.textContent = result.pseudonym;
 
-  const action = document.createElement("div");
+  const action = document.createElement('div');
   action.appendChild(buildAction(result));
 
   row.appendChild(buildAvatar(result));
@@ -179,13 +179,14 @@ function buildSuggestion(result) {
  * Affiche la liste des joueurs trouvés dans le conteneur de suggestions.
  *
  * @param {SearchResult[]} results - Tableau des résultats de recherche.
+ * @param {boolean} [keepMessage] - Garde le message de statut actuel.
  */
-function renderSuggestions(results) {
+function renderSuggestions(results, keepMessage) {
   suggestionsBox.replaceChildren();
   if (results.length === 0) {
-    setStatusMessage("Aucun joueur trouvé.");
+    setStatusMessage('Aucun joueur trouvé.');
   } else {
-    setStatusMessage("");
+    if (!keepMessage) setStatusMessage('');
     for (let i = 0; i < results.length; i++) {
       suggestionsBox.appendChild(buildSuggestion(results[i]));
     }
@@ -194,39 +195,41 @@ function renderSuggestions(results) {
 
 /**
  * Interroge le serveur en AJAX pour obtenir et afficher les suggestions selon la saisie utilisateur.
+ *
+ * @param {*} silent
  */
-function searchPlayers() {
+function searchPlayers(silent) {
   const query = searchInput.value.trim();
 
   if (searchController) {
     searchController.abort();
   }
 
-  if (query === "") {
+  if (query === '') {
     suggestionsBox.replaceChildren();
-    setStatusMessage("");
+    if (silent !== true) setStatusMessage('');
   } else {
     searchController = new AbortController();
     const url =
-      searchInput.dataset.searchUrl + "?q=" + encodeURIComponent(query);
+      searchInput.dataset.searchUrl + '?q=' + encodeURIComponent(query);
 
     fetch(url, {
       signal: searchController.signal,
-      headers: { "X-Requested-With": "XMLHttpRequest" },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
     })
       .then(function (response) {
         if (!response.ok) {
-          throw new Error("Réponse réseau invalide");
+          throw new Error('Réponse réseau invalide');
         }
         return response.json();
       })
       .then(function (data) {
-        renderSuggestions(data.results);
+        renderSuggestions(data.results, silent === true);
       })
       .catch(function (error) {
-        if (error.name !== "AbortError") {
+        if (error.name !== 'AbortError' && silent !== true) {
           setStatusMessage(
-            "Impossible de rechercher les joueurs pour le moment.",
+            'Impossible de rechercher les joueurs pour le moment.',
           );
         }
       });
@@ -243,10 +246,10 @@ function sendFriendRequest(result, button) {
   button.disabled = true;
 
   fetch(result.add_url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "X-CSRFToken": getCsrfToken(),
-      "X-Requested-With": "XMLHttpRequest",
+      'X-CSRFToken': getCsrfToken(),
+      'X-Requested-With': 'XMLHttpRequest',
     },
   })
     .then(function (response) {
@@ -257,6 +260,7 @@ function sendFriendRequest(result, button) {
       if (data.success) {
         result.status = data.status;
         button.parentElement.replaceChildren(buildAction(result));
+        if (window.refreshFriends) window.refreshFriends();
       } else {
         button.disabled = false;
       }
@@ -268,10 +272,19 @@ function sendFriendRequest(result, button) {
 }
 
 if (searchInput && suggestionsBox && statusBox) {
-  searchInput.addEventListener("input", debounce(searchPlayers, SEARCH_DELAY));
+  searchInput.addEventListener(
+    'input',
+    debounce(function () {
+      searchPlayers();
+    }, SEARCH_DELAY),
+  );
+
+  window.onFriendsRefreshed = function () {
+    if (searchInput.value.trim() !== '') searchPlayers(true);
+  };
 
   if (addFriendPanel) {
-    addFriendPanel.addEventListener("shown.bs.collapse", function () {
+    addFriendPanel.addEventListener('shown.bs.collapse', function () {
       searchInput.focus();
     });
   }
@@ -281,14 +294,84 @@ if (searchInput && suggestionsBox && statusBox) {
  * Fenêtre modale de confirmation pour le retrait d'un ami.
  * @type {HTMLElement|null}
  */
-const removeModal = document.getElementById("remove-friend-modal");
+const removeModal = document.getElementById('remove-friend-modal');
 
 if (removeModal) {
-  removeModal.addEventListener("show.bs.modal", function (event) {
+  removeModal.addEventListener('show.bs.modal', function (event) {
     const trigger = event.relatedTarget;
-    removeModal.querySelector("form").action = trigger.dataset.removeUrl;
-    removeModal.querySelector("[name=next]").value = trigger.dataset.next || "";
-    document.getElementById("remove-friend-name").textContent =
+    removeModal.querySelector('form').action = trigger.dataset.removeUrl;
+    removeModal.querySelector('[name=next]').value = trigger.dataset.next || '';
+    document.getElementById('remove-friend-name').textContent =
       trigger.dataset.pseudonym;
   });
 }
+
+/**
+ * Affiche un message dans la zone de retour de la page.
+ *
+ * @param {string} text - Le message.
+ * @param {'success'|'info'|'error'} level - Gravité du message.
+ */
+function showFeedback(text, level) {
+  const box = document.getElementById('friends-feedback');
+  if (!box) return;
+  const colors = {
+    success: 'text-success',
+    info: 'text-body-secondary',
+    error: 'text-danger',
+  };
+  box.className = 'small mb-3 ' + (colors[level] || colors.info);
+  box.textContent = text;
+}
+
+/**
+ * Intercepte les formulaires marqués `data-ajax` (accepter, refuser, annuler, retirer)
+ * et les envoie en AJAX au lieu de recharger la page.
+ */
+document.addEventListener('submit', function (event) {
+  const form = event.target;
+  if (!form.matches || !form.matches('form[data-ajax]')) return;
+  event.preventDefault();
+
+  const button = form.querySelector('button[type=submit]');
+  if (button) button.disabled = true;
+
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: {
+      'X-CSRFToken': getCsrfToken(),
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  })
+    .then(function (response) {
+      return response
+        .json()
+        .catch(function () {
+          return null;
+        })
+        .then(function (data) {
+          if (!data) throw new Error('Réponse réseau invalide');
+          return data;
+        });
+    })
+    .then(function (data) {
+      showFeedback(
+        data.message,
+        data.level || (data.success ? 'success' : 'error'),
+      );
+      const modalEl = form.closest('.modal');
+      if (modalEl) {
+        // eslint-disable-next-line no-undef
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+      }
+      if (window.refreshFriends) window.refreshFriends();
+    })
+    .catch(function () {
+      showFeedback("L'action a échoué. Veuillez réessayer.", 'error');
+    })
+    .finally(function () {
+      if (button) button.disabled = false;
+    });
+});
