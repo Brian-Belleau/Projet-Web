@@ -166,6 +166,8 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             return
         abandon = self._abandon_info()
         room = self._remove_player()
+        if abandon and room:
+            room["closed"] = True
         self._release_identity()
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
         if room and room["players"]:
