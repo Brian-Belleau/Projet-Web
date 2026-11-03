@@ -11,8 +11,13 @@ const boardEl = document.getElementById("board");
 const cells = boardEl.querySelectorAll(".ttt-cell");
 const resultEl = document.getElementById("game-result");
 const resultTitleEl = document.getElementById("result-title");
-const countdownEl = document.getElementById("countdown");
+const resultIconEl = document.getElementById("result-icon");
+const resultDescriptionEl = document.getElementById("result-description");
+const resultPlayerXEl = document.getElementById("result-player-x");
+const resultPlayerOEl = document.getElementById("result-player-o");
+const resultWinnerEl = document.getElementById("result-winner");
 
+let players = {};
 let gameOver = false;
 let mySymbol = null;
 let currentTurn = null;
@@ -38,22 +43,23 @@ function updateTurnStatus() {
   }
 }
 
-function startRedirectCountdown(title) {
+function showGameResult(
+  title,
+  description,
+  winner = null,
+  icon = "🤝",
+  result = null,
+) {
   resultTitleEl.textContent = title;
-  countdownEl.textContent = "5";
+  resultDescriptionEl.textContent = description;
+
+  resultPlayerXEl.textContent = players.X || "-";
+  resultPlayerOEl.textContent = players.O || "-";
+  resultWinnerEl.textContent = result || winner || "Match nul";
+
+  resultIconEl.textContent = icon;
+
   resultEl.classList.remove("d-none");
-
-  let countdown = 5;
-  const redirectInterval = setInterval(() => {
-    countdown--;
-
-    if (countdown > 0) {
-      countdownEl.textContent = countdown;
-    } else {
-      clearInterval(redirectInterval);
-      window.location.href = "/";
-    }
-  }, 1000);
 }
 
 socket.onmessage = (e) => {
@@ -67,6 +73,7 @@ socket.onmessage = (e) => {
       break;
 
     case "game_start":
+      players = data.players;
       mySymbol = data.you;
       currentTurn = data.turn;
       boardEl.classList.remove("d-none");
@@ -92,11 +99,32 @@ socket.onmessage = (e) => {
 
       if (data.draw) {
         statusEl.textContent = "Égalité !";
-        startRedirectCountdown("Match nul !");
+
+        showGameResult("Match nul !", "Aucun joueur n'a remporté la partie.");
       } else {
-        statusEl.textContent = `${data.winner} a gagné la partie !`;
-        startRedirectCountdown(`${data.winner} a gagné la partie !`);
+        const isWinner = players[mySymbol] === data.winner;
+
+        if (isWinner) {
+          statusEl.textContent = "Tu as gagné la partie !";
+
+          showGameResult(
+            "Victoire !",
+            "Félicitations, tu as remporté la partie !",
+            data.winner,
+            "🏆",
+          );
+        } else {
+          statusEl.textContent = "Tu as perdu la partie !";
+
+          showGameResult(
+            "Défaite !",
+            `${data.winner} a remporté la partie.`,
+            data.winner,
+            "😢",
+          );
+        }
       }
+
       break;
     }
 
@@ -111,7 +139,14 @@ socket.onmessage = (e) => {
       gameOver = true;
       boardEl.classList.add("d-none");
       statusEl.classList.remove("text-success");
-      startRedirectCountdown("Ton adversaire a quitté la partie.");
+
+      showGameResult(
+        "Partie interrompue",
+        "Ton adversaire a quitté la partie.",
+        null,
+        "⚠️",
+        "Adversaire déconnecté",
+      );
       break;
   }
 };
