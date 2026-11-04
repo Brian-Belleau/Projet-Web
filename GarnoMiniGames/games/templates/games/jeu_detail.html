@@ -2,7 +2,10 @@
 {% load static %}
 {% block title %}{{ jeu.nom }} - GarnoMiniGames{% endblock %}
 {% block content %}
-    <a href="{% url 'home' %}" class="btn btn-outline-light mb-4">← Retour à l'accueil</a>
+    <div class="mb-4">
+        {% url 'home' as home_url %}
+        {% include "accounts/_back_link.html" with url=home_url label="Retour à l'accueil" %}
+    </div>
     <div class="card bg-dark text-light border-secondary shadow text-center mb-4">
         <div class="card-body p-4 p-md-5">
             {% if jeu.image %}

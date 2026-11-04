@@ -561,8 +561,8 @@ html {
 
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 1rem 0.3rem 0.3rem;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem 0.55rem 0.85rem;
   border: 1px solid var(--gmg-border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
@@ -580,17 +580,10 @@ html {
 }
 
 .back-link-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 1rem;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  display: inline-block;
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
 }
 
 .back-link:hover,
@@ -604,7 +597,6 @@ html {
 
 .back-link:hover .back-link-icon,
 .back-link:focus-visible .back-link-icon {
-  background: linear-gradient(135deg, var(--gmg-accent), var(--gmg-accent-2));
   transform: translateX(-3px);
 }
 
@@ -618,15 +610,13 @@ html {
 }
 
 .back-link-sm {
-  padding: 0.2rem 0.85rem 0.2rem 0.2rem;
-  gap: 0.45rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.7rem;
+  gap: 0.4rem;
   font-size: 0.8rem;
 }
 
 .back-link-sm .back-link-icon {
-  width: 1.6rem;
-  height: 1.6rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
