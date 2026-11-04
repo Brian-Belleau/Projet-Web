@@ -1,0 +1,6 @@
+{# Paramètres : url, label, size #}
+<a href="{{ url }}"
+   class="back-link{% if size == 'sm' %} back-link-sm{% endif %}">
+  <span class="back-link-icon" aria-hidden="true"><i class="bi bi-arrow-left"></i></span>
+  <span class="back-link-label">{{ label }}</span>
+</a>

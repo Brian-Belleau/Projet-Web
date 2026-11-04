@@ -228,8 +228,9 @@ function searchPlayers(silent) {
       })
       .catch(function (error) {
         if (error.name !== 'AbortError' && silent !== true) {
-          setStatusMessage(
+          showFlash(
             'Impossible de rechercher les joueurs pour le moment.',
+            'error',
           );
         }
       });
@@ -256,8 +257,9 @@ function sendFriendRequest(result, button) {
       return response.json();
     })
     .then(function (data) {
-      setStatusMessage(data.message);
+      showFlash(data.message, data.level);
       if (data.success) {
+        setStatusMessage('');
         result.status = data.status;
         button.parentElement.replaceChildren(buildAction(result));
         if (window.refreshFriends) window.refreshFriends();
@@ -266,7 +268,7 @@ function sendFriendRequest(result, button) {
       }
     })
     .catch(function () {
-      setStatusMessage("L'envoi de la demande a échoué. Veuillez réessayer.");
+      showFlash("L'envoi de la demande a échoué. Veuillez réessayer.", 'error');
       button.disabled = false;
     });
 }
@@ -307,21 +309,37 @@ if (removeModal) {
 }
 
 /**
- * Affiche un message dans la zone de retour de la page.
+ * Affiche un message « flash » en haut de la page.
  *
- * @param {string} text - Le message.
- * @param {'success'|'info'|'error'} level - Gravité du message.
+ * @param {string} text - Le message à afficher.
+ * @param {string} [level] - 'success', 'info' ou 'error'.
  */
-function showFeedback(text, level) {
-  const box = document.getElementById('friends-feedback');
-  if (!box) return;
-  const colors = {
-    success: 'text-success',
-    info: 'text-body-secondary',
-    error: 'text-danger',
-  };
-  box.className = 'small mb-3 ' + (colors[level] || colors.info);
-  box.textContent = text;
+function showFlash(text, level) {
+  const previous = document.querySelector('[data-js-flash]');
+  if (previous) previous.remove();
+  if (!text) return;
+
+  const main = document.querySelector('main');
+  if (!main) return;
+
+  const alert = document.createElement('div');
+  alert.setAttribute('data-js-flash', '');
+  alert.setAttribute('role', 'alert');
+  alert.className =
+    'alert alert-' +
+    (level === 'error' ? 'danger' : level || 'info') +
+    ' alert-dismissible fade show';
+  alert.appendChild(document.createTextNode(text));
+
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'btn-close';
+  close.setAttribute('data-bs-dismiss', 'alert');
+  close.setAttribute('aria-label', 'Fermer');
+  alert.appendChild(close);
+
+  main.prepend(alert);
+  alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 /**
@@ -332,6 +350,7 @@ document.addEventListener('submit', function (event) {
   const form = event.target;
   if (!form.matches || !form.matches('form[data-ajax]')) return;
   event.preventDefault();
+  showFlash('');
 
   const button = form.querySelector('button[type=submit]');
   if (button) button.disabled = true;
@@ -356,10 +375,7 @@ document.addEventListener('submit', function (event) {
         });
     })
     .then(function (data) {
-      showFeedback(
-        data.message,
-        data.level || (data.success ? 'success' : 'error'),
-      );
+      showFlash(data.message, data.level);
       const modalEl = form.closest('.modal');
       if (modalEl) {
         // eslint-disable-next-line no-undef
@@ -369,7 +385,7 @@ document.addEventListener('submit', function (event) {
       if (window.refreshFriends) window.refreshFriends();
     })
     .catch(function () {
-      showFeedback("L'action a échoué. Veuillez réessayer.", 'error');
+      showFlash("L'action a échoué. Veuillez réessayer.", 'error');
     })
     .finally(function () {
       if (button) button.disabled = false;
