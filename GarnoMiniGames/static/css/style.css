@@ -111,6 +111,17 @@ body {
   border-width: 2px;
 }
 
+.avatar-nav {
+  width: 30px;
+  height: 30px;
+  font-size: 0.85rem;
+  border-width: 1px;
+}
+
+.info-hint {
+  cursor: help;
+}
+
 .avatar-overlap {
   margin-top: -56px;
 }
@@ -230,6 +241,30 @@ body {
 }
 
 /* ---------- Dropdown (menu profil/déconnexion) ---------- */
+/* ---------- Barre de navigation ---------- */
+.navbar-gmg {
+  border-bottom: 1px solid var(--gmg-border);
+}
+
+.navbar-gmg .navbar-brand {
+  font-size: 1.5rem;
+}
+
+.navbar-gmg .nav-link {
+  font-size: 1.15rem;
+  padding: 0.75rem 1rem;
+}
+
+.navbar-gmg .btn {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-gmg .dropdown-item {
+  font-size: 1.1rem;
+  padding: 0.6rem 1.25rem;
+}
+
 .dropdown-menu {
   --bs-dropdown-bg: var(--gmg-surface);
   --bs-dropdown-color: #e8e8f0;
@@ -418,4 +453,103 @@ body {
   --bs-pagination-disabled-bg: rgba(255, 255, 255, 0.03);
   --bs-pagination-disabled-color: rgba(232, 232, 240, 0.35);
   --bs-pagination-disabled-border-color: var(--gmg-border);
+}
+
+/* ---------- Boutons d'amitié (profil) ---------- */
+.friend-actions {
+  display: contents;
+}
+
+/* ---------- Page d'accueil ---------- */
+html {
+  scroll-behavior: smooth;
+}
+
+.hero-gmg {
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(0, 209, 178, 0.18),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(124, 92, 255, 0.3),
+      transparent 50%
+    ),
+    var(--gmg-surface);
+  border: 1px solid var(--gmg-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.hero-title {
+  text-wrap: balance;
+}
+
+/* Cartes de jeux à l'intérieur du hero : fond plus sombre pour qu'elles ressortent */
+.hero-gmg .game-card {
+  background: rgba(11, 11, 18, 0.6);
+}
+
+/* Cartes de jeux */
+.game-card {
+  position: relative;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--gmg-accent);
+  box-shadow: 0 16px 40px rgba(124, 92, 255, 0.35);
+}
+
+.game-card-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.game-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.game-card:hover .game-card-img {
+  transform: scale(1.08);
+}
+
+.game-card-desc {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.game-card-placeholder {
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, var(--gmg-accent), var(--gmg-accent-2));
+}
+
+.game-card-off {
+  opacity: 0.6;
+}
+
+.game-card-off:hover {
+  transform: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  border-color: var(--gmg-border);
+}
+
+.game-card-off .game-card-img {
+  filter: grayscale(1);
 }
