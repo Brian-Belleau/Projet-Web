@@ -1,18 +1,14 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}Profil de {{ profile.pseudonym }}{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% load static %} {% block title %}Profil de {{ profile.pseudonym }}{% endblock %} {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div id="friends-feedback" class="small mb-3" role="status" aria-live="polite"></div>
-        {% include "accounts/_profile_card.html" with own=False %}
-    </div>
+  <div class="col-lg-8">
+    {% if back_url %}
+      <div class="mb-3">{% include "accounts/_back_link.html" with url=back_url label=back_label %}</div>
+    {% endif %}
+    {% include "accounts/_profile_card.html" with own=False %}
+  </div>
 </div>
 {% include "friends/_remove_friend_modal.html" %}
 {% endblock %}
-
 {% block scripts %}
-<script src="{% static 'friends/js/friends.js' %}"></script>
+  <script src="{% static 'friends/js/friends.js' %}"></script>
 {% endblock %}
