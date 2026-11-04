@@ -411,7 +411,7 @@ class Connect4Consumer(RoomConsumerBase):
         )
 
         if is_draw:
-            await update_draw_stats(list(room["user_ids"].values()))
+            await update_draw_stats(list(room["user_ids"].values()), game_slug=self.GAME_SLUG)
         else:
             winner_id = room["user_ids"].get(self.channel_name)
             loser_id = None
