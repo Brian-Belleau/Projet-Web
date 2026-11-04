@@ -8,12 +8,14 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="h3 mb-0"><i class="bi bi-clock-history me-2"></i>Historique</h1>
-            <span class="small text-body-secondary">{{ history_size }} dernières parties</span>
+            <span class="small text-body-secondary">
+                {{ total }} partie{{ total|pluralize }}
+            </span>
         </div>
 
         {% if results %}
         {# Résumé #}
-        <section class="row g-3 text-center mb-4" aria-label="Résumé des dernières parties">
+        <section class="row g-3 text-center mb-4" aria-label="Résumé de toutes les parties">
             <div class="col-4">
                 <div class="stat-tile">
                     <div class="stat-value text-success">{{ wins }}</div>
@@ -78,6 +80,58 @@
             </div>
             {% endfor %}
         </div>
+
+        {# Pagination #}
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-4" aria-label="Pagination de l'historique">
+            <ul class="pagination justify-content-center flex-wrap mb-2">
+
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Première page">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Page précédente">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num == page_obj.number %}
+                    <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Page suivante">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                {% endif %}
+
+            </ul>
+            <p class="text-center small text-body-secondary mb-0">
+                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+            </p>
+        </nav>
+        {% endif %}
 
         {% else %}
         <div class="card-gmg p-4 text-center">

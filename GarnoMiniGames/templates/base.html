@@ -18,7 +18,7 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-gmg sticky-top mb-4">
 		<div class="container">
 
 			<!-- Nom du site -->
@@ -38,16 +38,18 @@
 				<!-- Navigation principale -->
 				<ul class="navbar-nav me-auto">
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'home' %}">Jouer</a>
+						<a class="nav-link" href="{% url 'home' %}#jeux"><i class="bi bi-controller me-1"></i>Jouer</a>
 					</li>
 
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'ranking:ranking' %}">Classement</a>
+						<a class="nav-link" href="{% url 'ranking:ranking' %}"><i
+								class="bi bi-trophy me-1"></i>Classement</a>
 					</li>
 
 					{% if user.is_authenticated %}
 					<li class="nav-item">
-						<a class="nav-link" href="{% url 'history:history' %}">Historique</a>
+						<a class="nav-link" href="{% url 'history:history' %}"><i
+								class="bi bi-clock-history me-1"></i>Historique</a>
 					</li>
 					{% endif %}
 				</ul>
@@ -58,9 +60,14 @@
 
 					<!-- Menu du joueur -->
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle fw-bold" href="#" role="button" data-bs-toggle="dropdown"
-							aria-expanded="false">
-							{{ user.username }}
+						<a class="nav-link dropdown-toggle fw-bold d-flex align-items-center" href="#" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							{% if user.profile %}
+							{% include "accounts/_avatar.html" with profile=user.profile size="nav" %}
+							{% else %}
+							<i class="bi bi-person-circle"></i>
+							{% endif %}
+							<span class="ms-1">{{ user.username }}</span>
 							<span data-friend-badge
 								class="badge rounded-pill text-bg-primary ms-1{% if not pending_friend_requests_count %} d-none{% endif %}">
 								{{ pending_friend_requests_count }}</span>
@@ -69,13 +76,13 @@
 						<ul class="dropdown-menu dropdown-menu-end">
 							<li>
 								<a class="dropdown-item" href="{% url 'accounts:profile' %}">
-									Mon profil
+									<i class="bi bi-person me-2"></i>Mon profil
 								</a>
 							</li>
 
 							<li>
 								<a class="dropdown-item" href="{% url 'friends:list' %}">
-									Amis
+									<i class="bi bi-people me-2"></i>Amis
 									<span data-friend-badge
 										class="badge rounded-pill text-bg-primary ms-1{% if not pending_friend_requests_count %} d-none{% endif %}">
 										{{ pending_friend_requests_count }}</span>
@@ -90,7 +97,7 @@
 								<form method="post" action="{% url 'accounts:logout' %}">
 									{% csrf_token %}
 									<button type="submit" class="dropdown-item">
-										Se déconnecter
+										<i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
 									</button>
 								</form>
 							</li>
@@ -101,13 +108,13 @@
 
 					<li class="nav-item me-2">
 						<a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}">
-							Se connecter
+							<i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
 						</a>
 					</li>
 
 					<li class="nav-item">
 						<a class="btn btn-primary btn-sm" href="{% url 'accounts:signup' %}">
-							S'inscrire
+							<i class="bi bi-person-plus me-1"></i>S'inscrire
 						</a>
 					</li>
 
