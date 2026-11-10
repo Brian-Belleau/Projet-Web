@@ -41,6 +41,7 @@ class PremierClicConsumer(RoomConsumerBase):
         await self.channel_layer.group_send(self.group_name, {
             "type": "round_result",
             "winner": room["players"][self.channel_name],
+            "winner_channel": self.channel_name,
             "scores": {
                 room["players"][ch]: s
                 for ch, s in room["scores"].items()
@@ -106,6 +107,7 @@ class PremierClicConsumer(RoomConsumerBase):
             "winner": event["winner"],
             "scores": event["scores"],
             "game_over": event["game_over"],
+            "you_won": self.channel_name == event["winner_channel"],
         }))
 
     # peut etre a mettre dans le base_consumer.py

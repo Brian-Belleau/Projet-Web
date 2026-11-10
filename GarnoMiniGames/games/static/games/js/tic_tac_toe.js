@@ -9,13 +9,6 @@ const statusEl = document.getElementById("game-status");
 const infoEl = document.getElementById("game-info");
 const boardEl = document.getElementById("board");
 const cells = boardEl.querySelectorAll(".ttt-cell");
-const resultEl = document.getElementById("game-result");
-const resultTitleEl = document.getElementById("result-title");
-const resultIconEl = document.getElementById("result-icon");
-const resultDescriptionEl = document.getElementById("result-description");
-const resultPlayerXEl = document.getElementById("result-player-x");
-const resultPlayerOEl = document.getElementById("result-player-o");
-const resultWinnerEl = document.getElementById("result-winner");
 
 let players = {};
 let gameOver = false;
@@ -41,25 +34,6 @@ function updateTurnStatus() {
     statusEl.textContent = "Tour de l'adversaire...";
     statusEl.classList.remove("text-success");
   }
-}
-
-function showGameResult(
-  title,
-  description,
-  winner = null,
-  icon = "🤝",
-  result = null,
-) {
-  resultTitleEl.textContent = title;
-  resultDescriptionEl.textContent = description;
-
-  resultPlayerXEl.textContent = players.X || "-";
-  resultPlayerOEl.textContent = players.O || "-";
-  resultWinnerEl.textContent = result || winner || "Match nul";
-
-  resultIconEl.textContent = icon;
-
-  resultEl.classList.remove("d-none");
 }
 
 socket.onmessage = (e) => {
@@ -93,6 +67,14 @@ socket.onmessage = (e) => {
       renderBoard(data.board);
       statusEl.classList.remove("text-success");
 
+      const result = {
+        playerOneLabel: "Joueur X",
+        playerOne: players.X || "-",
+        playerTwoLabel: "Joueur O",
+        playerTwo: players.O || "-",
+        winner: data.draw ? "Match nul" : data.winner,
+      };
+
       if (data.line) {
         data.line.forEach((i) => cells[i].classList.add("ttt-cell-win"));
       }
@@ -100,7 +82,13 @@ socket.onmessage = (e) => {
       if (data.draw) {
         statusEl.textContent = "Égalité !";
 
-        showGameResult("Match nul !", "Aucun joueur n'a remporté la partie.");
+        showGameResult(
+          "Match nul !",
+          "Aucun joueur n'a remporté la partie.",
+          null,
+          "🤝",
+          result,
+        );
       } else {
         const isWinner = players[mySymbol] === data.winner;
 
@@ -112,6 +100,7 @@ socket.onmessage = (e) => {
             "Félicitations, tu as remporté la partie !",
             data.winner,
             "🏆",
+            result,
           );
         } else {
           statusEl.textContent = "Tu as perdu la partie !";
@@ -121,10 +110,10 @@ socket.onmessage = (e) => {
             `${data.winner} a remporté la partie.`,
             data.winner,
             "😢",
+            result,
           );
         }
       }
-
       break;
     }
 
@@ -135,19 +124,21 @@ socket.onmessage = (e) => {
       statusEl.classList.add("text-danger");
       break;
 
-    case "opponent_left":
+    case "opponent_left": {
       gameOver = true;
       boardEl.classList.add("d-none");
       statusEl.classList.remove("text-success");
 
-      showGameResult(
-        "Partie interrompue",
-        "Ton adversaire a quitté la partie.",
-        null,
-        "⚠️",
-        "Adversaire déconnecté",
-      );
+      showOpponentLeftResult({
+        playerOneLabel: "Joueur X",
+        playerOne: players.X || "-",
+        playerTwoLabel: "Joueur O",
+        playerTwo: players.O || "-",
+        winner: "Adversaire déconnecté",
+      });
+
       break;
+    }
   }
 };
 
@@ -177,17 +168,4 @@ window.addEventListener("pageshow", (e) => {
   if (e.persisted) window.location.reload();
 });
 
-const copyButton = document.getElementById("copy-room-code");
-
-copyButton.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(roomName);
-    copyButton.textContent = "Copié !";
-  } catch {
-    copyButton.textContent = "Erreur";
-  }
-
-  setTimeout(() => {
-    copyButton.textContent = "Copier";
-  }, 1500);
-});
+setupRoomCodeCopy(roomName);

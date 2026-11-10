@@ -36,14 +36,6 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div id="game-result"
-                         class="card bg-dark text-light border-secondary shadow mt-4 d-none">
-                        <div class="card-body p-4">
-                            <h2 id="result-title" class="mb-3"></h2>
-                            <p class="text-secondary mb-2">Retour à l'accueil dans</p>
-                            <div id="countdown" class="display-1 fw-bold">5</div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="text-center mt-3">
@@ -51,6 +43,9 @@
             </div>
         </div>
     </div>
+    {% include "games/partials/_game_result.html" %}
     <script>const roomName = "{{ room_name }}";</script>
+    <script src="{% static 'games/js/game_result.js' %}"></script>
+    <script src="{% static 'games/js/game_utils.js' %}"></script>
     <script src="{% static 'games/js/connect_4.js' %}"></script>
 {% endblock %}
