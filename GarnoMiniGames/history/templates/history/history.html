@@ -42,8 +42,7 @@
                                 <div class="small text-body-secondary">
                                     contre
                                     {% if r.opponent and r.opponent.profile %}
-                                        <a href="{% url 'accounts:player_profile' r.opponent.profile.pseudonym %}">
-                                        {{ r.opponent.profile.pseudonym }}</a>
+                                        <a href="{% url 'accounts:player_profile' r.opponent.profile.pseudonym %}?from=history">                                        {{ r.opponent.profile.pseudonym }}</a>
                                     {% else %}
                                         {{ r.opponent_name }} <span class="fst-italic">(compte supprimé)</span>
                                     {% endif %}
