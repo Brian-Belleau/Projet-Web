@@ -2,7 +2,6 @@ from django.conf import settings
 from django.db import models
 from django.db.models import F, Q
 from django.db.models.functions import Greatest, Least
-from django.utils import timezone
 
 
 class FriendshipManager(models.Manager):
@@ -66,42 +65,3 @@ class Friendship(models.Model):
         if self.status == self.ACCEPTED:
             return self.FRIENDS
         return self.SENT if self.from_user_id == user.pk else self.RECEIVED
-
-
-class GameInvitation(models.Model):
-    PENDING = "pending"
-    ACCEPTED = "accepted"
-    STATUS_CHOICES = [
-        (PENDING, "En attente"),
-        (ACCEPTED, "Acceptée"),
-    ]
-    TTL_SECONDS = 120
-
-    from_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="sent_game_invitations",
-    )
-    to_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="received_game_invitations",
-    )
-    game_slug = models.CharField(max_length=50)
-    room_name = models.CharField(max_length=20)
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default=PENDING)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["from_user", "to_user", "room_name"],
-                name="unique_invitation_per_room",
-            ),
-        ]
-
-    def is_expired(self):
-        age = timezone.now() - self.created_at
-        return age.total_seconds() > self.TTL_SECONDS
