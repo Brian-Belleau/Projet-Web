@@ -48,7 +48,7 @@
                 {% for p in page_obj %}
                     {% with position=forloop.counter0|add:page_obj.start_index %}
                         {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:player_profile' p.pseudonym %}"
+                            <a href="{% url 'accounts:player_profile' p.pseudonym %}?from=ranking"
                                class="card-gmg card-hover ranking-row d-flex align-items-center gap-3 p-3 text-decoration-none text-body{% if p.user_id == user.pk %} ranking-row-me{% endif %}">
                         {% else %}
                             <div class="card-gmg ranking-row d-flex align-items-center gap-3 p-3">
