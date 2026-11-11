@@ -19,14 +19,14 @@
                     </div>
                     <div class="col-4">
                         <div class="stat-tile">
-                            <div class="stat-value text-danger">{{ losses }}</div>
-                            <div class="stat-label">Défaite{{ losses|pluralize }}</div>
+                            <div class="stat-value text-warning">{{ draws }}</div>
+                            <div class="stat-label">Égalité{{ draws|pluralize }}</div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="stat-tile">
-                            <div class="stat-value text-warning">{{ draws }}</div>
-                            <div class="stat-label">Égalité{{ draws|pluralize }}</div>
+                            <div class="stat-value text-danger">{{ losses }}</div>
+                            <div class="stat-label">Défaite{{ losses|pluralize }}</div>
                         </div>
                     </div>
                 </section>
@@ -42,8 +42,7 @@
                                 <div class="small text-body-secondary">
                                     contre
                                     {% if r.opponent and r.opponent.profile %}
-                                        <a href="{% url 'accounts:player_profile' r.opponent.profile.pseudonym %}?from=history">
-                                        {{ r.opponent.profile.pseudonym }}</a>
+                                        <a href="{% url 'accounts:player_profile' r.opponent.profile.pseudonym %}?from=history">                                        {{ r.opponent.profile.pseudonym }}</a>
                                     {% else %}
                                         {{ r.opponent_name }} <span class="fst-italic">(compte supprimé)</span>
                                     {% endif %}
@@ -97,7 +96,12 @@
                                 {% if num == page_obj.number %}
                                     <li class="page-item active"
                                         aria-current="page"><span class="page-link">{{ num }}</span></li>
-                                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+                                    <li class="page-item disabled"><span class="page-link">…</span></li>
                                 {% endif %}
                             {% endfor %}
                             {% if page_obj.has_next %}

@@ -69,7 +69,9 @@
             </div>
         </div>
         {# --- Rejoindre une partie --- #}
-        <div id="rejoindre-form" class="col-md-6">
+        <div id="rejoindre-form"
+             class="col-md-6"
+             {% if form.errors %}data-has-error="true"{% endif %}>
             <div class="card action-card h-100 bg-dark text-light border-secondary shadow">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="action-card-header">
@@ -127,7 +129,9 @@
                                   class="mb-0">
                                 {% csrf_token %}
                                 <input type="hidden" name="room_name" value="{{ partie.room_name }}">
-                                <button type="submit" class="btn btn-primary btn-sm">Rejoindre</button>
+                                <button type="submit" class="btn btn-primary w-100 action-card-submit">
+                                    <i class="bi bi-door-open-fill me-1"></i>Rejoindre la partie
+                                </button>
                             </form>
                         </li>
                     {% endfor %}
@@ -137,12 +141,7 @@
             {% endif %}
         </div>
     </div>
-    {% if form.errors %}
-        <script>
-    document.getElementById("rejoindre-form").scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-    });
-        </script>
-    {% endif %}
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'games/js/scroll-to-form.js' %}"></script>
 {% endblock %}
