@@ -3,6 +3,28 @@ import re
 from django import forms
 
 
+class CreerPartieForm(forms.Form):
+    """Choix de la visibilité d'une partie à sa création."""
+
+    VISIBILITE_CHOICES = [
+        ("privee", "Privée"),
+        ("publique", "Publique"),
+    ]
+
+    visibilite = forms.ChoiceField(
+        choices=VISIBILITE_CHOICES,
+        initial="privee",
+        required=True,
+        error_messages={
+            "required": "Choisis si la partie est publique ou privée.",
+            "invalid_choice": "Choix de visibilité invalide.",
+        },
+    )
+
+    def est_publique(self):
+        return self.cleaned_data["visibilite"] == "publique"
+
+
 class RejoindreJeuForm(forms.Form):
     """Formulaire permettant de rejoindre une partie."""
 
@@ -13,8 +35,12 @@ class RejoindreJeuForm(forms.Form):
         label="Code de la partie",
         widget=forms.TextInput(
             attrs={
-                "class": "form-control bg-dark text-light border-secondary text-center text-uppercase fw-bold",
+                "class": "form-control form-control-lg bg-dark text-light border-secondary text-center text-uppercase fw-bold join-code-input",
                 "placeholder": "ABC123",
+                "maxlength": "6",
+                "autocomplete": "off",
+                "autocapitalize": "characters",
+                "spellcheck": "false",
             }
         ),
         error_messages={

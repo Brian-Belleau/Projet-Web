@@ -4,8 +4,11 @@ import uuid
 
 from .models import Jeu
 from .consumers import PremierClicConsumer, TicTacToeConsumer, Connect4Consumer
-from .forms import RejoindreJeuForm
-from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, has_reservation, reserve_room
+from .forms import CreerPartieForm, RejoindreJeuForm
+from .presence import (
+    ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, has_reservation,
+    list_public_rooms, reserve_room,
+)
 
 
 # slug du jeu -> (nom de l'URL de la partie, consumer qui gère les salles)
@@ -72,18 +75,43 @@ def jeu_detail(request, slug):
         {
             'jeu': jeu,
             'form': form,
+            'parties_publiques': _parties_publiques(request, jeu),
         }
     )
 
 
+def _parties_publiques(request, jeu):
+    """Parties publiques en attente d'un joueur pour ce jeu."""
+    if jeu.slug not in JEUX_MULTIJOUEUR:
+        return []
+    _, consumer = JEUX_MULTIJOUEUR[jeu.slug]
+    identity = get_identity(request.user, request.session)
+    return list_public_rooms(
+        consumer.ROOMS,
+        consumer.GAME_PREFIX,
+        identity,
+        request.user.is_authenticated,
+        consumer.MAX_PLAYERS,
+    )
+
+
 def lancer_jeu(request, slug):
-    """Lance le jeu sélectionné."""
+    """Crée une partie, publique ou privée selon le choix du joueur."""
 
     jeu = get_object_or_404(Jeu, slug=slug)
 
     if not jeu.actif:
         messages.error(request, "Ce jeu n'est pas disponible actuellement.")
         return redirect('home')
+
+    if request.method != "POST":
+        return redirect('jeu_detail', slug=jeu.slug)
+
+    creer_form = CreerPartieForm(request.POST)
+    if not creer_form.is_valid():
+        messages.error(request, creer_form.errors["visibilite"][0])
+        return redirect('jeu_detail', slug=jeu.slug)
+    is_public = creer_form.est_publique()
 
     identity = get_identity(request.user, request.session, create=True)
     if identity in ACTIVE_PLAYERS:
@@ -94,7 +122,7 @@ def lancer_jeu(request, slug):
 
     if jeu.slug in JEUX_MULTIJOUEUR:
         url_name, consumer = JEUX_MULTIJOUEUR[jeu.slug]
-        reserve_room(identity, consumer.GAME_PREFIX, room_name)
+        reserve_room(identity, consumer.GAME_PREFIX, room_name, is_public)
         return redirect(url_name, room_name=room_name)
 
     messages.error(request, "Ce jeu n'est pas encore disponible.")
@@ -159,5 +187,6 @@ def rejoindre_jeu(request, slug):
         {
             'jeu': jeu,
             'form': form,
+            'parties_publiques': _parties_publiques(request, jeu),
         }
     )
