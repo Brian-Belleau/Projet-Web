@@ -9,7 +9,7 @@ PENDING_TTL = 60
 MESSAGES = {
     "room_not_found": (
         "Cette partie n'existe pas. "
-        "Crée une partie depuis la page du jeu."
+        "Crée ou rejoins une partie depuis la page du jeu."
     ),
     "self_play": "Tu ne peux pas jouer contre toi-même.",
     "already_in_game": (
@@ -18,8 +18,7 @@ MESSAGES = {
     ),
     "room_full": "Cette partie est déjà pleine.",
     "room_guests_only": (
-        "Cette partie est réservée aux invités. "
-        "Déconnecte-toi pour la rejoindre."
+        "Cette partie est réservée aux invités. " "Déconnecte-toi pour la rejoindre."
     ),
     "room_users_only": (
         "Cette partie est réservée aux joueurs connectés. "
@@ -52,7 +51,7 @@ def get_identity(user, session, create=False):
 
 
 def check_join(identity, is_auth, game, room_name, room, max_players):
-    """Vérifie qu'un joueur a le droit de rejoindre une salle. """
+    """Vérifie qu'un joueur a le droit de rejoindre une salle."""
     active = ACTIVE_PLAYERS.get(identity)
     if active is not None:
         active_game, active_room, _ = active
@@ -81,8 +80,7 @@ def _purge_pending():
 def reserve_room(identity, game, room_name):
     """Autorise `identity` (et elle seule) à ouvrir la salle `room_name`."""
     _purge_pending()
-    PENDING_ROOMS[(game, room_name)] = (
-        identity, time.monotonic() + PENDING_TTL)
+    PENDING_ROOMS[(game, room_name)] = (identity, time.monotonic() + PENDING_TTL)
 
 
 def has_reservation(identity, game, room_name):

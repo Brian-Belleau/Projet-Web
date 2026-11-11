@@ -1,5 +1,8 @@
 "use strict";
 
+import { showGameResult, setupRematch } from "./game_result.js";
+import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
   `${protocol}://${window.location.host}/ws/games/tic-tac-toe/${roomName}/`,
@@ -47,9 +50,16 @@ socket.onmessage = (e) => {
       break;
 
     case "game_start":
+      gameOver = false;
       players = data.players;
       mySymbol = data.you;
       currentTurn = data.turn;
+
+      // Retire les anciennes lignes gagnantes.
+      cells.forEach((cell) => {
+        cell.classList.remove("ttt-cell-win");
+      });
+
       boardEl.classList.remove("d-none");
       infoEl.textContent = `Tu joues les ${mySymbol} — ${data.players.X} (X) vs ${data.players.O} (O)`;
       renderBoard(data.board);
@@ -139,6 +149,9 @@ socket.onmessage = (e) => {
 
       break;
     }
+
+    case "opponent_left_after_game":
+      break;
   }
 };
 
@@ -169,3 +182,5 @@ window.addEventListener("pageshow", (e) => {
 });
 
 setupRoomCodeCopy(roomName);
+
+setupRematch(socket);

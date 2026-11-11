@@ -1,5 +1,8 @@
 "use strict";
 
+import { showGameResult, setupRematch } from "./game_result.js";
+import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
   `${protocol}://${window.location.host}/ws/games/connect-4/${roomName}/`,
@@ -102,6 +105,7 @@ socket.onmessage = (event) => {
       gameOver = false;
 
       boardElement.classList.remove("d-none");
+      gameStatus.classList.remove("text-danger");
 
       if (mySymbol === "R") {
         gameInfo.textContent = "Tu joues avec les jetons rouges.";
@@ -235,6 +239,8 @@ for (const button of columnButtons) {
 }
 
 setupRoomCodeCopy(roomName);
+
+setupRematch(socket);
 
 window.addEventListener("pagehide", () => {
   gameOver = true;

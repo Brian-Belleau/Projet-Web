@@ -32,7 +32,5 @@ GarnoMiniGames{% endblock %} {% block content %}
 </div>
 {% include "games/partials/_game_result.html" %}
 <script>const roomName = "{{ room_name }}";</script>
-<script src="{% static 'games/js/game_result.js' %}"></script>
-<script src="{% static 'games/js/game_utils.js' %}"></script>
-<script src="{% static 'games/js/tic_tac_toe.js' %}"></script>
+<script type="module" src="{% static 'games/js/tic_tac_toe.js' %}"></script>
 {% endblock %}

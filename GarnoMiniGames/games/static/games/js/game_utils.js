@@ -1,7 +1,9 @@
 "use strict";
 
+import { showGameResult } from "./game_result.js";
+
 // Configure le bouton pour copier le code de la partie.
-function setupRoomCodeCopy(roomName) {
+export function setupRoomCodeCopy(roomName) {
   const copyButton = document.getElementById("copy-room-code");
 
   copyButton.addEventListener("click", async () => {
@@ -19,7 +21,7 @@ function setupRoomCodeCopy(roomName) {
 }
 
 // Affiche le résultat lorsque l'adversaire quitte la partie.
-function showOpponentLeftResult(result) {
+export function showOpponentLeftResult(result) {
   showGameResult(
     "Partie interrompue",
     "Ton adversaire a quitté la partie.",
@@ -27,4 +29,15 @@ function showOpponentLeftResult(result) {
     "⚠️",
     result,
   );
+
+  const rematchButton = document.getElementById("rematch-button");
+  const rematchStatus = document.getElementById("rematch-status");
+
+  if (rematchButton) {
+    rematchButton.classList.add("d-none");
+  }
+
+  if (rematchStatus) {
+    rematchStatus.classList.add("d-none");
+  }
 }

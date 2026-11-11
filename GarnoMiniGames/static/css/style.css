@@ -570,6 +570,10 @@ html {
   z-index: 1050;
 }
 
+.game-result-overlay.d-none {
+  display: none;
+}
+
 .game-result-card {
   background: #15151f;
   border: 1px solid #44445a;

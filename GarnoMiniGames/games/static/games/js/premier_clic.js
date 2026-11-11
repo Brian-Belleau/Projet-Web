@@ -1,5 +1,8 @@
 "use strict";
 
+import { showGameResult, setupRematch } from "./game_result.js";
+import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
   `${protocol}://${window.location.host}/ws/games/premier-clic/${roomName}/`,
@@ -42,6 +45,21 @@ socket.onmessage = (e) => {
     case "waiting":
       statusEl.textContent = "Prépare-toi...";
       btn.style.display = "none";
+      break;
+
+    case "rematch_started":
+      gameOver = false;
+      currentScores = {};
+      scoreEl.textContent = "";
+      btn.style.display = "none";
+      statusEl.classList.remove("text-danger");
+
+      document.getElementById("game-result").classList.add("d-none");
+      document.getElementById("rematch-status").classList.add("d-none");
+
+      statusEl.textContent = "Prépare-toi...";
+      statusEl.classList.remove("d-none");
+
       break;
 
     case "show_button":
@@ -98,6 +116,9 @@ socket.onmessage = (e) => {
       showOpponentLeftResult(getResultDetails("Adversaire déconnecté"));
 
       break;
+
+    case "opponent_left_after_game":
+      break;
   }
 };
 
@@ -125,3 +146,5 @@ window.addEventListener("pageshow", (e) => {
 });
 
 setupRoomCodeCopy(roomName);
+
+setupRematch(socket);
