@@ -3,9 +3,9 @@ from django.http import HttpResponse
 
 
 class ErrorPagesMiddleware:
-    """Affiche les pages d'erreur personnalisées 401 et 405."""
+    """Affiche les pages d'erreur personnalisées 401, 403 et 405."""
 
-    TEMPLATES = {401: '401.html', 405: '405.html'}
+    TEMPLATES = {401: '401.html', 403: '403.html', 405: '405.html'}
 
     def __init__(self, get_response):
         self.get_response = get_response

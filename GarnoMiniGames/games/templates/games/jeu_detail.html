@@ -1,107 +1,148 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
+{% load static %}
 {% block title %}{{ jeu.nom }} - GarnoMiniGames{% endblock %}
-
 {% block content %}
-
-<a href="{% url 'home' %}" class="btn btn-outline-light mb-4">
-    ← Retour à l'accueil
-</a>
-
-<div class="card bg-dark text-light border-secondary shadow text-center mb-4">
-    <div class="card-body p-4 p-md-5">
-
-    {% if jeu.image %}
-    <img src="/static/{{ jeu.image.name }}"
-         alt="{{ jeu.nom }}"
-         class="jeu-detail-image rounded mb-4">
-    {% endif %}
-
-    <h1 class="mb-3">{{ jeu.nom }}</h1>
-
-    <p class="text-secondary mb-0">
-        {{ jeu.description }}
-    </p>
-
-</div>
-
-</div>
-
-<div class="row g-4">
-
-<div class="col-md-6">
-    <div class="card h-100 bg-dark text-light border-secondary shadow">
-        <div class="card-body text-center p-4">
-
-            <h3 class="card-title">Créer une partie</h3>
-
-            <p class="card-text text-secondary">
-                Crée une nouvelle partie et partage le code
-                avec ton adversaire.
-            </p>
-
-            <a href="{% url 'lancer_jeu' jeu.slug %}"
-               class="btn btn-primary w-100">
-                Créer la partie
-            </a>
-
+    <div class="mb-4">
+        {% url 'home' as home_url %}
+        {% include "accounts/_back_link.html" with url=home_url label="Retour à l'accueil" %}
+    </div>
+    <div class="card bg-dark text-light border-secondary shadow text-center mb-4">
+        <div class="card-body p-4 p-md-5">
+            {% if jeu.image %}
+                <img src="{% static jeu.image.name %}"
+                     alt="{{ jeu.nom }}"
+                     class="jeu-detail-image rounded mb-4">
+            {% endif %}
+            <h1 class="mb-3">{{ jeu.nom }}</h1>
+            <p class="text-secondary mb-0">{{ jeu.description }}</p>
         </div>
     </div>
-</div>
-
-<div id="rejoindre-form" class="col-md-6">
-    <div class="card h-100 bg-dark text-light border-secondary shadow">
-        <div class="card-body text-center p-4">
-
-            <h3 class="card-title">Rejoindre une partie</h3>
-
-            <p class="card-text text-secondary">
-                Entre le code de la partie que ton adversaire
-                t'a partagé.
-            </p>
-
-            <form method="post"
-                  action="{% url 'rejoindre_jeu' jeu.slug %}"
-                  novalidate>
-
-                {% csrf_token %}
-
-                <div class="mb-3 text-start">
-                    <label for="{{ form.room_name.id_for_label }}"
-                           class="form-label">
-                        Code de la partie
-                    </label>
-
-                    {{ form.room_name }}
-
-                    {% if form.room_name.errors %}
-                    <div class="text-danger small mt-1">
-                        {{ form.room_name.errors.0 }}
+    <div class="row g-4">
+        {# --- Créer une partie --- #}
+        <div class="col-md-6">
+            <div class="card action-card h-100 bg-dark text-light border-secondary shadow">
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="action-card-header">
+                        <span class="action-card-icon"><i class="bi bi-plus-lg"></i></span>
+                        <h3 class="card-title mb-1">Créer une partie</h3>
+                        <p class="text-secondary mb-0">Crée une nouvelle partie et choisis qui peut la rejoindre.</p>
                     </div>
-                    {% endif %}
+                    <form method="post"
+                          action="{% url 'lancer_jeu' jeu.slug %}"
+                          class="action-card-form">
+                        {% csrf_token %}
+                        <fieldset class="action-card-field">
+                            <legend class="form-label action-card-label">Visibilité</legend>
+                            <div class="visibility-options">
+                                <div class="visibility-option">
+                                    <input type="radio"
+                                           class="visibility-input"
+                                           name="visibilite"
+                                           id="visibilite-privee"
+                                           value="privee"
+                                           checked>
+                                    <label class="visibility-tile" for="visibilite-privee">
+                                        <i class="bi bi-lock-fill visibility-icon"></i>
+                                        <span class="visibility-title">Privée</span>
+                                        <span class="visibility-desc">Seuls les joueurs qui ont le code peuvent rejoindre.</span>
+                                    </label>
+                                </div>
+                                <div class="visibility-option">
+                                    <input type="radio"
+                                           class="visibility-input"
+                                           name="visibilite"
+                                           id="visibilite-publique"
+                                           value="publique">
+                                    <label class="visibility-tile" for="visibilite-publique">
+                                        <i class="bi bi-globe2 visibility-icon"></i>
+                                        <span class="visibility-title">Publique</span>
+                                        <span class="visibility-desc">Visible dans la liste, tout le monde peut la rejoindre.</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 action-card-submit">
+                            <i class="bi bi-play-fill me-1"></i>Créer la partie
+                        </button>
+                    </form>
                 </div>
-
-                <button type="submit" class="btn btn-secondary w-100">
-                    Rejoindre la partie
-                </button>
-
-            </form>
-
+            </div>
+        </div>
+        {# --- Rejoindre une partie --- #}
+        <div id="rejoindre-form" class="col-md-6">
+            <div class="card action-card h-100 bg-dark text-light border-secondary shadow">
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="action-card-header">
+                        <span class="action-card-icon"><i class="bi bi-door-open-fill"></i></span>
+                        <h3 class="card-title mb-1">Rejoindre une partie</h3>
+                        <p class="text-secondary mb-0">Entre le code de la partie que ton adversaire t'a partagé.</p>
+                    </div>
+                    <form method="post"
+                          action="{% url 'rejoindre_jeu' jeu.slug %}"
+                          class="action-card-form"
+                          novalidate>
+                        {% csrf_token %}
+                        <div class="action-card-field">
+                            <label for="{{ form.room_name.id_for_label }}"
+                                   class="form-label action-card-label">Code de la partie</label>
+                            {{ form.room_name }}
+                            {% if form.room_name.errors %}
+                                <div class="text-danger small mt-2">{{ form.room_name.errors.0 }}</div>
+                            {% else %}
+                                <div class="form-text text-secondary mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>6 lettres ou chiffres, par exemple <strong>ABC123</strong>.
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 action-card-submit">
+                            <i class="bi bi-door-open-fill me-1"></i>Rejoindre la partie
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-</div>
-
-{% if form.errors %}
-
-<script>
+    <div class="card bg-dark text-light border-secondary shadow mt-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="card-title mb-0">Parties publiques</h3>
+                <a href="{% url 'jeu_detail' jeu.slug %}"
+                   class="btn btn-outline-secondary btn-sm">Actualiser</a>
+            </div>
+            {% if parties_publiques %}
+                <ul class="list-group list-group-flush">
+                    {% for partie in parties_publiques %}
+                        <li class="list-group-item public-room bg-dark text-light border-secondary d-flex justify-content-between align-items-center px-0">
+                            <span class="d-flex align-items-center gap-3">
+                                <span class="public-room-icon"><i class="bi bi-globe2"></i></span>
+                                <span>
+                                    Partie de <strong>{{ partie.host }}</strong>
+                                    <span class="d-block text-secondary small">
+                                        <i class="bi bi-people me-1"></i>{{ partie.count }}/{{ partie.max }} joueurs
+                                    </span>
+                                </span>
+                            </span>
+                            <form method="post"
+                                  action="{% url 'rejoindre_jeu' jeu.slug %}"
+                                  class="mb-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="room_name" value="{{ partie.room_name }}">
+                                <button type="submit" class="btn btn-primary btn-sm">Rejoindre</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-secondary mb-0">Aucune partie publique en attente pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% if form.errors %}
+        <script>
     document.getElementById("rejoindre-form").scrollIntoView({
         behavior: "smooth",
         block: "center"
     });
-</script>
-
-{% endif %}
-
+        </script>
+    {% endif %}
 {% endblock %}

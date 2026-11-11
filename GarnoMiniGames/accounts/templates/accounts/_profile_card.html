@@ -1,95 +1,96 @@
 <div class="card-gmg">
-    <div class="card-gmg-banner"></div>
-    <div class="p-4 pt-0">
-        <div class="d-flex flex-wrap justify-content-between align-items-end">
-            <div class="avatar-overlap">
-                {% include "accounts/_avatar.html" with profile=profile size="lg" %}
-            </div>
-            {% if own %}
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-search me-1"></i>Rechercher un profil
-                </a>
-                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
-                    <i class="bi bi-pencil-square me-1"></i>Modifier le profil
-                </a>
-                <a href="{% url 'accounts:profile_delete' %}" class="btn btn-outline-danger">
-                    <i class="bi bi-trash me-1"></i>Supprimer mon profil
-                </a>
-            </div>
-            {% else %}
-            <div class="d-flex flex-wrap gap-2">
-                {% include "friends/_friend_action.html" %}
-                <a href="{% url 'accounts:search_profiles' %}" class="btn btn-outline-secondary mt-3">
-                    <i class="bi bi-arrow-left me-1"></i>Retour à la recherche
-                </a>
-            </div>
-            {% endif %}
+  <div class="card-gmg-banner"></div>
+  <div class="p-4 pt-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-end">
+      <div class="avatar-overlap">{% include "accounts/_avatar.html" with profile=profile size="lg" %}</div>
+      {% if own %}
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <a href="{% url 'accounts:search_profiles' %}"
+             class="btn btn-outline-secondary">
+            <i class="bi bi-search me-1"></i>Rechercher un profil
+          </a>
+          <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary">
+            <i class="bi bi-pencil-square me-1"></i>Modifier le profil
+          </a>
+          <a href="{% url 'accounts:profile_delete' %}"
+             class="btn btn-outline-danger">
+            <i class="bi bi-trash me-1"></i>Supprimer mon profil
+          </a>
         </div>
-
-        <div class="mt-3">
-            <h2 class="h3 mb-0">{{ profile.pseudonym }}</h2>
-            {% if own %}
-            <p class="text-body-secondary mb-0">@{{ profile.user.username }}</p>
-            {% if profile.user.first_name or profile.user.last_name %}
-            <p class="text-body-secondary mb-0">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
-            {% endif %}
-            {% if profile.user.email %}
-            <p class="text-body-secondary mb-0"><i class="bi bi-envelope me-1"></i>{{ profile.user.email }}</p>
-            {% endif %}
-            {% endif %}
-        </div>
-
-        <section class="mt-4">
-            <h3 class="h6 text-uppercase text-body-secondary">Biographie</h3>
-            {% if profile.bio %}
-            <p class="bio-text mb-0">{{ profile.bio }}</p>
-            {% elif own %}
-            <p class="text-body-secondary fst-italic mb-0">Aucune biographie renseignée.</p>
-            {% else %}
-            <p class="text-body-secondary fst-italic mb-0">Ce joueur n'a pas encore renseigné sa biographie.</p>
-            {% endif %}
-        </section>
-
-        <section class="row g-3 text-center mt-2">
-            <div class="col-6 col-md-3">
-                <div class="stat-tile">
-                    <div class="stat-value">{{ profile.games_played }}</div>
-                    <div class="stat-label">Parties</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-tile">
-                    <div class="stat-value text-success">{{ profile.wins }}</div>
-                    <div class="stat-label">Victoires</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-tile">
-                    <div class="stat-value text-warning">{{ profile.draws }}</div>
-                    <div class="stat-label">Égalités</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-tile">
-                    <div class="stat-value text-danger">{{ profile.losses }}</div>
-                    <div class="stat-label">Défaites</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mt-4">
-            <div class="d-flex justify-content-between mb-2">
-                <h3 class="h6 text-uppercase text-body-secondary mb-0">
-                    Taux de victoire
-                    <i class="bi bi-info-circle ms-1" role="img" tabindex="0" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-title="Une égalité compte pour une demi-victoire."
-                        aria-label="Une égalité compte pour une demi-victoire."></i>
-                </h3>
-                <span class="small text-body-secondary">{{ profile.win_rate }}%</span>
-            </div>
-            <progress class="progress-win" value="{{ profile.win_rate }}" max="100" aria-label="Taux de victoire">
-                {{ profile.win_rate }}%</progress>
-        </section>
+      {% else %}
+        <div class="d-flex flex-wrap gap-2">{% include "friends/_friend_action.html" %}</div>
+      {% endif %}
     </div>
+    <div class="mt-3">
+      <h2 class="h3 mb-0">{{ profile.pseudonym }}</h2>
+      {% if own %}
+        <p class="text-body-secondary mb-0">@{{ profile.user.username }}</p>
+        {% if profile.user.first_name or profile.user.last_name %}
+          <p class="text-body-secondary mb-0">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+        {% endif %}
+        {% if profile.user.email %}
+          <p class="text-body-secondary mb-0">
+            <i class="bi bi-envelope me-1"></i>{{ profile.user.email }}
+          </p>
+        {% endif %}
+      {% endif %}
+    </div>
+    <section class="mt-4">
+      <h3 class="h6 text-uppercase text-body-secondary">Biographie</h3>
+      {% if profile.bio %}
+        <p class="bio-text mb-0">{{ profile.bio }}</p>
+      {% elif own %}
+        <p class="text-body-secondary fst-italic mb-0">Aucune biographie renseignée.</p>
+      {% else %}
+        <p class="text-body-secondary fst-italic mb-0">Ce joueur n'a pas encore renseigné sa biographie.</p>
+      {% endif %}
+    </section>
+    <section class="row g-3 text-center mt-2">
+      <div class="col-6 col-md-3">
+        <div class="stat-tile">
+          <div class="stat-value">{{ profile.games_played }}</div>
+          <div class="stat-label">Parties</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-tile">
+          <div class="stat-value text-success">{{ profile.wins }}</div>
+          <div class="stat-label">Victoires</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-tile">
+          <div class="stat-value text-warning">{{ profile.draws }}</div>
+          <div class="stat-label">Égalités</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-tile">
+          <div class="stat-value text-danger">{{ profile.losses }}</div>
+          <div class="stat-label">Défaites</div>
+        </div>
+      </div>
+    </section>
+    <section class="mt-4">
+      <div class="d-flex justify-content-between mb-2">
+        <h3 class="h6 text-uppercase text-body-secondary mb-0">
+          Taux de victoire
+          <i class="bi bi-info-circle ms-1"
+             role="img"
+             tabindex="0"
+             data-bs-toggle="tooltip"
+             data-bs-placement="top"
+             data-bs-title="Une égalité compte pour une demi-victoire."
+             aria-label="Une égalité compte pour une demi-victoire."></i>
+        </h3>
+        <span class="small text-body-secondary">{{ profile.win_rate }}%</span>
+      </div>
+      <progress class="progress-win"
+                value="{{ profile.win_rate }}"
+                max="100"
+                aria-label="Taux de victoire">
+        {{ profile.win_rate }}%
+      </progress>
+    </section>
+  </div>
 </div>

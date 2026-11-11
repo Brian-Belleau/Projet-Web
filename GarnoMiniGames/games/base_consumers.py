@@ -24,6 +24,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             "user_ids": {},
             "scores": {},
             "is_auth": None,
+            "is_public": False,
             "button_visible": False,
             "round_active": False,
             "task": None,
@@ -92,14 +93,19 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         if reason:
             return reason
 
-        if room is None and not consume_reservation(
-            self.identity, self.GAME_PREFIX, self.room_name
-        ):
-            return "room_not_found"
+        reservation = None
+        if room is None:
+            reservation = consume_reservation(
+                self.identity, self.GAME_PREFIX, self.room_name
+            )
+            if reservation is None:
+                return "room_not_found"
 
         room = self._get_room()
         if not room["players"]:
             room["is_auth"] = self.is_auth
+        if reservation is not None:
+            room["is_public"] = reservation["is_public"]
 
         room["players"][self.channel_name] = self.username
         room["user_ids"][self.channel_name] = (

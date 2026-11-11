@@ -140,7 +140,7 @@ def search_users(request):
             "pseudonym": p.pseudonym,
             "initial": p.pseudonym[:1].upper(),
             "photo_url": p.photo.url if p.photo else None,
-            "profile_url": reverse("accounts:player_profile", args=[p.pseudonym]),
+            "profile_url": reverse("accounts:player_profile", args=[p.pseudonym]) + "?from=friends",
             "add_url": reverse("friends:send_request", args=[p.pseudonym]),
             "status": statuses.get(p.user_id, Friendship.NONE),
         }
