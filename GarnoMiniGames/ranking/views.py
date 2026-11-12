@@ -12,8 +12,8 @@ MIN_GAMES_PLAYED = 1
 
 # (champ annoté, sens)
 RANKING_KEYS = (
-    ("win_rate_calc", "desc"),
-    ("games_played", "desc"),
+    ("points", "desc"),
+    ("wins", "desc"),
     ("pseudonym", "asc"),
 )
 
@@ -27,14 +27,6 @@ def ranked_profiles():
     return (
         Profile.objects
         .filter(games_played__gte=MIN_GAMES_PLAYED)
-        .annotate(
-            win_rate_calc=ExpressionWrapper(
-                (Cast("wins", FloatField())
-                 + Cast("draws", FloatField()) * 0.5)
-                * 100 / F("games_played"),
-                output_field=FloatField(),
-            )
-        )
         .order_by(*order)
     )
 
