@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required as django_login_requir
 from django.db import IntegrityError, transaction
 from django.db.models import Case, IntegerField, Q, Value, When
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
 from accounts.models import Profile
 from accounts.views import get_user_profile, is_ajax
-from .models import Friendship
+from .models import Friendship, GameInvitation
 from .services import get_friends
 
 LEVEL_NAMES = {
@@ -273,3 +274,93 @@ def remove_friend(request, pk):
     pseudonym = other.profile.pseudonym
     friendship.delete()
     return respond(request, messages.INFO, f"{pseudonym} a été retiré de votre liste d'amis.")
+
+
+@login_required
+@require_POST
+def invite_friend(request, pseudonym):
+    """Enregistre l'invitation d'un ami à rejoindre la partie en cours."""
+    from games.presence import get_identity, has_reservation
+    from games.views import JEUX_MULTIJOUEUR
+
+    me = request.user
+    room_name = request.POST.get("room_name", "").strip()
+    game_slug = request.POST.get("game_slug", "").strip()
+
+    target = Profile.objects.select_related(
+        "user").filter(pseudonym=pseudonym).first()
+    if target is None:
+        return JsonResponse({"ok": False, "error": "Joueur introuvable."}, status=404)
+
+    est_ami = Friendship.objects.filter(
+        Q(from_user=me, to_user=target.user) | Q(
+            from_user=target.user, to_user=me),
+        status=Friendship.ACCEPTED,
+    ).exists()
+    if not est_ami:
+        return JsonResponse({"ok": False, "error": "Ce joueur n'est pas votre ami."}, status=403)
+
+    if game_slug not in JEUX_MULTIJOUEUR or not room_name:
+        return JsonResponse({"ok": False, "error": "Partie invalide."}, status=400)
+
+    _, consumer = JEUX_MULTIJOUEUR[game_slug]
+    identity = get_identity(me, request.session)
+    if (
+        consumer.ROOMS.get(room_name) is None
+        and not has_reservation(identity, consumer.GAME_PREFIX, room_name)
+    ):
+        return JsonResponse({"ok": False, "error": "Cette partie n'existe pas."}, status=404)
+
+    room = consumer.ROOMS.get(room_name)
+    if room is not None and len(room["players"]) >= consumer.MAX_PLAYERS:
+        return JsonResponse({"ok": False, "error": "La partie est déjà complète."}, status=409)
+
+    GameInvitation.objects.update_or_create(
+        from_user=me,
+        to_user=target.user,
+        room_name=room_name,
+        defaults={
+            "game_slug": game_slug,
+            "status": GameInvitation.PENDING,
+            "created_at": timezone.now(),
+        },
+    )
+    return JsonResponse({"ok": True})
+
+
+@login_required
+def join_invitation(request, pk):
+    """Lien « Rejoindre » de la notification : revérifie la partie puis y redirige."""
+    from games.presence import MESSAGES, check_join, get_identity
+    from games.views import JEUX_MULTIJOUEUR
+
+    invitation = GameInvitation.objects.filter(
+        pk=pk, to_user=request.user, status=GameInvitation.PENDING
+    ).first()
+    if invitation is None:
+        messages.error(request, "Cette invitation n'est plus valide.")
+        return redirect("home")
+
+    if invitation.is_expired() or invitation.game_slug not in JEUX_MULTIJOUEUR:
+        messages.error(request, "Cette invitation a expiré.")
+        return redirect("home")
+
+    url_name, consumer = JEUX_MULTIJOUEUR[invitation.game_slug]
+    room = consumer.ROOMS.get(invitation.room_name)
+    identity = get_identity(request.user, request.session, create=True)
+
+    if room is None:
+        messages.error(request, "Cette partie n'existe plus.")
+        return redirect("home")
+
+    refus = check_join(
+        identity, True, consumer.GAME_PREFIX,
+        invitation.room_name, room, consumer.MAX_PLAYERS,
+    )
+    if refus:
+        messages.error(request, MESSAGES[refus])
+        return redirect("home")
+
+    invitation.status = GameInvitation.ACCEPTED
+    invitation.save(update_fields=["status"])
+    return redirect(url_name, room_name=invitation.room_name)
