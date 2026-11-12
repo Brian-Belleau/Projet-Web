@@ -56,12 +56,8 @@
                                 </div>
                             </div>
                             <div class="text-end">
-                                <div class="fw-semibold">
-                                    {% if r.player_score is not None and r.opponent_score is not None %}
-                                        {{ r.player_score }} – {{ r.opponent_score }}
-                                    {% else %}
-                                        —
-                                    {% endif %}
+                                <div class="fw-semibold {% if r.points_delta > 0 %}text-success{% elif r.points_delta < 0 %}text-danger{% else %}text-body-secondary{% endif %}">
+                                    {% if r.points_delta > 0 %}+{% endif %}{{ r.points_delta }} pts
                                 </div>
                                 <div class="small text-body-secondary">{{ r.played_at|date:"d M Y, H:i" }}</div>
                             </div>
