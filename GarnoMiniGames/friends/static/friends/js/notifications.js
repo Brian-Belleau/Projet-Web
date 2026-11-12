@@ -1,6 +1,5 @@
 'use strict';
-
-// Vérifie toutes les 5 s s'il y a du nouveau (demandes d'amis), sans recharger la page.
+/** Vérifie toutes les 5 s s'il y a du nouveau (demandes d'amis), sans recharger la page. */
 (function () {
   const pollUrl = document.currentScript.dataset.pollUrl;
   // Zones de la page rafraîchies en AJAX : liste des amis / boutons du profil.
@@ -13,6 +12,12 @@
     offline: 'Hors ligne',
   };
 
+  /**
+   * Met à jour les statuts visuels, les libellés, l'état des boutons d'invitation et le compteur d'amis en ligne dans le DOM.
+   *
+   * @param {Object} statuses - Objet contenant l'association des identifiants d'amis et de leurs statuts actuels
+   * @param {number} onlineCount - Nombre total d'amis actuellement en ligne
+   */
   function applyStatuses(statuses, onlineCount) {
     document.querySelectorAll('[data-friend-status]').forEach(function (dot) {
       const status = statuses[dot.dataset.friendStatus] || 'offline';
@@ -36,6 +41,7 @@
     });
   }
 
+  /** Récupère et met à jour dynamiquement les portions de la page ciblées par les listes d'amis en effectuant une requête AJAX. */
   function refreshFriendsLists() {
     const zones = LIVE_IDS.filter((id) => document.getElementById(id));
     if (zones.length === 0) {
@@ -56,7 +62,11 @@
       .catch(() => {});
   }
 
-  // refreshOnChange=false : on met seulement l'empreinte à jour (déjà rafraîchi par l'appelant).
+  /**
+   *  refreshOnChange=false : on met seulement l'empreinte à jour (déjà rafraîchi par l'appelant).
+   *
+   * @param {boolean} refreshOnChange - Détermine s'il faut déclencher un rafraîchissement des listes en cas de modification de la signature des données
+   */
   function poll(refreshOnChange) {
     fetch(pollUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then((r) => {
@@ -69,6 +79,8 @@
           badge.classList.toggle('d-none', data.pending === 0);
         });
         applyStatuses(data.statuses || {}, data.online_count || 0);
+        if (window.renderInvitations)
+          window.renderInvitations(data.invitations || []);
         if (
           refreshOnChange &&
           lastSignature !== null &&
