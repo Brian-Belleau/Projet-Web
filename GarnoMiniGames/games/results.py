@@ -2,6 +2,8 @@ from asgiref.sync import sync_to_async
 from django.db import transaction
 from django.db.models import F
 
+from .points import DEFAULT_POINTS, POINTS
+
 
 def _game_points(game_slug):
     """(points gagnés en victoire, points perdus en défaite) pour ce jeu."""
@@ -66,3 +68,7 @@ def update_draw_stats(user_ids, game_slug=None):
                 draws=F("draws") + 1,
             )
         record_game(game_slug, user_a, user_b, GameResult.Result.DRAW)
+
+def _game_points(game_slug):
+    """points pour ce jeu."""
+    return POINTS.get(game_slug, DEFAULT_POINTS)
