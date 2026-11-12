@@ -161,6 +161,7 @@ globalThis.setRoomFull = function (full) {
   const modalEl = document.getElementById('invite-friends-modal');
   const codeSection = document.getElementById('room-code-section');
   if (full && codeSection) codeSection.remove();
+  if (fullNote) fullNote.classList.toggle('d-none', !full);
   if (openButton && modalEl) {
     if (full) {
       globalThis.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
@@ -172,6 +173,5 @@ globalThis.setRoomFull = function (full) {
     }
     openButton.classList.toggle('d-none', full);
     openButton.disabled = full;
-    if (fullNote) fullNote.classList.toggle('d-none', !full);
   }
 };
