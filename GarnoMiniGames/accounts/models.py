@@ -65,6 +65,7 @@ class Profile(models.Model):
         default=0,
         verbose_name="Défaites",
     )
+    points = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = "Profil"

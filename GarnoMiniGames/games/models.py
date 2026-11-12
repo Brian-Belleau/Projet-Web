@@ -15,6 +15,10 @@ class Jeu(models.Model):
     image = models.ImageField(upload_to='games/', blank=True, null=True)
     date_creation = models.DateTimeField(auto_now_add=True)
     actif = models.BooleanField(default=True)
+    points_victoire = models.PositiveSmallIntegerField(
+        default=10, verbose_name="Points gagnés en cas de victoire")
+    points_defaite = models.PositiveSmallIntegerField(
+        default=5, verbose_name="Points perdus en cas de défaite")
 
     class Meta:
         verbose_name = "jeu"
