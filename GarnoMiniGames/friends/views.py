@@ -1,5 +1,4 @@
 from functools import wraps
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required as django_login_required
 from django.db import IntegrityError, transaction
@@ -9,11 +8,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_POST
-
 from accounts.models import Profile
 from accounts.views import get_user_profile, is_ajax
-
 from .models import Friendship
+from .services import get_friends
 
 LEVEL_NAMES = {
     messages.SUCCESS: "success",
@@ -81,16 +79,7 @@ def friends_list(request):
     me = request.user
     get_user_profile(me)
 
-    friendships = Friendship.objects.filter(
-        Q(from_user=me) | Q(to_user=me),
-        status=Friendship.ACCEPTED,
-    ).select_related("from_user__profile", "to_user__profile")
-
-    friends = []
-    for friendship in friendships:
-        other = friendship.to_user if friendship.from_user_id == me.pk else friendship.from_user
-        friends.append({"friendship": friendship, "profile": other.profile})
-    friends.sort(key=lambda item: item["profile"].pseudonym.lower())
+    friends = get_friends(me)
 
     received = Friendship.objects.filter(
         to_user=me, status=Friendship.PENDING

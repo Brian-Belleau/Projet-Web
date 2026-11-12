@@ -75,12 +75,13 @@
         <div class="d-grid gap-2">
           {% for item in friends %}
             <div class="card-gmg d-flex align-items-center gap-3 p-3">
-              {% include "accounts/_avatar.html" with profile=item.profile size="sm" %}
+              {% include "friends/_friend_avatar.html" with profile=item.profile status=item.status status_label=item.status_label %}
               <div class="flex-grow-1">
                 <a href="{% url 'accounts:player_profile' item.profile.pseudonym %}?from=friends"
                    class="fw-semibold text-decoration-none text-body">{{ item.profile.pseudonym }}</a>
                 <div class="small text-body-secondary">
-                  {{ item.profile.games_played }} partie{% if item.profile.games_played > 1 %}s{% endif %}
+                  <span data-friend-status-label="{{ item.profile.pseudonym }}">{{ item.status_label }}</span>
+                  · {{ item.profile.games_played }} partie{% if item.profile.games_played > 1 %}s{% endif %}
                 </div>
               </div>
               <button type="button"

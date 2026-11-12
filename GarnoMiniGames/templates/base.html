@@ -88,6 +88,7 @@
                   <li>
                     <a class="dropdown-item" href="{% url 'friends:list' %}">
                       <i class="bi bi-people me-2"></i>Amis
+                      <span class="small text-body-secondary ms-1 d-none" data-friends-online></span>
                       <span data-friend-badge
                             class="badge rounded-pill text-bg-primary ms-1{% if not pending_friend_requests_count %} d-none{% endif %}">
                       {{ pending_friend_requests_count }}</span>

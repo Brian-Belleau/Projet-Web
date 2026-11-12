@@ -824,3 +824,44 @@ html {
     transform: none;
   }
 }
+
+/* status */
+.status-dot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #6c757d;
+  border: 2px solid var(--gmg-surface);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.status-dot-online {
+  background: var(--gmg-accent-2);
+  box-shadow: 0 0 6px rgba(0, 209, 178, 0.7);
+}
+
+.status-dot-ingame {
+  background: #ffc107;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+}
+
+.status-dot-offline {
+  background: #6c757d;
+}
+
+.avatar-status {
+  position: relative;
+  display: inline-flex;
+}
+
+.avatar-status > .status-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+}
