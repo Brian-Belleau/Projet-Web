@@ -11,9 +11,9 @@ _OPPOSITE = {
 
 
 def record_game(game_slug, user_a_id, user_b_id, result_a,
-                score_a=None, score_b=None, forfeit=False):
+                score_a=None, score_b=None, forfeit=False,
+                points_a=0, points_b=0):
     """Enregistre une partie dans l'historique des deux joueurs."""
-
     if user_a_id is None or user_b_id is None:
         return []
 
@@ -25,8 +25,8 @@ def record_game(game_slug, user_a_id, user_b_id, result_a,
     jeu_nom = jeu.nom if jeu else (game_slug or "Jeu inconnu")
 
     sides = (
-        (user_a_id, user_b_id, result_a, score_a, score_b),
-        (user_b_id, user_a_id, _OPPOSITE[result_a], score_b, score_a),
+        (user_a_id, user_b_id, result_a, score_a, score_b, points_a),
+        (user_b_id, user_a_id, _OPPOSITE[result_a], score_b, score_a, points_b),
     )
     rows = [
         GameResult(
@@ -39,8 +39,9 @@ def record_game(game_slug, user_a_id, user_b_id, result_a,
             player_score=my_score,
             opponent_score=other_score,
             forfeit=forfeit,
+            points_delta=my_points,
         )
-        for me, other, result, my_score, other_score in sides
+        for me, other, result, my_score, other_score, my_points in sides
     ]
     GameResult.objects.bulk_create(rows)
     return rows
