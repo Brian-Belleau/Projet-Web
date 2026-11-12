@@ -62,6 +62,15 @@
                 {{ p.games_played }} partie{% if p.games_played > 1 %}s{% endif %}
               </div>
             </div>
+            {% if p.points >= 0 %}
+              <span class="badge text-bg-success"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Nombre de points de classement">{{ p.points }} pts</span>
+            {% else %}
+              <span class="badge text-bg-danger"
+                    data-bs-toggle="tooltip"
+                    data-bs-title="Nombre de Points de classement">{{ p.points }} pts</span>
+            {% endif %}
             <span class="badge text-bg-primary"
                   data-bs-toggle="tooltip"
                   data-bs-title="Taux de victoire (une égalité compte pour une demi-victoire)">{{ p.win_rate }}%</span>
