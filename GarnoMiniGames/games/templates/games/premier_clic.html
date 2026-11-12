@@ -6,15 +6,18 @@
             <div class="card bg-dark text-light border-secondary shadow text-center">
                 <div class="card-body p-4 p-md-5">
                     <h1 class="mb-4">Premier Clic</h1>
-                    <div class="mb-4">
+                    <div id="room-code-section" class="mb-4">
                         <p class="text-secondary mb-2">Code de la partie</p>
                         <div class="d-flex justify-content-center align-items-center gap-2">
-                            <strong id="room-code" class="fs-4">{{ room_name }}</strong>
+                            <strong id="room-code"
+                                    class="fs-4"
+                                    data-room-name="{{ room_name }}">{{ room_name }}</strong>
                             <button type="button" id="copy-room-code" class="btn btn-secondary btn-sm">Copier</button>
                         </div>
                     </div>
                     <hr class="border-secondary">
                     <h3 id="game-status" class="mt-4">Connexion...</h3>
+                    <div class="mt-3">{% include "friends/_invite_friends_modal.html" %}</div>
                     <p id="game-score" class="text-secondary mt-3"></p>
                     <button type="button"
                             id="click-btn"
@@ -35,6 +38,8 @@
             </div>
         </div>
     </div>
-    <script>const roomName = "{{ room_name }}";</script>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'friends/js/invite.js' %}"></script>
     <script src="{% static 'games/js/premier_clic.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,91 @@
+{# Fenêtre pop-up de la liste d'amis pour inviter un ami à rejoindre la partie. #}
+{% if user.is_authenticated %}
+  <button type="button"
+          id="invite-friends-open"
+          class="btn btn-primary btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#invite-friends-modal">
+    <i class="bi bi-person-plus me-1"></i>Inviter un ami
+  </button>
+  <p id="invite-room-full"
+     class="small text-body-secondary mb-0 d-none">
+    <i class="bi bi-people-fill me-1"></i>La partie est complète.
+  </p>
+  <div class="modal fade"
+       id="invite-friends-modal"
+       tabindex="-1"
+       aria-labelledby="invite-friends-title"
+       aria-hidden="true"
+       data-bs-theme="dark">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="invite-friends-title">
+            <i class="bi bi-people me-2"></i>Inviter un ami à ma partie
+          </h2>
+          <button type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          {% csrf_token %}
+          <div class="list-group list-group-flush"
+               id="invite-friends-list"
+               data-room-name="{{ room_name }}"
+               data-game-slug="{{ game_slug }}">
+            {% for item in friends %}
+              <div class="list-group-item d-flex align-items-center gap-3 px-0"
+                   data-friend-id="{{ item.profile.pk }}">
+                {% include "friends/_friend_avatar.html" with profile=item.profile status=item.status status_label=item.status_label %}
+                <div class="flex-grow-1 min-w-0">
+                  <span class="fw-semibold d-block text-truncate">{{ item.profile.pseudonym }}</span>
+                  <span class="small text-body-secondary"
+                        data-friend-status-label="{{ item.profile.pseudonym }}">{{ item.status_label }}</span>
+                </div>
+                <button type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        data-invite-url="{% url 'friends:invite' item.profile.pseudonym %}"
+                        data-invite-for="{{ item.profile.pseudonym }}"
+                        data-online="{% if item.status == 'online' %}true{% else %}false{% endif %}"
+                        {% if item.status != "online" %}disabled{% endif %}>
+                  <i class="bi bi-send me-1"></i>Inviter
+                </button>
+              </div>
+            {% empty %}
+              <p class="text-center text-body-secondary py-4 mb-0">Vous n'avez pas encore d'amis à inviter.</p>
+            {% endfor %}
+          </div>
+          <div id="invite-friends-status"
+               class="small text-body-secondary mt-3"
+               role="status"
+               aria-live="polite"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {# Notification (toast) de confirmation d'envoi de l'invitation. #}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="invite-sent-toast"
+         class="toast text-bg-success"
+         role="status"
+         aria-live="polite"
+         aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="bi bi-check-circle me-2"></i>Invitation envoyée à
+          <strong id="invite-sent-name"></strong>.
+        </div>
+        <button type="button"
+                class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"
+                aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+{% endif %}

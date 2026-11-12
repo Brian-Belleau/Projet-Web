@@ -5,6 +5,7 @@ import uuid
 from .models import Jeu
 from .consumers import PremierClicConsumer, TicTacToeConsumer, Connect4Consumer
 from .forms import CreerPartieForm, RejoindreJeuForm
+from friends.services import get_friends
 from .presence import (
     ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, has_reservation,
     list_public_rooms, reserve_room,
@@ -36,27 +37,30 @@ def _acces_partie(request, slug, room_name):
     return False
 
 
+def _contexte_salle(request, slug, room_name):
+    """Contexte commun aux pages de salle : code, jeu et amis à inviter."""
+    friends = get_friends(
+        request.user) if request.user.is_authenticated else []
+    return {"room_name": room_name, "game_slug": slug, "friends": friends}
+
+
 def premier_clic(request, room_name):
     if not _acces_partie(request, "premier-clic", room_name):
         return redirect("jeu_detail", slug="premier-clic")
-    return render(request, "games/premier_clic.html", {"room_name": room_name})
+    return render(request, "games/premier_clic.html", _contexte_salle(request, "premier-clic", room_name))
 
 
 def tic_tac_toe(request, room_name):
     if not _acces_partie(request, "tic-tac-toe", room_name):
         return redirect("jeu_detail", slug="tic-tac-toe")
-    return render(request, "games/tic_tac_toe.html", {"room_name": room_name})
+    return render(request, "games/tic_tac_toe.html", _contexte_salle(request, "tic-tac-toe", room_name))
 
 
 def connect_4(request, room_name):
     """Affiche le plateau de Connect 4."""
     if not _acces_partie(request, "connect-4", room_name):
         return redirect("jeu_detail", slug="connect-4")
-    return render(
-        request,
-        "games/connect_4.html",
-        {"room_name": room_name},
-    )
+    return render(request, "games/connect_4.html", _contexte_salle(request, "connect-4", room_name))
 
 
 def jeu_detail(request, slug):
