@@ -11,7 +11,6 @@ const socket = new WebSocket(
 const gameStatus = document.getElementById("game-status");
 const gameInfo = document.getElementById("game-info");
 const boardElement = document.getElementById("board");
-const cells = document.querySelectorAll(".connect4-cell");
 const columnButtons = document.querySelectorAll(".connect4-column-btn");
 
 let players = {};
@@ -56,29 +55,11 @@ function updateTurnStatus() {
 
   if (currentTurn === mySymbol) {
     gameStatus.textContent = "À ton tour !";
+    gameStatus.classList.add("text-success");
   } else {
     gameStatus.textContent = "Au tour de l'adversaire...";
+    gameStatus.classList.remove("text-success");
   }
-
-  updateColumnButtons(
-    Array.from({ length: 6 }, (_, row) =>
-      Array.from({ length: 7 }, (_, col) => {
-        const cell = document.querySelector(
-          `.connect4-cell[data-row="${row}"][data-column="${col}"]`,
-        );
-
-        if (cell.classList.contains("connect4-red")) {
-          return "R";
-        }
-
-        if (cell.classList.contains("connect4-yellow")) {
-          return "Y";
-        }
-
-        return "";
-      }),
-    ),
-  );
 }
 
 socket.onopen = () => {
@@ -126,6 +107,7 @@ socket.onmessage = (event) => {
     case "game_over": {
       gameOver = true;
       renderBoard(data.board);
+      gameStatus.classList.remove("text-success");
 
       const result = {
         playerOneLabel: "Joueur rouge",
@@ -184,6 +166,7 @@ socket.onmessage = (event) => {
 
     case "opponent_left":
       gameOver = true;
+      gameStatus.classList.remove("text-success");
 
       showOpponentLeftResult({
         playerOneLabel: "Joueur rouge",
@@ -196,6 +179,7 @@ socket.onmessage = (event) => {
 
     case "rejected":
       gameOver = true;
+      gameStatus.classList.remove("text-success");
       gameStatus.textContent =
         data.message || "Impossible de rejoindre la partie.";
       gameStatus.classList.add("text-danger");

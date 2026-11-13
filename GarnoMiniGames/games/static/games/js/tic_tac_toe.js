@@ -149,9 +149,6 @@ socket.onmessage = (e) => {
 
       break;
     }
-
-    case "opponent_left_after_game":
-      break;
   }
 };
 

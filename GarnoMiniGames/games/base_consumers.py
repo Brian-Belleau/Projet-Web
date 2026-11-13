@@ -306,8 +306,6 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
 
         if room:
             # La salle ne doit plus accepter de reconnexion.
-            room["closed"] = True
-            room["finished"] = True
             self.ROOMS.pop(self.room_name, None)
 
         self._release_identity()

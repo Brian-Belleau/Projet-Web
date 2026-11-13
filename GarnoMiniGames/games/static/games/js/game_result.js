@@ -104,13 +104,6 @@ export function setupRematch(socket) {
       resultEl.classList.add("d-none");
       rematchStatus.classList.add("d-none");
       rematchButton.disabled = false;
-
-      const statusEl = document.getElementById("game-status");
-
-      if (statusEl) {
-        statusEl.textContent = "Prépare-toi...";
-        statusEl.classList.remove("d-none");
-      }
     }
 
     if (data.event === "rematch_expired") {

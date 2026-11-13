@@ -24,10 +24,6 @@ MESSAGES = {
         "Cette partie est réservée aux joueurs connectés. "
         "Connecte-toi pour la rejoindre."
     ),
-    "room_closed": (
-        "Cette partie est terminée : un joueur l'a quittée. "
-        "Retourne à l'accueil pour en lancer une nouvelle."
-    ),
 }
 
 
@@ -58,8 +54,6 @@ def check_join(identity, is_auth, game, room_name, room, max_players):
         if active_game == game and active_room == room_name:
             return "self_play"
         return "already_in_game"
-    if room and room.get("closed"):
-        return "room_closed"
 
     if room and room["players"]:
         if len(room["players"]) >= max_players:

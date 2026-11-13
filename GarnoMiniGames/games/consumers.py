@@ -74,7 +74,7 @@ class PremierClicConsumer(RoomConsumerBase):
         else:
             room["task"] = asyncio.create_task(self.start_round())
 
-    async def start_round(self, is_rematch=False):
+    async def start_round(self):
         room = self.ROOMS.get(self.room_name)
 
         if not room or len(room["players"]) < 2:
@@ -89,8 +89,7 @@ class PremierClicConsumer(RoomConsumerBase):
             {"type": "round_waiting"},
         )
 
-        if not is_rematch:
-            await asyncio.sleep(random.uniform(2, 5))
+        await asyncio.sleep(random.uniform(2, 5))
 
         room = self.ROOMS.get(self.room_name)
 
@@ -470,7 +469,9 @@ class Connect4Consumer(RoomConsumerBase):
         )
 
         if is_draw:
-            await update_draw_stats(list(room["user_ids"].values()))
+            await update_draw_stats(
+                list(room["user_ids"].values()), game_slug=self.GAME_SLUG
+            )
         else:
             winner_id = room["user_ids"].get(self.channel_name)
             loser_id = None
