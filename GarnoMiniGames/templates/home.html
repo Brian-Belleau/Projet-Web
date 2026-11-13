@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Accueil - GarnoMiniGames{% endblock %}
 {% block content %}
     <!-- ============ Hero + catalogue ============ -->
@@ -45,7 +46,7 @@
                         <div class="card-gmg card-hover game-card h-100 d-flex flex-column{% if not jeu.actif %} game-card-off{% endif %}">
                             <div class="game-card-media">
                                 {% if jeu.image %}
-                                    <img src="/static/{{ jeu.image.name }}"
+                                    <img src="{% static jeu.image.name %}"
                                          alt="{{ jeu.nom }}"
                                          class="game-card-img">
                                 {% else %}

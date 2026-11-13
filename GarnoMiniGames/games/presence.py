@@ -67,14 +67,18 @@ def check_join(identity, is_auth, game, room_name, room, max_players):
 
 def _purge_pending():
     now = time.monotonic()
-    for key in [k for k, (_, exp) in PENDING_ROOMS.items() if exp < now]:
+    for key in [k for k, (_, exp, _pub) in PENDING_ROOMS.items() if exp < now]:
         PENDING_ROOMS.pop(key, None)
 
 
-def reserve_room(identity, game, room_name):
+def reserve_room(identity, game, room_name, is_public=False):
     """Autorise `identity` (et elle seule) à ouvrir la salle `room_name`."""
     _purge_pending()
-    PENDING_ROOMS[(game, room_name)] = (identity, time.monotonic() + PENDING_TTL)
+    PENDING_ROOMS[(game, room_name)] = (
+        identity,
+        time.monotonic() + PENDING_TTL,
+        is_public,
+    )
 
 
 def has_reservation(identity, game, room_name):
@@ -87,6 +91,27 @@ def has_reservation(identity, game, room_name):
 def consume_reservation(identity, game, room_name):
     """Utilise la réservation (une seule fois). Retourne True si elle était valide."""
     if not has_reservation(identity, game, room_name):
-        return False
-    PENDING_ROOMS.pop((game, room_name), None)
-    return True
+        return None
+    _, _, is_public = PENDING_ROOMS.pop((game, room_name))
+    return {"is_public": is_public}
+
+
+def list_public_rooms(rooms, game, identity, is_auth, max_players):
+    """Parties publiques que ce joueur peut rejoindre en ce moment."""
+    result = []
+    for room_name, room in list(rooms.items()):
+        if not room.get("is_public") or not room["players"]:
+            continue
+        if room.get("finished"):
+            continue
+        if check_join(identity, is_auth, game, room_name, room, max_players):
+            continue
+        result.append(
+            {
+                "room_name": room_name,
+                "host": next(iter(room["players"].values())),
+                "count": len(room["players"]),
+                "max": max_players,
+            }
+        )
+    return result

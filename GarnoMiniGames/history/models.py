@@ -46,6 +46,7 @@ class GameResult(models.Model):
     player_score = models.PositiveSmallIntegerField(null=True, blank=True)
     opponent_score = models.PositiveSmallIntegerField(null=True, blank=True)
     forfeit = models.BooleanField(default=False, verbose_name="Par abandon")
+    points_delta = models.SmallIntegerField(default=0, verbose_name="Points gagnés ou perdus")
     played_at = models.DateTimeField(default=timezone.now, verbose_name="Date")
 
     class Meta:

@@ -201,6 +201,15 @@ def profile_delete(request):
     return render(request, "accounts/profile_delete.html", {"form": form})
 
 
+# Pages depuis lesquelles on peut arriver sur un profil (valeur de ?from=).
+BACK_TARGETS = {
+    "search": ("accounts:search_profiles", "Retour à la recherche"),
+    "ranking": ("ranking:ranking", "Retour au classement"),
+    "history": ("history:history", "Retour à l'historique"),
+    "friends": ("friends:list", "Retour à mes amis"),
+}
+
+
 @login_required
 def player_profile(request, pseudonym):
     """Affiche le profil public d'un autre joueur."""
@@ -215,10 +224,17 @@ def player_profile(request, pseudonym):
         return redirect("accounts:profile")
     friendship_status, friendship = Friendship.objects.status_between(
         request.user, profile_data.user)
+    back_url = back_label = None
+    origin = request.GET.get("from")
+    if origin in BACK_TARGETS:
+        url_name, back_label = BACK_TARGETS[origin]
+        back_url = reverse(url_name)
     context = {
         "profile": profile_data,
         "friendship_status": friendship_status,
         "friendship": friendship,
+        "back_url": back_url,
+        "back_label": back_label,
     }
     return render(request, "accounts/player_profile.html", context)
 
