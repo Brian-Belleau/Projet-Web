@@ -80,7 +80,7 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
                 {"type": "rematch_started"},
             )
 
-            await self.start_round()
+            room["task"] = asyncio.create_task(self.start_round())
 
         else:
             await self.channel_layer.group_send(
