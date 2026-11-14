@@ -12,4 +12,7 @@ urlpatterns = [
     path("demandes/<int:pk>/refuser/", views.decline_request, name="decline"),
     path("demandes/<int:pk>/annuler/", views.cancel_request, name="cancel"),
     path("<int:pk>/retirer/", views.remove_friend, name="remove"),
+    path("inviter/<str:pseudonym>/", views.invite_friend, name="invite"),
+    path("invitations/<int:pk>/rejoindre/",
+         views.join_invitation, name="join_invitation"),
 ]

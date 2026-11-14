@@ -824,3 +824,135 @@ html {
     transform: none;
   }
 }
+
+/* status */
+.status-dot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #6c757d;
+  border: 2px solid var(--gmg-surface);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.status-dot-online {
+  background: var(--gmg-accent-2);
+  box-shadow: 0 0 6px rgba(0, 209, 178, 0.7);
+}
+
+.status-dot-ingame {
+  background: #ffc107;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+}
+
+.status-dot-offline {
+  background: #6c757d;
+}
+
+.avatar-status {
+  position: relative;
+  display: inline-flex;
+}
+
+.avatar-status > .status-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+/* ---------- Invitation d'amis (pop-up) ---------- */
+#invite-friends-modal .modal-content {
+  border-radius: 0.75rem;
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.45);
+}
+
+#invite-friends-modal .modal-header,
+#invite-friends-modal .modal-footer {
+  border-color: var(--gmg-border);
+}
+
+#invite-friends-modal .modal-title i {
+  color: var(--gmg-accent);
+}
+
+#invite-friends-modal .modal-body {
+  padding-block: 0.5rem;
+}
+
+#invite-friends-list .list-group-item {
+  background: transparent;
+  border-color: var(--gmg-border);
+  padding-block: 0.75rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#invite-friends-list .list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+#invite-friends-list .avatar {
+  flex-shrink: 0;
+}
+
+#invite-friends-list .fw-semibold {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#invite-friends-list .btn {
+  flex-shrink: 0;
+  min-width: 6.5rem;
+  transition:
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    color 0.2s ease-in-out;
+}
+
+#invite-friends-list .btn[data-invite-state='sent'] {
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #198754;
+  --bs-btn-disabled-border-color: #198754;
+  opacity: 1;
+}
+
+#invite-friends-list .btn[data-invite-state='error'] {
+  --bs-btn-color: var(--bs-danger);
+  --bs-btn-border-color: var(--bs-danger);
+  --bs-btn-hover-bg: var(--bs-danger);
+  --bs-btn-hover-border-color: var(--bs-danger);
+  --bs-btn-hover-color: #fff;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+#invite-friends-status:empty {
+  display: none;
+}
+#invite-sent-toast {
+  border: 0;
+  border-radius: 0.65rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 575.98px) {
+  #invite-friends-list .btn {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #invite-friends-list .list-group-item,
+  #invite-friends-list .btn {
+    transition: none;
+  }
+}
