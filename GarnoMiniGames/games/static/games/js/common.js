@@ -1,21 +1,22 @@
-'use strict';
+"use strict";
 
 globalThis.GameCommon = (() => {
-  const REDIRECT_SECONDS = 5;
-  const HOME_URL = '/';
-
   function setupCopyButton(roomName) {
-    const button = document.getElementById('copy-room-code');
+    const button = document.getElementById("copy-room-code");
 
-    button.addEventListener('click', async () => {
+    if (!button) {
+      return;
+    }
+
+    button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(roomName);
-        button.textContent = 'Copié !';
+        button.textContent = "Copié !";
       } catch {
-        button.textContent = 'Erreur';
+        button.textContent = "Erreur";
       }
       setTimeout(() => {
-        button.textContent = 'Copier';
+        button.textContent = "Copier";
       }, 1500);
     });
   }
@@ -26,24 +27,29 @@ globalThis.GameCommon = (() => {
    * @param {Function} onAbort () => void, masquer plateau/bouton quand la partie s'arrête
    */
   function start({ path, onEvent, onAbort }) {
-    const roomName = document.getElementById('room-code').dataset.roomName;
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const roomName = document.getElementById("room-code").dataset.roomName;
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(
       `${protocol}://${window.location.host}/ws/games/${path}/${roomName}/`,
     );
 
-    const statusEl = document.getElementById('game-status');
-    const resultEl = document.getElementById('game-result');
-    const resultTitleEl = document.getElementById('result-title');
-    const countdownEl = document.getElementById('countdown');
+    const statusEl = document.getElementById("game-status");
 
     let over = false;
-    let redirectTimer = null;
+    const messageListeners = [];
 
     const game = {
       statusEl,
 
       isOver: () => over,
+
+      finish() {
+        over = true;
+      },
+
+      reset() {
+        over = false;
+      },
 
       send(payload) {
         if (socket.readyState === WebSocket.OPEN) {
@@ -51,33 +57,18 @@ globalThis.GameCommon = (() => {
         }
       },
 
-      // Fin de partie : affiche le résultat puis redirige vers l'accueil
-      end(title) {
-        over = true;
-        clearInterval(redirectTimer);
-
-        resultTitleEl.textContent = title;
-        countdownEl.textContent = REDIRECT_SECONDS;
-        resultEl.classList.remove('d-none');
-
-        let remaining = REDIRECT_SECONDS;
-        redirectTimer = setInterval(() => {
-          remaining--;
-          if (remaining > 0) {
-            countdownEl.textContent = remaining;
-          } else {
-            clearInterval(redirectTimer);
-            window.location.href = HOME_URL;
-          }
-        }, 1000);
+      onMessage(callback) {
+        messageListeners.push(callback);
       },
     };
 
     socket.onmessage = (e) => {
       const data = JSON.parse(e.data);
 
+      messageListeners.forEach((callback) => callback(data));
+
       switch (data.event) {
-        case 'player_joined':
+        case "player_joined":
           if (data.count >= 2) globalThis.setRoomFull?.(true);
           statusEl.textContent =
             data.count < 2
@@ -85,18 +76,18 @@ globalThis.GameCommon = (() => {
               : `${data.count}/2 joueurs connectés...`;
           return;
 
-        case 'rejected':
-          over = true;
+        case "rejected":
+          game.finish();
           onAbort?.();
           statusEl.textContent =
-            data.message || 'Impossible de rejoindre la partie.';
-          statusEl.classList.add('text-danger');
+            data.message || "Impossible de rejoindre la partie.";
+          statusEl.classList.add("text-danger");
           return;
 
-        case 'opponent_left':
+        case "opponent_left":
+          game.finish();
           onAbort?.();
-          statusEl.classList.remove('text-success');
-          game.end('Ton adversaire a quitté la partie.');
+          onEvent(data, game);
           return;
       }
 
@@ -106,18 +97,17 @@ globalThis.GameCommon = (() => {
     socket.onclose = () => {
       if (over) return;
       statusEl.textContent =
-        'Connexion fermée (salle pleine ou serveur indisponible).';
+        "Connexion fermée (salle pleine ou serveur indisponible).";
       onAbort?.();
     };
 
     // Déconnexion propre quand le joueur quitte la page
-    window.addEventListener('pagehide', () => {
-      over = true;
-      clearInterval(redirectTimer);
+    window.addEventListener("pagehide", () => {
+      game.finish();
       socket.close(1000);
     });
 
-    window.addEventListener('pageshow', (e) => {
+    window.addEventListener("pageshow", (e) => {
       if (e.persisted) window.location.reload();
     });
 

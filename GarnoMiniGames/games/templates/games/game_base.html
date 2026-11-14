@@ -11,13 +11,13 @@
                     <p id="invite-room-full" class="text-secondary mb-4 d-none">
                         <i class="bi bi-people-fill me-1"></i>La partie est complète.
                     </p>
-                    {% include "games/_room_code.html" %}
+                    {% include "games/partials/_room_code.html" %}
                     <hr class="border-secondary">
                     <h3 id="game-status" class="mt-4">Connexion...</h3>
                     <div class="mt-3">{% include "friends/_invite_friends_modal.html" %}</div>
                     <p id="game-info" class="text-secondary mt-3"></p>
                     {% block game_content %}{% endblock %}
-                    {% include "games/_game_result.html" %}
+                    {% include "games/partials/_game_result.html" %}
                 </div>
             </div>
             <div class="text-center mt-3">
