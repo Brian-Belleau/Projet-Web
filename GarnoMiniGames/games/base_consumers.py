@@ -36,8 +36,96 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
                 "button_visible": False,
                 "round_active": False,
                 "task": None,
+                "finished": False,
+                "rematch_requests": set(),
+                "rematch_task": None,
             },
         )
+
+    async def request_rematch(self):
+        """Enregistre une demande de revanche."""
+
+        room = self.ROOMS.get(self.room_name)
+
+        if (
+            not room
+            or not room.get("finished")
+            or self.channel_name not in room["players"]
+            or len(room["players"]) != 2
+        ):
+            return
+
+        if self.channel_name in room["rematch_requests"]:
+            return
+
+        room["rematch_requests"].add(self.channel_name)
+
+        if len(room["rematch_requests"]) == 2:
+            if room["rematch_task"]:
+                room["rematch_task"].cancel()
+                room["rematch_task"] = None
+
+            room["rematch_requests"].clear()
+            room["finished"] = False
+            room["round_active"] = False
+            room["button_visible"] = False
+
+            for channel_name in room["scores"]:
+                room["scores"][channel_name] = 0
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "rematch_started"},
+            )
+
+            room["task"] = asyncio.create_task(self.start_round())
+
+        else:
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "rematch_waiting",
+                    "requester": self.channel_name,
+                },
+            )
+
+            if room["rematch_task"] is None:
+                room["rematch_task"] = asyncio.create_task(self.rematch_timeout())
+
+    async def rematch_timeout(self):
+        """Annule la demande après 30 secondes."""
+
+        await asyncio.sleep(30)
+
+        room = self.ROOMS.get(self.room_name)
+
+        if room and room["rematch_requests"]:
+            room["rematch_requests"].clear()
+            room["rematch_task"] = None
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "rematch_expired"},
+            )
+
+    async def rematch_waiting(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "rematch_waiting",
+                    "requested_by_you": event["requester"] == self.channel_name,
+                }
+            )
+        )
+
+    async def rematch_started(self, event):
+        await self.send(text_data=json.dumps({"event": "rematch_started"}))
+
+    async def rematch_expired(self, event):
+        await self.send(text_data=json.dumps({"event": "rematch_expired"}))
+
+    async def opponent_left_after_game(self, event):
+        await self.send(text_data=json.dumps({"event": "opponent_left_after_game"}))
 
     def _release_identity(self):
         """Libère l'identité du joueur (il peut alors rejoindre une autre partie)."""
