@@ -5,6 +5,7 @@ import json
 from .base_consumers import RoomConsumerBase
 from .results import update_draw_stats, update_game_stats
 
+
 class PremierClicConsumer(RoomConsumerBase):
     ROOMS = {}
     GAME_PREFIX = "premier_clic"
@@ -21,6 +22,8 @@ class PremierClicConsumer(RoomConsumerBase):
             return
         if data.get("action") == "click":
             await self.handle_click()
+        elif data.get("action") == "rematch":
+            await self.request_rematch()
 
     async def handle_click(self):
         room = self.ROOMS.get(self.room_name)
@@ -38,15 +41,16 @@ class PremierClicConsumer(RoomConsumerBase):
         if game_over:
             room["finished"] = True
 
-        await self.channel_layer.group_send(self.group_name, {
-            "type": "round_result",
-            "winner": room["players"][self.channel_name],
-            "scores": {
-                room["players"][ch]: s
-                for ch, s in room["scores"].items()
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "round_result",
+                "winner": room["players"][self.channel_name],
+                "winner_channel": self.channel_name,
+                "scores": {room["players"][ch]: s for ch, s in room["scores"].items()},
+                "game_over": game_over,
             },
-            "game_over": game_over,
-        })
+        )
 
         if game_over:
             winner_id = room["user_ids"].get(self.channel_name)
@@ -60,39 +64,57 @@ class PremierClicConsumer(RoomConsumerBase):
                     loser_score = room["scores"].get(channel_name)
 
             await update_game_stats(
-                winner_id, loser_id,
+                winner_id,
+                loser_id,
                 game_slug=self.GAME_SLUG,
                 winner_score=winner_score,
                 loser_score=loser_score,
             )
 
-            self.ROOMS.pop(self.room_name, None)
         else:
             room["task"] = asyncio.create_task(self.start_round())
 
     async def start_round(self):
         room = self.ROOMS.get(self.room_name)
+
         if not room or len(room["players"]) < 2:
             return
 
-        await self.channel_layer.group_send(self.group_name, {"type": "round_waiting"})
+        room["finished"] = False
+        room["round_active"] = False
+        room["button_visible"] = False
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {"type": "round_waiting"},
+        )
+
         await asyncio.sleep(random.uniform(2, 5))
 
         room = self.ROOMS.get(self.room_name)
-        if not room:
+
+        if not room or len(room["players"]) < 2:
             return
 
         room["round_active"] = True
         room["button_visible"] = True
-        await self.channel_layer.group_send(self.group_name, {"type": "show_button"})
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {"type": "show_button"},
+        )
 
     # peut etre a mettre dans le base_consumer.py
     async def player_joined(self, event):
-        await self.send(text_data=json.dumps({
-            "event": "player_joined",
-            "players": event["players"],
-            "count": event["count"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "player_joined",
+                    "players": event["players"],
+                    "count": event["count"],
+                }
+            )
+        )
 
     async def round_waiting(self, event):
         await self.send(text_data=json.dumps({"event": "waiting"}))
@@ -101,12 +123,17 @@ class PremierClicConsumer(RoomConsumerBase):
         await self.send(text_data=json.dumps({"event": "show_button"}))
 
     async def round_result(self, event):
-        await self.send(text_data=json.dumps({
-            "event": "round_result",
-            "winner": event["winner"],
-            "scores": event["scores"],
-            "game_over": event["game_over"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "round_result",
+                    "winner": event["winner"],
+                    "scores": event["scores"],
+                    "game_over": event["game_over"],
+                    "you_won": self.channel_name == event["winner_channel"],
+                }
+            )
+        )
 
     # peut etre a mettre dans le base_consumer.py
     async def opponent_left(self, event):
@@ -121,9 +148,14 @@ class TicTacToeConsumer(RoomConsumerBase):
     GAME_SLUG = "tic-tac-toe"
 
     WINNING_LINES = (
-        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # lignes
-        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # colonnes
-        (0, 4, 8), (2, 4, 6),             # diagonales
+        (0, 1, 2),
+        (3, 4, 5),
+        (6, 7, 8),  # lignes
+        (0, 3, 6),
+        (1, 4, 7),
+        (2, 5, 8),  # colonnes
+        (0, 4, 8),
+        (2, 4, 6),  # diagonales
     )
 
     async def receive(self, text_data):
@@ -135,6 +167,9 @@ class TicTacToeConsumer(RoomConsumerBase):
             return
         if data.get("action") == "move":
             await self.handle_move(data.get("index"))
+
+        elif data.get("action") == "rematch":
+            await self.request_rematch()
 
     @classmethod
     def check_winner(cls, board):
@@ -158,9 +193,12 @@ class TicTacToeConsumer(RoomConsumerBase):
         room["round_active"] = True
         room["finished"] = False
 
-        await self.channel_layer.group_send(self.group_name, {
-            "type": "game_start",
-        })
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "game_start",
+            },
+        )
 
     async def handle_move(self, index):
         room = self.ROOMS.get(self.room_name)
@@ -185,11 +223,14 @@ class TicTacToeConsumer(RoomConsumerBase):
 
         if winner_symbol is None and not is_draw:
             room["turn"] = "O" if symbol == "X" else "X"
-            await self.channel_layer.group_send(self.group_name, {
-                "type": "move_made",
-                "board": list(room["board"]),
-                "turn": room["turn"],
-            })
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "move_made",
+                    "board": list(room["board"]),
+                    "turn": room["turn"],
+                },
+            )
             return
 
         # Fin de partie
@@ -197,13 +238,16 @@ class TicTacToeConsumer(RoomConsumerBase):
         room["round_active"] = False
         winner_name = room["players"][self.channel_name] if winner_symbol else None
 
-        await self.channel_layer.group_send(self.group_name, {
-            "type": "game_over",
-            "board": list(room["board"]),
-            "winner": winner_name,
-            "line": line,
-            "draw": is_draw,
-        })
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "game_over",
+                "board": list(room["board"]),
+                "winner": winner_name,
+                "line": line,
+                "draw": is_draw,
+            },
+        )
 
         if is_draw:
             await update_draw_stats(
@@ -215,54 +259,70 @@ class TicTacToeConsumer(RoomConsumerBase):
             for channel_name in room["players"]:
                 if channel_name != self.channel_name:
                     loser_id = room["user_ids"].get(channel_name)
-            await update_game_stats(
-                winner_id, loser_id, game_slug=self.GAME_SLUG
-            )
-
-        self.ROOMS.pop(self.room_name, None)
+            await update_game_stats(winner_id, loser_id, game_slug=self.GAME_SLUG)
 
     def _players_by_symbol(self, room):
-        return {sym: room["players"][ch] for ch, sym in room["symbols"].items()
-                if ch in room["players"]}
+        return {
+            sym: room["players"][ch]
+            for ch, sym in room["symbols"].items()
+            if ch in room["players"]
+        }
 
     # ----- Événements envoyés au client -----
     async def player_joined(self, event):
-        await self.send(text_data=json.dumps({
-            "event": "player_joined",
-            "players": event["players"],
-            "count": event["count"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "player_joined",
+                    "players": event["players"],
+                    "count": event["count"],
+                }
+            )
+        )
 
     async def game_start(self, event):
         room = self.ROOMS.get(self.room_name)
         if not room or self.channel_name not in room.get("symbols", {}):
             return
-        await self.send(text_data=json.dumps({
-            "event": "game_start",
-            "you": room["symbols"][self.channel_name],
-            "players": self._players_by_symbol(room),
-            "board": room["board"],
-            "turn": room["turn"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "game_start",
+                    "you": room["symbols"][self.channel_name],
+                    "players": self._players_by_symbol(room),
+                    "board": room["board"],
+                    "turn": room["turn"],
+                }
+            )
+        )
 
     async def move_made(self, event):
-        await self.send(text_data=json.dumps({
-            "event": "move_made",
-            "board": event["board"],
-            "turn": event["turn"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "move_made",
+                    "board": event["board"],
+                    "turn": event["turn"],
+                }
+            )
+        )
 
     async def game_over(self, event):
-        await self.send(text_data=json.dumps({
-            "event": "game_over",
-            "board": event["board"],
-            "winner": event["winner"],
-            "line": event["line"],
-            "draw": event["draw"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "game_over",
+                    "board": event["board"],
+                    "winner": event["winner"],
+                    "line": event["line"],
+                    "draw": event["draw"],
+                }
+            )
+        )
 
     async def opponent_left(self, event):
         await self.send(text_data=json.dumps({"event": "opponent_left"}))
+
 
 class Connect4Consumer(RoomConsumerBase):
     """Gère une partie multijoueur de Connect 4."""
@@ -287,6 +347,9 @@ class Connect4Consumer(RoomConsumerBase):
         if data.get("action") == "move":
             await self.handle_move(data.get("column"))
 
+        elif data.get("action") == "rematch":
+            await self.request_rematch()
+
     async def start_round(self):
         room = self.ROOMS.get(self.room_name)
 
@@ -300,9 +363,7 @@ class Connect4Consumer(RoomConsumerBase):
             channels[0]: "R",
             channels[1]: "Y",
         }
-        room["board"] = [
-            [""] * self.COLS for _ in range(self.ROWS)
-        ]
+        room["board"] = [[""] * self.COLS for _ in range(self.ROWS)]
         room["turn"] = "R"
         room["round_active"] = True
         room["finished"] = False
@@ -370,9 +431,8 @@ class Connect4Consumer(RoomConsumerBase):
         board[row][column] = symbol
         winning_line = self.check_winner(board, row, column)
 
-        is_draw = (
-            winning_line is None
-            and all(board_row.count("") == 0 for board_row in board)
+        is_draw = winning_line is None and all(
+            board_row.count("") == 0 for board_row in board
         )
 
         if winning_line is None and not is_draw:
@@ -394,9 +454,7 @@ class Connect4Consumer(RoomConsumerBase):
         room["round_active"] = False
 
         winner_name = (
-            room["players"][self.channel_name]
-            if winning_line is not None
-            else None
+            room["players"][self.channel_name] if winning_line is not None else None
         )
 
         await self.channel_layer.group_send(
@@ -411,7 +469,9 @@ class Connect4Consumer(RoomConsumerBase):
         )
 
         if is_draw:
-            await update_draw_stats(list(room["user_ids"].values()), game_slug=self.GAME_SLUG)
+            await update_draw_stats(
+                list(room["user_ids"].values()), game_slug=self.GAME_SLUG
+            )
         else:
             winner_id = room["user_ids"].get(self.channel_name)
             loser_id = None
@@ -422,8 +482,6 @@ class Connect4Consumer(RoomConsumerBase):
 
             await update_game_stats(winner_id, loser_id, game_slug=self.GAME_SLUG)
 
-        self.ROOMS.pop(self.room_name, None)
-
     def _players_by_symbol(self, room):
         return {
             symbol: room["players"][channel_name]
@@ -433,11 +491,13 @@ class Connect4Consumer(RoomConsumerBase):
 
     async def player_joined(self, event):
         await self.send(
-            text_data=json.dumps({
-                "event": "player_joined",
-                "players": event["players"],
-                "count": event["count"],
-            })
+            text_data=json.dumps(
+                {
+                    "event": "player_joined",
+                    "players": event["players"],
+                    "count": event["count"],
+                }
+            )
         )
 
     async def game_start(self, event):
@@ -447,40 +507,48 @@ class Connect4Consumer(RoomConsumerBase):
             return
 
         await self.send(
-            text_data=json.dumps({
-                "event": "game_start",
-                "you": room["symbols"][self.channel_name],
-                "players": self._players_by_symbol(room),
-                "board": room["board"],
-                "turn": room["turn"],
-            })
+            text_data=json.dumps(
+                {
+                    "event": "game_start",
+                    "you": room["symbols"][self.channel_name],
+                    "players": self._players_by_symbol(room),
+                    "board": room["board"],
+                    "turn": room["turn"],
+                }
+            )
         )
 
     async def move_made(self, event):
         await self.send(
-            text_data=json.dumps({
-                "event": "move_made",
-                "board": event["board"],
-                "turn": event["turn"],
-                "column": event["column"],
-                "row": event["row"],
-            })
+            text_data=json.dumps(
+                {
+                    "event": "move_made",
+                    "board": event["board"],
+                    "turn": event["turn"],
+                    "column": event["column"],
+                    "row": event["row"],
+                }
+            )
         )
 
     async def game_over(self, event):
         await self.send(
-            text_data=json.dumps({
-                "event": "game_over",
-                "board": event["board"],
-                "winner": event["winner"],
-                "line": event["line"],
-                "draw": event["draw"],
-            })
+            text_data=json.dumps(
+                {
+                    "event": "game_over",
+                    "board": event["board"],
+                    "winner": event["winner"],
+                    "line": event["line"],
+                    "draw": event["draw"],
+                }
+            )
         )
 
     async def opponent_left(self, event):
         await self.send(
-            text_data=json.dumps({
-                "event": "opponent_left",
-            })
+            text_data=json.dumps(
+                {
+                    "event": "opponent_left",
+                }
+            )
         )

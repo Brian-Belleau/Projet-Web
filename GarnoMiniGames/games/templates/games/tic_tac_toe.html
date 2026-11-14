@@ -14,7 +14,7 @@
                             <button type="button" id="copy-room-code" class="btn btn-secondary btn-sm">Copier</button>
                         </div>
                     </div>
-                    <hr class="border-secondary">
+                    <hr class="border-secondary" />
                     <h3 id="game-status" class="mt-4">Connexion...</h3>
                     <p id="game-info" class="text-secondary mt-3"></p>
                     <div id="board" class="ttt-board mx-auto mt-3 d-none">
@@ -25,14 +25,6 @@
                                     aria-label="Case {{ forloop.counter }}"></button>
                         {% endfor %}
                     </div>
-                    <div id="game-result"
-                         class="card bg-dark text-light border-secondary shadow mt-4 d-none">
-                        <div class="card-body p-4">
-                            <h2 id="result-title" class="mb-3"></h2>
-                            <p class="text-secondary mb-2">Retour à l'accueil dans</p>
-                            <div id="countdown" class="display-1 fw-bold">5</div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="text-center mt-3">
@@ -41,6 +33,7 @@
             </div>
         </div>
     </div>
+    {% include "games/partials/_game_result.html" %}
     <script>const roomName = "{{ room_name }}";</script>
-    <script src="{% static 'games/js/tic_tac_toe.js' %}"></script>
+    <script type="module" src="{% static 'games/js/tic_tac_toe.js' %}"></script>
 {% endblock %}

@@ -5,7 +5,13 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .results import update_game_stats
 
-from .presence import ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, consume_reservation
+from .presence import (
+    ACTIVE_PLAYERS,
+    MESSAGES,
+    check_join,
+    get_identity,
+    consume_reservation,
+)
 
 
 class RoomConsumerBase(AsyncWebsocketConsumer):
@@ -19,16 +25,107 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
 
     def _get_room(self):
         """Regarde information sur la room"""
-        return self.ROOMS.setdefault(self.room_name, {
-            "players": {},
-            "user_ids": {},
-            "scores": {},
-            "is_auth": None,
-            "is_public": False,
-            "button_visible": False,
-            "round_active": False,
-            "task": None,
-        })
+        return self.ROOMS.setdefault(
+            self.room_name,
+            {
+                "players": {},
+                "user_ids": {},
+                "scores": {},
+                "is_auth": None,
+                "is_public": False,
+                "button_visible": False,
+                "round_active": False,
+                "task": None,
+                "finished": False,
+                "rematch_requests": set(),
+                "rematch_task": None,
+            },
+        )
+
+    async def request_rematch(self):
+        """Enregistre une demande de revanche."""
+
+        room = self.ROOMS.get(self.room_name)
+
+        if (
+            not room
+            or not room.get("finished")
+            or self.channel_name not in room["players"]
+            or len(room["players"]) != 2
+        ):
+            return
+
+        if self.channel_name in room["rematch_requests"]:
+            return
+
+        room["rematch_requests"].add(self.channel_name)
+
+        if len(room["rematch_requests"]) == 2:
+            if room["rematch_task"]:
+                room["rematch_task"].cancel()
+                room["rematch_task"] = None
+
+            room["rematch_requests"].clear()
+            room["finished"] = False
+            room["round_active"] = False
+            room["button_visible"] = False
+
+            for channel_name in room["scores"]:
+                room["scores"][channel_name] = 0
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "rematch_started"},
+            )
+
+            room["task"] = asyncio.create_task(self.start_round())
+
+        else:
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "rematch_waiting",
+                    "requester": self.channel_name,
+                },
+            )
+
+            if room["rematch_task"] is None:
+                room["rematch_task"] = asyncio.create_task(self.rematch_timeout())
+
+    async def rematch_timeout(self):
+        """Annule la demande après 30 secondes."""
+
+        await asyncio.sleep(30)
+
+        room = self.ROOMS.get(self.room_name)
+
+        if room and room["rematch_requests"]:
+            room["rematch_requests"].clear()
+            room["rematch_task"] = None
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": "rematch_expired"},
+            )
+
+    async def rematch_waiting(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "rematch_waiting",
+                    "requested_by_you": event["requester"] == self.channel_name,
+                }
+            )
+        )
+
+    async def rematch_started(self, event):
+        await self.send(text_data=json.dumps({"event": "rematch_started"}))
+
+    async def rematch_expired(self, event):
+        await self.send(text_data=json.dumps({"event": "rematch_expired"}))
+
+    async def opponent_left_after_game(self, event):
+        await self.send(text_data=json.dumps({"event": "opponent_left_after_game"}))
 
     def _release_identity(self):
         """Libère l'identité du joueur (il peut alors rejoindre une autre partie)."""
@@ -70,6 +167,10 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         if room["task"]:
             room["task"].cancel()
             room["task"] = None
+        if room["rematch_task"]:
+            room["rematch_task"].cancel()
+            room["rematch_task"] = None
+        room["rematch_requests"].clear()
         if not room["players"]:
             self.ROOMS.pop(self.room_name, None)
         return room
@@ -87,8 +188,12 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             await asyncio.sleep(0.1)
         room = self.ROOMS.get(self.room_name)
         reason = check_join(
-            self.identity, self.is_auth, self.GAME_PREFIX,
-            self.room_name, room, self.MAX_PLAYERS,
+            self.identity,
+            self.is_auth,
+            self.GAME_PREFIX,
+            self.room_name,
+            room,
+            self.MAX_PLAYERS,
         )
         if reason:
             return reason
@@ -114,7 +219,9 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         room["scores"].setdefault(self.channel_name, 0)
 
         ACTIVE_PLAYERS[self.identity] = (
-            self.GAME_PREFIX, self.room_name, self.channel_name
+            self.GAME_PREFIX,
+            self.room_name,
+            self.channel_name,
         )
         self.registered = True
         return None
@@ -130,35 +237,39 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
         user = self.scope["user"]
         self.is_auth = user.is_authenticated
         self.username = (
-            user.username
-            if self.is_auth
-            else f"Joueur-{self.channel_name[-4:]}"
+            user.username if self.is_auth else f"Joueur-{self.channel_name[-4:]}"
         )
         self.identity = (
-            get_identity(user, self.scope.get("session"))
-            or f"anon:{self.channel_name}"
+            get_identity(user, self.scope.get("session")) or f"anon:{self.channel_name}"
         )
 
         await self.accept()
 
         reason = await self._try_join()
         if reason:
-            await self.send(text_data=json.dumps({
-                "event": "rejected",
-                "reason": reason,
-                "message": MESSAGES[reason],
-            }))
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "event": "rejected",
+                        "reason": reason,
+                        "message": MESSAGES[reason],
+                    }
+                )
+            )
             await self.close(code=4003)
             return
 
         room = self.ROOMS[self.room_name]
         try:
             await self.channel_layer.group_add(self.group_name, self.channel_name)
-            await self.channel_layer.group_send(self.group_name, {
-                "type": "player_joined",
-                "players": list(room["players"].values()),
-                "count": len(room["players"]),
-            })
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "player_joined",
+                    "players": list(room["players"].values()),
+                    "count": len(room["players"]),
+                },
+            )
             if len(room["players"]) == 2:
                 room["task"] = asyncio.create_task(self.start_round())
         except Exception:
@@ -167,19 +278,35 @@ class RoomConsumerBase(AsyncWebsocketConsumer):
             raise
 
     async def disconnect(self, close_code):
-        """Déconnexion des joueurs"""
+        """Déconnexion des joueurs."""
         if not self.registered:
             return
+
+        room_before = self.ROOMS.get(self.room_name)
+        was_finished = bool(room_before and room_before.get("finished"))
+
         abandon = self._abandon_info()
         room = self._remove_player()
-        if abandon and room:
-            room["closed"] = True
+
+        if room:
+            # La salle ne doit plus accepter de reconnexion.
+            self.ROOMS.pop(self.room_name, None)
+
         self._release_identity()
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name,
+        )
+
         if room and room["players"]:
-            await self.channel_layer.group_send(self.group_name, {
-                "type": "opponent_left",
-            })
+            event_type = "opponent_left_after_game" if was_finished else "opponent_left"
+
+            await self.channel_layer.group_send(
+                self.group_name,
+                {"type": event_type},
+            )
+
         if abandon:
             # Abandon : défaite pour celui qui part, victoire pour l'autre.
             await update_game_stats(

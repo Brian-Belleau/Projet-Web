@@ -1,5 +1,8 @@
 "use strict";
 
+import { showGameResult, setupRematch } from "./game_result.js";
+import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(
   `${protocol}://${window.location.host}/ws/games/tic-tac-toe/${roomName}/`,
@@ -9,10 +12,8 @@ const statusEl = document.getElementById("game-status");
 const infoEl = document.getElementById("game-info");
 const boardEl = document.getElementById("board");
 const cells = boardEl.querySelectorAll(".ttt-cell");
-const resultEl = document.getElementById("game-result");
-const resultTitleEl = document.getElementById("result-title");
-const countdownEl = document.getElementById("countdown");
 
+let players = {};
 let gameOver = false;
 let mySymbol = null;
 let currentTurn = null;
@@ -38,24 +39,6 @@ function updateTurnStatus() {
   }
 }
 
-function startRedirectCountdown(title) {
-  resultTitleEl.textContent = title;
-  countdownEl.textContent = "5";
-  resultEl.classList.remove("d-none");
-
-  let countdown = 5;
-  const redirectInterval = setInterval(() => {
-    countdown--;
-
-    if (countdown > 0) {
-      countdownEl.textContent = countdown;
-    } else {
-      clearInterval(redirectInterval);
-      window.location.href = "/";
-    }
-  }, 1000);
-}
-
 socket.onmessage = (e) => {
   const data = JSON.parse(e.data);
   switch (data.event) {
@@ -67,8 +50,16 @@ socket.onmessage = (e) => {
       break;
 
     case "game_start":
+      gameOver = false;
+      players = data.players;
       mySymbol = data.you;
       currentTurn = data.turn;
+
+      // Retire les anciennes lignes gagnantes.
+      cells.forEach((cell) => {
+        cell.classList.remove("ttt-cell-win");
+      });
+
       boardEl.classList.remove("d-none");
       infoEl.textContent = `Tu joues les ${mySymbol} — ${data.players.X} (X) vs ${data.players.O} (O)`;
       renderBoard(data.board);
@@ -86,16 +77,52 @@ socket.onmessage = (e) => {
       renderBoard(data.board);
       statusEl.classList.remove("text-success");
 
+      const result = {
+        playerOneLabel: "Joueur X",
+        playerOne: players.X || "-",
+        playerTwoLabel: "Joueur O",
+        playerTwo: players.O || "-",
+        winner: data.draw ? "Match nul" : data.winner,
+      };
+
       if (data.line) {
         data.line.forEach((i) => cells[i].classList.add("ttt-cell-win"));
       }
 
       if (data.draw) {
         statusEl.textContent = "Égalité !";
-        startRedirectCountdown("Match nul !");
+
+        showGameResult(
+          "Match nul !",
+          "Aucun joueur n'a remporté la partie.",
+          null,
+          "🤝",
+          result,
+        );
       } else {
-        statusEl.textContent = `${data.winner} a gagné la partie !`;
-        startRedirectCountdown(`${data.winner} a gagné la partie !`);
+        const isWinner = players[mySymbol] === data.winner;
+
+        if (isWinner) {
+          statusEl.textContent = "Tu as gagné la partie !";
+
+          showGameResult(
+            "Victoire !",
+            "Félicitations, tu as remporté la partie !",
+            data.winner,
+            "🏆",
+            result,
+          );
+        } else {
+          statusEl.textContent = "Tu as perdu la partie !";
+
+          showGameResult(
+            "Défaite !",
+            `${data.winner} a remporté la partie.`,
+            data.winner,
+            "😢",
+            result,
+          );
+        }
       }
       break;
     }
@@ -107,12 +134,21 @@ socket.onmessage = (e) => {
       statusEl.classList.add("text-danger");
       break;
 
-    case "opponent_left":
+    case "opponent_left": {
       gameOver = true;
       boardEl.classList.add("d-none");
       statusEl.classList.remove("text-success");
-      startRedirectCountdown("Ton adversaire a quitté la partie.");
+
+      showOpponentLeftResult({
+        playerOneLabel: "Joueur X",
+        playerOne: players.X || "-",
+        playerTwoLabel: "Joueur O",
+        playerTwo: players.O || "-",
+        winner: "Adversaire déconnecté",
+      });
+
       break;
+    }
   }
 };
 
@@ -142,17 +178,6 @@ window.addEventListener("pageshow", (e) => {
   if (e.persisted) window.location.reload();
 });
 
-const copyButton = document.getElementById("copy-room-code");
+setupRoomCodeCopy(roomName);
 
-copyButton.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(roomName);
-    copyButton.textContent = "Copié !";
-  } catch {
-    copyButton.textContent = "Erreur";
-  }
-
-  setTimeout(() => {
-    copyButton.textContent = "Copier";
-  }, 1500);
-});
+setupRematch(socket);

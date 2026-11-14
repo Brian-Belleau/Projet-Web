@@ -1,0 +1,30 @@
+<div id="game-result" class="game-result-overlay d-none">
+    <div class="game-result-card text-center">
+        <div class="mb-3">
+            <span class="display-1" id="result-icon">🏆</span>
+        </div>
+        <h2 id="result-title" class="display-5 fw-bold mb-2"></h2>
+        <p id="result-description" class="text-secondary mb-4">La partie est terminée.</p>
+        <hr class="border-secondary" />
+        <h4 class="mb-3">Résumé de la partie</h4>
+        <div id="result-details">
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary" id="result-player-one-label">Joueur X</span>
+                <strong id="result-player-one">-</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary" id="result-player-two-label">Joueur O</span>
+                <strong id="result-player-two">-</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-secondary">Résultat</span>
+                <strong id="result-winner">-</strong>
+            </div>
+        </div>
+        <div id="rematch-status" class="text-secondary mb-3 d-none"></div>
+        <button type="button"
+                id="rematch-button"
+                class="btn btn-primary btn-lg w-100 mb-2">Revanche</button>
+        <a href="{% url 'home' %}" class="btn btn-outline-light btn-lg w-100">Retour à l'accueil</a>
+    </div>
+</div>

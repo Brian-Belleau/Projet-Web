@@ -9,7 +9,7 @@ PENDING_TTL = 60
 MESSAGES = {
     "room_not_found": (
         "Cette partie n'existe pas. "
-        "Crée une partie depuis la page du jeu."
+        "Crée ou rejoins une partie depuis la page du jeu."
     ),
     "self_play": "Tu ne peux pas jouer contre toi-même.",
     "already_in_game": (
@@ -18,16 +18,11 @@ MESSAGES = {
     ),
     "room_full": "Cette partie est déjà pleine.",
     "room_guests_only": (
-        "Cette partie est réservée aux invités. "
-        "Déconnecte-toi pour la rejoindre."
+        "Cette partie est réservée aux invités. " "Déconnecte-toi pour la rejoindre."
     ),
     "room_users_only": (
         "Cette partie est réservée aux joueurs connectés. "
         "Connecte-toi pour la rejoindre."
-    ),
-    "room_closed": (
-        "Cette partie est terminée : un joueur l'a quittée. "
-        "Retourne à l'accueil pour en lancer une nouvelle."
     ),
 }
 
@@ -52,15 +47,13 @@ def get_identity(user, session, create=False):
 
 
 def check_join(identity, is_auth, game, room_name, room, max_players):
-    """Vérifie qu'un joueur a le droit de rejoindre une salle. """
+    """Vérifie qu'un joueur a le droit de rejoindre une salle."""
     active = ACTIVE_PLAYERS.get(identity)
     if active is not None:
         active_game, active_room, _ = active
         if active_game == game and active_room == room_name:
             return "self_play"
         return "already_in_game"
-    if room and room.get("closed"):
-        return "room_closed"
 
     if room and room["players"]:
         if len(room["players"]) >= max_players:
@@ -82,7 +75,10 @@ def reserve_room(identity, game, room_name, is_public=False):
     """Autorise `identity` (et elle seule) à ouvrir la salle `room_name`."""
     _purge_pending()
     PENDING_ROOMS[(game, room_name)] = (
-        identity, time.monotonic() + PENDING_TTL, is_public)
+        identity,
+        time.monotonic() + PENDING_TTL,
+        is_public,
+    )
 
 
 def has_reservation(identity, game, room_name):
@@ -110,10 +106,12 @@ def list_public_rooms(rooms, game, identity, is_auth, max_players):
             continue
         if check_join(identity, is_auth, game, room_name, room, max_players):
             continue
-        result.append({
-            "room_name": room_name,
-            "host": next(iter(room["players"].values())),
-            "count": len(room["players"]),
-            "max": max_players,
-        })
+        result.append(
+            {
+                "room_name": room_name,
+                "host": next(iter(room["players"].values())),
+                "count": len(room["players"]),
+                "max": max_players,
+            }
+        )
     return result
