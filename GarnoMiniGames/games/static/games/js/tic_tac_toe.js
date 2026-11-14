@@ -1,183 +1,149 @@
 "use strict";
 
 import { showGameResult, setupRematch } from "./game_result.js";
-import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+import { showOpponentLeftResult } from "./game_utils.js";
 
-const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-const socket = new WebSocket(
-  `${protocol}://${window.location.host}/ws/games/tic-tac-toe/${roomName}/`,
-);
-
-const statusEl = document.getElementById("game-status");
-const infoEl = document.getElementById("game-info");
 const boardEl = document.getElementById("board");
+const infoEl = document.getElementById("game-info");
 const cells = boardEl.querySelectorAll(".ttt-cell");
 
 let players = {};
-let gameOver = false;
 let mySymbol = null;
 let currentTurn = null;
-
-statusEl.textContent = "Connexion...";
 
 function renderBoard(board) {
   cells.forEach((cell, i) => {
     cell.textContent = board[i];
     cell.classList.toggle("ttt-x", board[i] === "X");
     cell.classList.toggle("ttt-o", board[i] === "O");
-    cell.disabled = gameOver || board[i] !== "" || currentTurn !== mySymbol;
+    cell.disabled =
+      game.isOver() || board[i] !== "" || currentTurn !== mySymbol;
   });
 }
 
 function updateTurnStatus() {
-  if (currentTurn === mySymbol) {
-    statusEl.textContent = "C'est ton tour !";
-    statusEl.classList.add("text-success");
-  } else {
-    statusEl.textContent = "Tour de l'adversaire...";
-    statusEl.classList.remove("text-success");
-  }
+  const myTurn = currentTurn === mySymbol;
+
+  game.statusEl.textContent = myTurn
+    ? "C'est ton tour !"
+    : "Tour de l'adversaire...";
+
+  game.statusEl.classList.toggle("text-success", myTurn);
 }
 
-socket.onmessage = (e) => {
-  const data = JSON.parse(e.data);
-  switch (data.event) {
-    case "player_joined":
-      statusEl.textContent =
-        data.count < 2
-          ? "En attente d'un adversaire..."
-          : `${data.count}/2 joueurs connectés...`;
-      break;
+const game = globalThis.GameCommon.start({
+  path: "tic-tac-toe",
 
-    case "game_start":
-      gameOver = false;
-      players = data.players;
-      mySymbol = data.you;
-      currentTurn = data.turn;
+  onAbort: () => boardEl.classList.add("d-none"),
 
-      // Retire les anciennes lignes gagnantes.
-      cells.forEach((cell) => {
-        cell.classList.remove("ttt-cell-win");
-      });
+  onEvent(data, game) {
+    switch (data.event) {
+      case "game_start":
+        game.reset();
+        players = data.players;
+        mySymbol = data.you;
+        currentTurn = data.turn;
 
-      boardEl.classList.remove("d-none");
-      infoEl.textContent = `Tu joues les ${mySymbol} — ${data.players.X} (X) vs ${data.players.O} (O)`;
-      renderBoard(data.board);
-      updateTurnStatus();
-      break;
+        cells.forEach((cell) => {
+          cell.classList.remove("ttt-cell-win");
+        });
 
-    case "move_made":
-      currentTurn = data.turn;
-      renderBoard(data.board);
-      updateTurnStatus();
-      break;
+        boardEl.classList.remove("d-none");
+        infoEl.textContent = `Tu joues les ${mySymbol} — ${players.X} (X) vs ${players.O} (O)`;
 
-    case "game_over": {
-      gameOver = true;
-      renderBoard(data.board);
-      statusEl.classList.remove("text-success");
+        renderBoard(data.board);
+        updateTurnStatus();
+        break;
 
-      const result = {
-        playerOneLabel: "Joueur X",
-        playerOne: players.X || "-",
-        playerTwoLabel: "Joueur O",
-        playerTwo: players.O || "-",
-        winner: data.draw ? "Match nul" : data.winner,
-      };
+      case "move_made":
+        currentTurn = data.turn;
+        renderBoard(data.board);
+        updateTurnStatus();
+        break;
 
-      if (data.line) {
-        data.line.forEach((i) => cells[i].classList.add("ttt-cell-win"));
-      }
+      case "game_over": {
+        game.finish();
+        renderBoard(data.board);
+        game.statusEl.classList.remove("text-success");
 
-      if (data.draw) {
-        statusEl.textContent = "Égalité !";
+        const result = {
+          playerOneLabel: "Joueur X",
+          playerOne: players.X || "-",
+          playerTwoLabel: "Joueur O",
+          playerTwo: players.O || "-",
+          winner: data.draw ? "Match nul" : data.winner,
+        };
 
-        showGameResult(
-          "Match nul !",
-          "Aucun joueur n'a remporté la partie.",
-          null,
-          "🤝",
-          result,
-        );
-      } else {
-        const isWinner = players[mySymbol] === data.winner;
+        if (data.line) {
+          data.line.forEach((i) => {
+            cells[i].classList.add("ttt-cell-win");
+          });
+        }
 
-        if (isWinner) {
-          statusEl.textContent = "Tu as gagné la partie !";
+        if (data.draw) {
+          game.statusEl.textContent = "Égalité !";
 
           showGameResult(
-            "Victoire !",
-            "Félicitations, tu as remporté la partie !",
-            data.winner,
-            "🏆",
+            "Match nul !",
+            "Aucun joueur n'a remporté la partie.",
+            null,
+            "🤝",
             result,
           );
         } else {
-          statusEl.textContent = "Tu as perdu la partie !";
+          const isWinner = players[mySymbol] === data.winner;
 
-          showGameResult(
-            "Défaite !",
-            `${data.winner} a remporté la partie.`,
-            data.winner,
-            "😢",
-            result,
-          );
+          if (isWinner) {
+            game.statusEl.textContent = "Tu as gagné la partie !";
+
+            showGameResult(
+              "Victoire !",
+              "Félicitations, tu as remporté la partie !",
+              data.winner,
+              "🏆",
+              result,
+            );
+          } else {
+            game.statusEl.textContent = "Tu as perdu la partie !";
+
+            showGameResult(
+              "Défaite !",
+              `${data.winner} a remporté la partie.`,
+              data.winner,
+              "😢",
+              result,
+            );
+          }
         }
+        break;
       }
-      break;
+
+      case "opponent_left":
+        game.statusEl.classList.remove("text-success");
+
+        showOpponentLeftResult({
+          playerOneLabel: "Joueur X",
+          playerOne: players.X || "-",
+          playerTwoLabel: "Joueur O",
+          playerTwo: players.O || "-",
+          winner: "Adversaire déconnecté",
+        });
+        break;
     }
-
-    case "rejected":
-      gameOver = true;
-      boardEl.classList.add("d-none");
-      statusEl.textContent = data.message;
-      statusEl.classList.add("text-danger");
-      break;
-
-    case "opponent_left": {
-      gameOver = true;
-      boardEl.classList.add("d-none");
-      statusEl.classList.remove("text-success");
-
-      showOpponentLeftResult({
-        playerOneLabel: "Joueur X",
-        playerOne: players.X || "-",
-        playerTwoLabel: "Joueur O",
-        playerTwo: players.O || "-",
-        winner: "Adversaire déconnecté",
-      });
-
-      break;
-    }
-  }
-};
-
-socket.onclose = () => {
-  if (gameOver) return;
-  statusEl.textContent =
-    "Connexion fermée (salle pleine ou serveur indisponible).";
-  boardEl.classList.add("d-none");
-};
+  },
+});
 
 cells.forEach((cell) => {
   cell.addEventListener("click", () => {
-    if (gameOver || currentTurn !== mySymbol || cell.textContent !== "") return;
-    socket.send(
-      JSON.stringify({ action: "move", index: Number(cell.dataset.index) }),
-    );
+    if (game.isOver() || currentTurn !== mySymbol || cell.textContent !== "") {
+      return;
+    }
+
+    game.send({
+      action: "move",
+      index: Number(cell.dataset.index),
+    });
   });
 });
 
-// Permet la déconnexion lorsque le joueur quitte la page
-window.addEventListener("pagehide", () => {
-  gameOver = true;
-  socket.close(1000);
-});
-
-window.addEventListener("pageshow", (e) => {
-  if (e.persisted) window.location.reload();
-});
-
-setupRoomCodeCopy(roomName);
-
-setupRematch(socket);
+setupRematch(game);

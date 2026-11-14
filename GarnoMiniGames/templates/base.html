@@ -88,6 +88,7 @@
                   <li>
                     <a class="dropdown-item" href="{% url 'friends:list' %}">
                       <i class="bi bi-people me-2"></i>Amis
+                      <span class="small text-body-secondary ms-1 d-none" data-friends-online></span>
                       <span data-friend-badge
                             class="badge rounded-pill text-bg-primary ms-1{% if not pending_friend_requests_count %} d-none{% endif %}">
                       {{ pending_friend_requests_count }}</span>
@@ -145,6 +146,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/tooltips.js' %}"></script>
     {% if user.is_authenticated %}
+      <div id="invitation-toasts"
+           class="toast-container position-fixed bottom-0 start-0 p-3"></div>
+      <script src="{% static 'friends/js/invitations.js' %}"></script>
       <script src="{% static 'friends/js/notifications.js' %}"
               data-poll-url="{% url 'friends:poll' %}"></script>
     {% endif %}

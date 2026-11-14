@@ -1,22 +1,16 @@
 "use strict";
 
 import { showGameResult, setupRematch } from "./game_result.js";
-import { setupRoomCodeCopy, showOpponentLeftResult } from "./game_utils.js";
+import { showOpponentLeftResult } from "./game_utils.js";
 
-const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-const socket = new WebSocket(
-  `${protocol}://${window.location.host}/ws/games/premier-clic/${roomName}/`,
-);
-
-const statusEl = document.getElementById("game-status");
-const scoreEl = document.getElementById("game-score");
 const btn = document.getElementById("click-btn");
+const scoreEl = document.getElementById("game-info");
 
-let gameOver = false;
 let currentScores = {};
 
-btn.style.display = "none";
-statusEl.textContent = "Connexion...";
+function showButton(visible) {
+  btn.classList.toggle("d-none", !visible);
+}
 
 // Prépare les informations à afficher dans le résumé.
 function getResultDetails(winner) {
@@ -31,109 +25,76 @@ function getResultDetails(winner) {
   };
 }
 
-socket.onmessage = (e) => {
-  const data = JSON.parse(e.data);
+const game = globalThis.GameCommon.start({
+  path: "premier-clic",
 
-  switch (data.event) {
-    case "player_joined":
-      statusEl.textContent =
-        data.count < 2
-          ? "En attente d'un adversaire..."
-          : `${data.count}/2 joueurs connectés...`;
-      break;
+  onAbort: () => showButton(false),
 
-    case "waiting":
-      statusEl.textContent = "Prépare-toi...";
-      btn.style.display = "none";
-      break;
+  onEvent(data, game) {
+    switch (data.event) {
+      case "waiting":
+        game.statusEl.textContent = "Prépare-toi...";
+        showButton(false);
+        break;
 
-    case "rematch_started":
-      gameOver = false;
-      currentScores = {};
-      scoreEl.textContent = "";
-      btn.style.display = "none";
-      break;
+      case "rematch_started":
+        game.reset();
+        currentScores = {};
+        scoreEl.textContent = "";
+        showButton(false);
+        break;
 
-    case "show_button":
-      statusEl.textContent = "CLIQUE MAINTENANT !";
-      btn.style.display = "inline-block";
-      break;
+      case "show_button":
+        game.statusEl.textContent = "CLIQUE MAINTENANT !";
+        showButton(true);
+        break;
 
-    case "round_result": {
-      btn.style.display = "none";
-      statusEl.textContent = `${data.winner} a gagné la manche !`;
+      case "round_result": {
+        showButton(false);
 
-      currentScores = data.scores;
+        game.statusEl.textContent = `${data.winner} a gagné la manche !`;
 
-      scoreEl.textContent = Object.entries(data.scores)
-        .map(([name, s]) => `${name}: ${s}`)
-        .join(" — ");
+        currentScores = data.scores;
 
-      if (data.game_over) {
-        gameOver = true;
+        scoreEl.textContent = Object.entries(data.scores)
+          .map(([name, score]) => `${name}: ${score}`)
+          .join(" — ");
 
-        if (data.you_won) {
-          showGameResult(
-            "Victoire !",
-            "Félicitations, tu as remporté la partie !",
-            data.winner,
-            "🏆",
-            getResultDetails(data.winner),
-          );
-        } else {
-          showGameResult(
-            "Défaite !",
-            `${data.winner} a remporté la partie.`,
-            data.winner,
-            "😢",
-            getResultDetails(data.winner),
-          );
+        if (data.game_over) {
+          game.finish();
+
+          if (data.you_won) {
+            showGameResult(
+              "Victoire !",
+              "Félicitations, tu as remporté la partie !",
+              data.winner,
+              "🏆",
+              getResultDetails(data.winner),
+            );
+          } else {
+            showGameResult(
+              "Défaite !",
+              `${data.winner} a remporté la partie.`,
+              data.winner,
+              "😢",
+              getResultDetails(data.winner),
+            );
+          }
         }
+
+        break;
       }
 
-      break;
+      case "opponent_left":
+        showOpponentLeftResult(getResultDetails("Adversaire déconnecté"));
+        break;
     }
-
-    case "rejected":
-      gameOver = true;
-      btn.style.display = "none";
-      statusEl.textContent = data.message;
-      statusEl.classList.add("text-danger");
-      break;
-
-    case "opponent_left":
-      btn.style.display = "none";
-      gameOver = true;
-
-      showOpponentLeftResult(getResultDetails("Adversaire déconnecté"));
-
-      break;
-  }
-};
-
-socket.onclose = () => {
-  if (gameOver) return;
-
-  statusEl.textContent =
-    "Connexion fermée (salle pleine ou serveur indisponible).";
-  btn.style.display = "none";
-};
+  },
+});
 
 btn.addEventListener("click", () => {
-  btn.style.display = "none";
-  socket.send(JSON.stringify({ action: "click" }));
+  showButton(false);
+  game.send({ action: "click" });
 });
 
-// Permet la déconnexion lorsque le joueur quitte la page.
-window.addEventListener("pagehide", () => {
-  gameOver = true;
-  socket.close(1000);
-});
-
-window.addEventListener("pageshow", (e) => {
-  if (e.persisted) window.location.reload();
-});
-
-setupRoomCodeCopy(roomName);
-
-setupRematch(socket);
+setupRematch(game);

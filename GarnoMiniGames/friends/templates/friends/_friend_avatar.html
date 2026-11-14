@@ -1,0 +1,8 @@
+{# Avatar d'un ami avec sa pastille de statut (mise à jour en direct par notifications.js). #}
+<span class="avatar-status">
+    {% include "accounts/_avatar.html" with profile=profile size="sm" %}
+    <span class="status-dot status-dot-{{ status }}"
+          data-friend-status="{{ profile.pseudonym }}"
+          role="img"
+          aria-label="{{ status_label }}"></span>
+</span>

@@ -136,8 +136,12 @@ def search_profiles(request):
     if query:
         profiles = profiles.filter(pseudonym__icontains=query)
 
-    if min_games.isdigit():
-        profiles = profiles.filter(games_played__gte=int(min_games))
+    min_games_error = None
+    if min_games:
+        if min_games.isascii() and min_games.isdigit() and len(min_games) <= 9:
+            profiles = profiles.filter(games_played__gte=int(min_games))
+        else:
+            min_games_error = "Entrez un nombre entier positif (0 ou plus)."
 
     profiles = profiles.order_by(*SORT_OPTIONS[sort])
     sort_choices = [
@@ -149,6 +153,7 @@ def search_profiles(request):
         "profiles": profiles,
         "query": query,
         "min_games": min_games,
+        "min_games_error": min_games_error,
         "sort": sort,
         "sort_choices": sort_choices,
     }
