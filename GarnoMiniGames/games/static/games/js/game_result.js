@@ -38,7 +38,7 @@ export function showGameResult(
   resultEl.classList.remove("d-none");
 }
 
-export function setupRematch(socket) {
+export function setupRematch(game) {
   const rematchButton = document.getElementById("rematch-button");
   const rematchStatus = document.getElementById("rematch-status");
   const resultEl = document.getElementById("game-result");
@@ -75,20 +75,14 @@ export function setupRematch(socket) {
   }
 
   rematchButton.addEventListener("click", () => {
-    if (socket.readyState !== WebSocket.OPEN) {
-      return;
-    }
-
-    socket.send(JSON.stringify({ action: "rematch" }));
+    game.send({ action: "rematch" });
 
     rematchButton.disabled = true;
     rematchStatus.textContent = "En attente de l'adversaire...";
     rematchStatus.classList.remove("d-none");
   });
 
-  socket.addEventListener("message", (event) => {
-    const data = JSON.parse(event.data);
-
+  game.onMessage((data) => {
     if (data.event === "rematch_waiting") {
       rematchStatus.classList.remove("d-none");
       startRematchCountdown(data.requested_by_you);
