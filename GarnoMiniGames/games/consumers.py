@@ -13,6 +13,25 @@ class PremierClicConsumer(RoomConsumerBase):
     RECORD_SCORES = True
     WINNING_SCORE = 5
 
+    async def game_start(self, event):
+        room = self.ROOMS.get(self.room_name)
+
+        if not room or self.channel_name not in room["players"]:
+            return
+
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "event": "game_start",
+                    "players": list(room["players"].values()),
+                    "scores": {
+                        room["players"][ch]: score
+                        for ch, score in room["scores"].items()
+                    },
+                }
+            )
+        )
+
     async def receive(self, text_data):
         if not self.registered:
             return
@@ -87,6 +106,11 @@ class PremierClicConsumer(RoomConsumerBase):
         await self.channel_layer.group_send(
             self.group_name,
             {"type": "round_waiting"},
+        )
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {"type": "game_start"},
         )
 
         await asyncio.sleep(random.uniform(2, 5))

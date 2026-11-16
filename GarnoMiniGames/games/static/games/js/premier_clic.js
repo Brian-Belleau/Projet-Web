@@ -37,6 +37,15 @@ const game = globalThis.GameCommon.start({
         showButton(false);
         break;
 
+      case "game_start":
+        currentScores = data.scores;
+
+        scoreEl.textContent = Object.entries(currentScores)
+          .map(([name, score]) => `${name}: ${score}`)
+          .join(" — ");
+
+        break;
+
       case "rematch_started":
         game.reset();
         currentScores = {};
