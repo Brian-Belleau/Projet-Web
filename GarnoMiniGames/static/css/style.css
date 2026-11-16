@@ -949,14 +949,14 @@ html {
     color 0.2s ease-in-out;
 }
 
-#invite-friends-list .btn[data-invite-state='sent'] {
+#invite-friends-list .btn[data-invite-state="sent"] {
   --bs-btn-disabled-color: #fff;
   --bs-btn-disabled-bg: #198754;
   --bs-btn-disabled-border-color: #198754;
   opacity: 1;
 }
 
-#invite-friends-list .btn[data-invite-state='error'] {
+#invite-friends-list .btn[data-invite-state="error"] {
   --bs-btn-color: var(--bs-danger);
   --bs-btn-border-color: var(--bs-danger);
   --bs-btn-hover-bg: var(--bs-danger);
@@ -988,4 +988,16 @@ html {
   #invite-friends-list .btn {
     transition: none;
   }
+}
+
+.premier-clic-container {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#click-btn {
+  position: absolute;
 }

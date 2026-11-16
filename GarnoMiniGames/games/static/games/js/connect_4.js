@@ -79,11 +79,9 @@ const game = globalThis.GameCommon.start({
         boardElement.classList.remove("d-none");
         game.statusEl.classList.remove("text-danger");
 
-        if (mySymbol === "R") {
-          gameInfo.textContent = "Tu joues avec les jetons rouges.";
-        } else {
-          gameInfo.textContent = "Tu joues avec les jetons jaunes.";
-        }
+        gameInfo.textContent =
+          `${players.R} (rouge) vs ${players.Y} (jaune) — ` +
+          `Tu joues avec les jetons ${mySymbol === "R" ? "rouges" : "jaunes"}.`;
 
         renderBoard(data.board);
         updateTurnStatus(data.board);
