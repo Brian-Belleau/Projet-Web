@@ -3,9 +3,11 @@
 {% block title %}Premier Clic - GarnoMiniGames{% endblock %}
 {% block game_name %}Premier Clic{% endblock %}
 {% block game_content %}
-    <button type="button"
-            id="click-btn"
-            class="btn btn-danger btn-lg px-5 py-3 mt-3 d-none">CLIQUE !</button>
+    <div class="premier-clic-container">
+        <button type="button"
+                id="click-btn"
+                class="btn btn-danger btn-lg px-5 py-3 d-none">CLIQUE !</button>
+    </div>
 {% endblock %}
 {% block game_scripts %}
     <script type="module" src="{% static 'games/js/premier_clic.js' %}"></script>
