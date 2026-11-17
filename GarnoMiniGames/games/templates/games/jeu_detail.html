@@ -14,7 +14,7 @@
                      class="jeu-detail-image rounded mb-4">
             {% endif %}
             <h1 class="mb-3">{{ jeu.nom }}</h1>
-            <p class="text-secondary mb-0">{{ jeu.description }}</p>
+            <p class="text-secondary mb-0">{{ jeu.description|linebreaksbr }}</p>
         </div>
     </div>
     <div class="row g-4">
