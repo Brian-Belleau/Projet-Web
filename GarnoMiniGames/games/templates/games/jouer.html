@@ -13,5 +13,42 @@
                 La prochaine victoire est peut-être la tienne !
             </p>
         </section>
+        {% for element in jeux_avec_parties %}
+            <div class="card bg-dark text-light border-secondary shadow mt-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title mb-3">{{ element.jeu.nom }}</h3>
+                    {% if element.parties %}
+                        <ul class="list-group list-group-flush">
+                            {% for partie in element.parties %}
+                                <li class="list-group-item public-room bg-dark text-light border-secondary d-flex justify-content-between align-items-center px-0">
+                                    <span class="d-flex align-items-center gap-3">
+                                        <span class="public-room-icon">
+                                            <i class="bi bi-globe2"></i>
+                                        </span>
+                                        <span>
+                                            Partie de <strong>{{ partie.host }}</strong>
+                                            <span class="d-block text-secondary small">
+                                                <i class="bi bi-people me-1"></i>
+                                                {{ partie.count }}/{{ partie.max }} joueurs
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <form method="post"
+                                          action="{% url 'rejoindre_jeu' element.jeu.slug %}"
+                                          class="mb-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="room_name" value="{{ partie.room_name }}">
+                                        <button type="submit" class="btn btn-primary w-100 action-card-submit">
+                                            <i class="bi bi-door-open-fill me-1"></i>
+                                            Rejoindre la partie
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}
