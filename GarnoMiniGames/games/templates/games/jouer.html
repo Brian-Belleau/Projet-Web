@@ -16,7 +16,20 @@
         {% for element in jeux_avec_parties %}
             <div class="card bg-dark text-light border-secondary shadow mt-4">
                 <div class="card-body p-4">
-                    <h3 class="card-title mb-3">{{ element.jeu.nom }}</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title mb-0">{{ element.jeu.nom }}</h3>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'jouer' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                Actualiser
+                            </a>
+                            <a href="{% url 'jeu_detail' element.jeu.slug %}"
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Voir le jeu
+                            </a>
+                        </div>
+                    </div>
                     {% if element.parties %}
                         <ul class="list-group list-group-flush">
                             {% for partie in element.parties %}
@@ -46,9 +59,18 @@
                                 </li>
                             {% endfor %}
                         </ul>
+                    {% else %}
+                        <p class="text-secondary mb-2">Aucune partie disponible pour le moment.</p>
+                        <a href="{% url 'jeu_detail' element.jeu.slug %}"
+                           class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Créer une partie
+                        </a>
                     {% endif %}
                 </div>
             </div>
+        {% empty %}
+            <p class="text-secondary text-center mt-4">Aucun jeu disponible pour le moment.</p>
         {% endfor %}
     </div>
 {% endblock %}
