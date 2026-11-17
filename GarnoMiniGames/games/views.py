@@ -12,10 +12,14 @@ from .consumers import (
 from .forms import CreerPartieForm, RejoindreJeuForm
 from friends.services import get_friends
 from .presence import (
-    ACTIVE_PLAYERS, MESSAGES, check_join, get_identity, has_reservation,
-    list_public_rooms, reserve_room,
+    ACTIVE_PLAYERS,
+    MESSAGES,
+    check_join,
+    get_identity,
+    has_reservation,
+    list_public_rooms,
+    reserve_room,
 )
-
 
 # slug du jeu -> (nom de l'URL de la partie, consumer qui gère les salles)
 JEUX_MULTIJOUEUR = {
@@ -33,9 +37,8 @@ def _acces_partie(request, slug, room_name):
     _, consumer = JEUX_MULTIJOUEUR[slug]
     identity = get_identity(request.user, request.session, create=True)
 
-    if (
-        consumer.ROOMS.get(room_name) is not None
-        or has_reservation(identity, consumer.GAME_PREFIX, room_name)
+    if consumer.ROOMS.get(room_name) is not None or has_reservation(
+        identity, consumer.GAME_PREFIX, room_name
     ):
         return True
 
@@ -45,28 +48,39 @@ def _acces_partie(request, slug, room_name):
 
 def _contexte_salle(request, slug, room_name):
     """Contexte commun aux pages de salle : code, jeu et amis à inviter."""
-    friends = get_friends(
-        request.user) if request.user.is_authenticated else []
+    friends = get_friends(request.user) if request.user.is_authenticated else []
     return {"room_name": room_name, "game_slug": slug, "friends": friends}
 
 
 def premier_clic(request, room_name):
     if not _acces_partie(request, "premier-clic", room_name):
         return redirect("jeu_detail", slug="premier-clic")
-    return render(request, "games/premier_clic.html", _contexte_salle(request, "premier-clic", room_name))
+    return render(
+        request,
+        "games/premier_clic.html",
+        _contexte_salle(request, "premier-clic", room_name),
+    )
 
 
 def tic_tac_toe(request, room_name):
     if not _acces_partie(request, "tic-tac-toe", room_name):
         return redirect("jeu_detail", slug="tic-tac-toe")
-    return render(request, "games/tic_tac_toe.html", _contexte_salle(request, "tic-tac-toe", room_name))
+    return render(
+        request,
+        "games/tic_tac_toe.html",
+        _contexte_salle(request, "tic-tac-toe", room_name),
+    )
 
 
 def connect_4(request, room_name):
     """Affiche le plateau de Connect 4."""
     if not _acces_partie(request, "connect-4", room_name):
         return redirect("jeu_detail", slug="connect-4")
-    return render(request, "games/connect_4.html", _contexte_salle(request, "connect-4", room_name))
+    return render(
+        request,
+        "games/connect_4.html",
+        _contexte_salle(request, "connect-4", room_name),
+    )
 
 def r_p_c_l_s(request, room_name):
     """Affiche la page de Roche-Papier-Ciseaux-Lézard-Spock."""
@@ -85,18 +99,18 @@ def jeu_detail(request, slug):
 
     if not jeu.actif:
         messages.error(request, "Ce jeu n'est pas disponible actuellement.")
-        return redirect('home')
+        return redirect("home")
 
     form = RejoindreJeuForm()
 
     return render(
         request,
-        'games/jeu_detail.html',
+        "games/jeu_detail.html",
         {
-            'jeu': jeu,
-            'form': form,
-            'parties_publiques': _parties_publiques(request, jeu),
-        }
+            "jeu": jeu,
+            "form": form,
+            "parties_publiques": _parties_publiques(request, jeu),
+        },
     )
 
 
@@ -122,21 +136,21 @@ def lancer_jeu(request, slug):
 
     if not jeu.actif:
         messages.error(request, "Ce jeu n'est pas disponible actuellement.")
-        return redirect('home')
+        return redirect("home")
 
     if request.method != "POST":
-        return redirect('jeu_detail', slug=jeu.slug)
+        return redirect("jeu_detail", slug=jeu.slug)
 
     creer_form = CreerPartieForm(request.POST)
     if not creer_form.is_valid():
         messages.error(request, creer_form.errors["visibilite"][0])
-        return redirect('jeu_detail', slug=jeu.slug)
+        return redirect("jeu_detail", slug=jeu.slug)
     is_public = creer_form.est_publique()
 
     identity = get_identity(request.user, request.session, create=True)
     if identity in ACTIVE_PLAYERS:
         messages.error(request, MESSAGES["already_in_game"])
-        return redirect('jeu_detail', slug=jeu.slug)
+        return redirect("jeu_detail", slug=jeu.slug)
 
     room_name = uuid.uuid4().hex[:6].upper()
 
@@ -146,7 +160,7 @@ def lancer_jeu(request, slug):
         return redirect(url_name, room_name=room_name)
 
     messages.error(request, "Ce jeu n'est pas encore disponible.")
-    return redirect('jeu_detail', slug=jeu.slug)
+    return redirect("jeu_detail", slug=jeu.slug)
 
 
 def rejoindre_jeu(request, slug):
@@ -156,7 +170,7 @@ def rejoindre_jeu(request, slug):
 
     if not jeu.actif:
         messages.error(request, "Ce jeu n'est pas disponible actuellement.")
-        return redirect('home')
+        return redirect("home")
 
     form = RejoindreJeuForm(request.POST)
 
@@ -166,9 +180,7 @@ def rejoindre_jeu(request, slug):
         if jeu.slug in JEUX_MULTIJOUEUR:
             url_name, consumer = JEUX_MULTIJOUEUR[jeu.slug]
             room = consumer.ROOMS.get(room_name)
-            identity = get_identity(
-                request.user, request.session, create=True
-            )
+            identity = get_identity(request.user, request.session, create=True)
             refus = check_join(
                 identity,
                 request.user.is_authenticated,
@@ -179,36 +191,52 @@ def rejoindre_jeu(request, slug):
             )
 
             if room is None:
-                form.add_error(
-                    "room_name",
-                    "Cette partie n'existe pas."
-                )
+                form.add_error("room_name", "Cette partie n'existe pas.")
             elif refus:
                 form.add_error("room_name", MESSAGES[refus])
             else:
                 return redirect(url_name, room_name=room_name)
 
         else:
-            messages.error(
-                request,
-                "Ce jeu n'est pas encore disponible."
-            )
-            return redirect(
-                'jeu_detail',
-                slug=jeu.slug
-            )
+            messages.error(request, "Ce jeu n'est pas encore disponible.")
+            return redirect("jeu_detail", slug=jeu.slug)
 
     if form.errors:
         form.fields["room_name"].widget.attrs["class"] += " is-invalid"
 
     return render(
         request,
-        'games/jeu_detail.html',
+        "games/jeu_detail.html",
         {
-            'jeu': jeu,
-            'form': form,
-            'parties_publiques': _parties_publiques(request, jeu),
-        }
+            "jeu": jeu,
+            "form": form,
+            "parties_publiques": _parties_publiques(request, jeu),
+        },
+    )
+
+
+def jouer(request):
+    """Affiche les parties publiques disponibles pour chaque jeu."""
+
+    jeux = Jeu.objects.filter(actif=True)
+    jeux_avec_parties = []
+
+    for jeu in jeux:
+        parties = _parties_publiques(request, jeu)
+
+        jeux_avec_parties.append(
+            {
+                "jeu": jeu,
+                "parties": parties,
+            }
+        )
+
+    return render(
+        request,
+        "games/jouer.html",
+        {
+            "jeux_avec_parties": jeux_avec_parties,
+        },
     )
 
 def r_p_c_l_s(request, room_name):

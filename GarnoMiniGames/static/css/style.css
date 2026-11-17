@@ -1048,7 +1048,6 @@ html {
   line-height: 1.2;
 }
 
-/* Petits écrans : 3 boutons puis 2 centrés */
 @media (max-width: 575.98px) {
   .rpcls-choices {
     display: flex;
@@ -1068,4 +1067,21 @@ html {
 .rpcls-choice.rpcls-selected:disabled {
   opacity: 1;
   border-color: var(--gmg-accent);
+
+/* ---------- Page Jouer ---------- */
+
+.jouer-page {
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.jouer-room {
+  background: rgba(11, 11, 18, 0.45);
+}
+
+.jouer-empty {
+  background: rgba(11, 11, 18, 0.35);
+  border: 1px dashed var(--gmg-border);
 }
