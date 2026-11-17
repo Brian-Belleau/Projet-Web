@@ -1,0 +1,33 @@
+{% extends "games/game_base.html" %}
+{% load static %}
+{% block title %}Roche-Papier-Ciseaux-Lézard-Spock - GarnoMiniGames{% endblock %}
+{% block game_name %}Roche-Papier-Ciseaux-Lézard-Spock{% endblock %}
+{% block game_content %}
+    <div id="board" class="mt-3 d-none">
+        <div class="rpcls-arena mb-3" aria-live="polite">
+            <div class="rpcls-fighter">
+                <span class="text-secondary" id="rpcls-me-name">Toi</span>
+                <span class="rpcls-fighter-icon" id="rpcls-me-icon">❔</span>
+            </div>
+            <span class="fw-bold text-secondary">VS</span>
+            <div class="rpcls-fighter">
+                <span class="text-secondary" id="rpcls-opponent-name">Adversaire</span>
+                <span class="rpcls-fighter-icon" id="rpcls-opponent-icon">❔</span>
+            </div>
+        </div>
+        <p id="rpcls-reason" class="fw-semibold mb-4"></p>
+        <div class="rpcls-choices" role="group" aria-label="Ton choix">
+            {% for value, icon, label in choices %}
+                <button type="button"
+                        class="btn btn-outline-light rpcls-choice"
+                        data-choice="{{ value }}">
+                    <span class="rpcls-choice-icon" aria-hidden="true">{{ icon }}</span>
+                    <span>{{ label }}</span>
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block game_scripts %}
+    <script type="module" src="{% static 'games/js/r_p_c_l_s.js' %}"></script>
+{% endblock %}

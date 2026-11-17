@@ -1001,3 +1001,71 @@ html {
 #click-btn {
   position: absolute;
 }
+
+/* ---------- Roche-Papier-Ciseaux-Lézard-Spock ---------- */
+.rpcls-arena {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.rpcls-fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 6rem;
+}
+
+.rpcls-fighter-icon {
+  font-size: 4.5rem;
+  line-height: 1.2;
+}
+
+.rpcls-fighter-icon.rpcls-winner {
+  filter: drop-shadow(0 0 0.75rem rgba(0, 209, 178, 0.8));
+}
+
+.rpcls-fighter-icon.rpcls-loser {
+  opacity: 0.45;
+}
+
+.rpcls-choices {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+}
+
+.rpcls-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.25rem;
+}
+
+.rpcls-choice-icon {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+/* Petits écrans : 3 boutons puis 2 centrés */
+@media (max-width: 575.98px) {
+  .rpcls-choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rpcls-choice {
+    width: calc((100% - 1rem) / 3);
+  }
+
+  .rpcls-choice-icon {
+    font-size: 2rem;
+  }
+}
+
+.rpcls-choice.rpcls-selected:disabled {
+  opacity: 1;
+  border-color: var(--gmg-accent);
+}
