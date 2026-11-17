@@ -27,11 +27,12 @@
                         <p class="text-secondary small mb-0">{{ element.jeu.description }}</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{% url 'jouer' %}#jeu-{{ element.jeu.slug }}"
-                           class="btn btn-outline-secondary btn-sm">
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                onclick="window.location.reload();">
                             <i class="bi bi-arrow-clockwise me-1"></i>
                             Actualiser
-                        </a>
+                        </button>
                         <a href="{% url 'jeu_detail' element.jeu.slug %}"
                            class="btn btn-primary btn-sm">
                             <i class="bi bi-info-circle me-1"></i>
