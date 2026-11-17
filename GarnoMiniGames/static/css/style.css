@@ -1010,3 +1010,12 @@ html {
   margin-left: auto;
   margin-right: auto;
 }
+
+.jouer-room {
+  background: rgba(11, 11, 18, 0.45);
+}
+
+.jouer-empty {
+  background: rgba(11, 11, 18, 0.35);
+  border: 1px dashed var(--gmg-border);
+}

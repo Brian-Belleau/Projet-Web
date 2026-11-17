@@ -2,7 +2,8 @@
 {% block title %}Jouer - GarnoMiniGames{% endblock %}
 {% block content %}
     <div class="jouer-page py-4" id="jeux">
-        <section class="hero-gmg rounded-4 p-4 p-md-5 mb-4 text-center">
+        <!-- En-tête -->
+        <section class="hero-gmg rounded-4 p-4 p-md-5 mb-5 text-center">
             <span class="badge rounded-pill text-bg-primary mb-3">
                 <i class="bi bi-controller me-1"></i>
                 Espace multijoueur
@@ -13,64 +14,84 @@
                 La prochaine victoire est peut-être la tienne !
             </p>
         </section>
+        <!-- Liste des jeux -->
         {% for element in jeux_avec_parties %}
-            <div class="card bg-dark text-light border-secondary shadow mt-4">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="card-title mb-0">{{ element.jeu.nom }}</h3>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'jouer' %}" class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-arrow-clockwise me-1"></i>
-                                Actualiser
-                            </a>
-                            <a href="{% url 'jeu_detail' element.jeu.slug %}"
-                               class="btn btn-primary btn-sm">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Voir le jeu
-                            </a>
-                        </div>
+            <section class="jouer-section card-gmg p-3 p-md-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <div>
+                        <h2 class="h4 fw-bold mb-1">
+                            <i class="bi bi-controller me-2 text-primary"></i>
+                            {{ element.jeu.nom }}
+                        </h2>
+                        <p class="text-secondary small mb-0">{{ element.jeu.description }}</p>
                     </div>
-                    {% if element.parties %}
-                        <ul class="list-group list-group-flush">
-                            {% for partie in element.parties %}
-                                <li class="list-group-item public-room bg-dark text-light border-secondary d-flex justify-content-between align-items-center px-0">
-                                    <span class="d-flex align-items-center gap-3">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'jouer' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Actualiser
+                        </a>
+                        <a href="{% url 'jeu_detail' element.jeu.slug %}"
+                           class="btn btn-primary btn-sm">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Voir le jeu
+                        </a>
+                    </div>
+                </div>
+                {% if element.parties %}
+                    <!-- Parties disponibles -->
+                    <div class="row g-3">
+                        {% for partie in element.parties %}
+                            <div class="col-md-6">
+                                <div class="jouer-room card-gmg card-hover h-100 p-3">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
                                         <span class="public-room-icon">
                                             <i class="bi bi-globe2"></i>
                                         </span>
-                                        <span>
-                                            Partie de <strong>{{ partie.host }}</strong>
-                                            <span class="d-block text-secondary small">
-                                                <i class="bi bi-people me-1"></i>
-                                                {{ partie.count }}/{{ partie.max }} joueurs
-                                            </span>
+                                        <div class="min-w-0">
+                                            <h3 class="h6 fw-bold mb-1">Partie publique</h3>
+                                            <span class="text-secondary small">Hébergée par {{ partie.host }}</span>
+                                        </div>
+                                        <span class="badge text-bg-success ms-auto">Disponible</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-secondary small">
+                                            <i class="bi bi-people me-1"></i>
+                                            Joueurs
                                         </span>
-                                    </span>
-                                    <form method="post"
-                                          action="{% url 'rejoindre_jeu' element.jeu.slug %}"
-                                          class="mb-0">
+                                        <span class="fw-semibold small">{{ partie.count }} / {{ partie.max }}</span>
+                                    </div>
+                                    <form method="post" action="{% url 'rejoindre_jeu' element.jeu.slug %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="room_name" value="{{ partie.room_name }}">
-                                        <button type="submit" class="btn btn-primary w-100 action-card-submit">
-                                            <i class="bi bi-door-open-fill me-1"></i>
-                                            Rejoindre la partie
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                                            <i class="bi bi-box-arrow-in-right me-1"></i>
+                                            Rejoindre
                                         </button>
                                     </form>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-secondary mb-2">Aucune partie disponible pour le moment.</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- Aucune partie -->
+                    <div class="jouer-empty text-center p-4 rounded-3">
+                        <i class="bi bi-controller fs-2 text-secondary mb-2"></i>
+                        <p class="fw-semibold mb-1">Aucune partie disponible</p>
+                        <p class="text-secondary small mb-3">Sois le premier à lancer une partie publique !</p>
                         <a href="{% url 'jeu_detail' element.jeu.slug %}"
                            class="btn btn-primary btn-sm">
                             <i class="bi bi-plus-lg me-1"></i>
                             Créer une partie
                         </a>
-                    {% endif %}
-                </div>
-            </div>
+                    </div>
+                {% endif %}
+            </section>
         {% empty %}
-            <p class="text-secondary text-center mt-4">Aucun jeu disponible pour le moment.</p>
+            <div class="card-gmg text-center p-5">
+                <i class="bi bi-controller fs-1 text-secondary"></i>
+                <h2 class="h4 mt-3">Aucun jeu disponible</h2>
+                <p class="text-secondary mb-0">Reviens plus tard pour découvrir les jeux !</p>
+            </div>
         {% endfor %}
     </div>
 {% endblock %}
