@@ -4,17 +4,6 @@ from django.db.models import F
 
 from .points import DEFAULT_POINTS, POINTS
 
-
-def _game_points(game_slug):
-    """(points gagnés en victoire, points perdus en défaite) pour ce jeu."""
-    from games.models import Jeu
-
-    jeu = Jeu.objects.filter(slug=game_slug).first() if game_slug else None
-    if jeu is None:
-        return 0, 0
-    return jeu.points_victoire, jeu.points_defaite
-
-
 @sync_to_async
 def update_game_stats(winner_id, loser_id, game_slug=None,
                       winner_score=None, loser_score=None, forfeit=False):
