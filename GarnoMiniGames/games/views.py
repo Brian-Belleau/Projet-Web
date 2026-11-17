@@ -3,7 +3,12 @@ from django.contrib import messages
 import uuid
 
 from .models import Jeu
-from .consumers import PremierClicConsumer, TicTacToeConsumer, Connect4Consumer
+from .consumers import (
+    PremierClicConsumer,
+    TicTacToeConsumer,
+    Connect4Consumer,
+    RPCLSConsumer,
+)
 from .forms import CreerPartieForm, RejoindreJeuForm
 from friends.services import get_friends
 from .presence import (
@@ -17,6 +22,7 @@ JEUX_MULTIJOUEUR = {
     "premier-clic": ("premier_clic", PremierClicConsumer),
     "tic-tac-toe": ("tic_tac_toe", TicTacToeConsumer),
     "connect-4": ("connect_4", Connect4Consumer),
+    "r-p-c-l-s": ("r_p_c_l_s", RPCLSConsumer),
 }
 
 
@@ -61,6 +67,16 @@ def connect_4(request, room_name):
     if not _acces_partie(request, "connect-4", room_name):
         return redirect("jeu_detail", slug="connect-4")
     return render(request, "games/connect_4.html", _contexte_salle(request, "connect-4", room_name))
+
+def r_p_c_l_s(request, room_name):
+    """Affiche la page de Roche-Papier-Ciseaux-Lézard-Spock."""
+    if not _acces_partie(request, "r-p-c-l-s", room_name):
+        return redirect("jeu_detail", slug="r-p-c-l-s")
+    return render(
+        request,
+        "games/r_p_c_l_s.html",
+        _contexte_salle(request, "r-p-c-l-s", room_name),
+    )
 
 
 def jeu_detail(request, slug):
@@ -193,4 +209,23 @@ def rejoindre_jeu(request, slug):
             'form': form,
             'parties_publiques': _parties_publiques(request, jeu),
         }
+    )
+
+def r_p_c_l_s(request, room_name):
+    """Affiche la page de Roche-Papier-Ciseaux-Lézard-Spock."""
+    if not _acces_partie(request, "r-p-c-l-s", room_name):
+        return redirect("jeu_detail", slug="r-p-c-l-s")
+    return render(
+        request,
+        "games/r_p_c_l_s.html",
+        {
+            **_contexte_salle(request, "r-p-c-l-s", room_name),
+            "choices": [
+                ("roche", "🪨", "Roche"),
+                ("papier", "📄", "Papier"),
+                ("ciseaux", "✂️", "Ciseaux"),
+                ("lezard", "🦎", "Lézard"),
+                ("spock", "🖖", "Spock"),
+            ],
+        },
     )

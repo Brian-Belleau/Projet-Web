@@ -4,6 +4,7 @@ POINTS = {
     "premier-clic": (10, 5),
     "tic-tac-toe": (6, 3),
     "connect-4": (14, 7),
+    "r-p-c-l-s": (8, 4),
 }
 
 # Pour les jeux auquel on a pas encore décidé de pointage.
