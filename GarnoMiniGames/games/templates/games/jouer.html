@@ -16,7 +16,8 @@
         </section>
         <!-- Liste des jeux -->
         {% for element in jeux_avec_parties %}
-            <section class="jouer-section card-gmg p-3 p-md-4 mb-4">
+            <section id="jeu-{{ element.jeu.slug }}"
+                     class="jouer-section card-gmg p-3 p-md-4 mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                     <div>
                         <h2 class="h4 fw-bold mb-1">
@@ -26,7 +27,8 @@
                         <p class="text-secondary small mb-0">{{ element.jeu.description }}</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{% url 'jouer' %}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{% url 'jouer' %}#jeu-{{ element.jeu.slug }}"
+                           class="btn btn-outline-secondary btn-sm">
                             <i class="bi bi-arrow-clockwise me-1"></i>
                             Actualiser
                         </a>
