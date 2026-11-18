@@ -218,7 +218,7 @@ def rejoindre_jeu(request, slug):
 def jouer(request):
     """Affiche les parties publiques disponibles pour chaque jeu."""
 
-    jeux = Jeu.objects.filter(actif=True)
+    jeux = Jeu.objects.filter(actif=True).order_by("date_creation")
     jeux_avec_parties = []
 
     for jeu in jeux:
