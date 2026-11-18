@@ -11,6 +11,25 @@ from .views import login_required
 from .services import get_friends, mark_online
 
 
+def _room_is_joinable(invitation):
+    """Vrai tant que la partie de l'invitation existe"""
+    from games.presence import PENDING_ROOMS, _purge_pending
+    from games.views import JEUX_MULTIJOUEUR
+
+    if invitation.game_slug not in JEUX_MULTIJOUEUR:
+        return False
+    _, consumer = JEUX_MULTIJOUEUR[invitation.game_slug]
+    room = consumer.ROOMS.get(invitation.room_name)
+    if room is not None:
+        return (
+            bool(room["players"])
+            and not room.get("finished")
+            and len(room["players"]) < consumer.MAX_PLAYERS
+        )
+    _purge_pending()
+    return (consumer.GAME_PREFIX, invitation.room_name) in PENDING_ROOMS
+
+
 @login_required
 @never_cache
 def poll(request):
@@ -37,6 +56,12 @@ def poll(request):
             created_at__gte=cutoff,
         ).select_related("from_user__profile")
     )
+    stale = [i for i in invitations if not _room_is_joinable(i)]
+    if stale:
+        GameInvitation.objects.filter(
+            pk__in=[i.pk for i in stale]).delete()
+        stale_ids = {i.pk for i in stale}
+        invitations = [i for i in invitations if i.pk not in stale_ids]
     game_names = dict(
         Jeu.objects.filter(
             slug__in={i.game_slug for i in invitations}
