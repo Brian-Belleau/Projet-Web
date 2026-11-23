@@ -74,7 +74,7 @@
                   {% else %}
                     <i class="bi bi-person-circle"></i>
                   {% endif %}
-                  <span class="ms-1">{{ user.username }}</span>
+                  <span class="ms-1 text-truncate navbar-user-name">{% if user.profile %}{{ user.profile.pseudonym }}{% else %}{{ user.username }}{% endif %}</span>
                   <span data-friend-badge
                         class="badge rounded-pill text-bg-primary ms-1{% if not pending_friend_requests_count %} d-none{% endif %}">
                   {{ pending_friend_requests_count }}</span>
