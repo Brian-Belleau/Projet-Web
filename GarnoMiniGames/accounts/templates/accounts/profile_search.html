@@ -62,16 +62,16 @@
           <a href="{% url 'accounts:player_profile' p.pseudonym %}?from=search"
              class="card-gmg card-hover d-flex align-items-center gap-3 p-3 text-decoration-none text-body">
             {% include "accounts/_avatar.html" with profile=p size="sm" %}
-            <div class="flex-grow-1">
-              <div class="fw-semibold">{{ p.pseudonym }}</div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="fw-semibold text-truncate" title="{{ p.pseudonym }}">{{ p.pseudonym }}</div>
               <div class="small text-body-secondary">
                 {{ p.games_played }} partie{% if p.games_played > 1 %}s{% endif %}
               </div>
             </div>
-            <span class="badge {% if p.points >= 0 %}text-bg-success{% else %}text-bg-danger{% endif %}"
+            <span class="badge flex-shrink-0 {% if p.points >= 0 %}text-bg-success{% else %}text-bg-danger{% endif %}"
                   data-bs-toggle="tooltip"
                   data-bs-title="Nombre de points de classement">{{ p.points }} pts</span>
-            <span class="badge text-bg-primary"
+            <span class="badge flex-shrink-0 text-bg-primary"
                   data-bs-toggle="tooltip"
                   data-bs-title="Taux de victoire (une égalité compte pour une demi-victoire)">{{ p.win_rate }}%</span>
           </a>

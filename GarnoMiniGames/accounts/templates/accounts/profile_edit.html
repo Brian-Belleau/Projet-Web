@@ -42,7 +42,7 @@ profil{% endblock %} {% block content %}
           {% if form.photo.help_text %}
             <div class="form-text">{{ form.photo.help_text }}</div>
           {% endif %}
-          <div class="invalid-feedback {% if not form.photo.errors %}d-none{% endif %}"
+          <div class="invalid-feedback {% if form.photo.errors %}d-block{% else %}d-none{% endif %}"
                id="photo-error"
                data-field="{{ form.photo.id_for_label }}"
                data-server-error="{% if form.photo.errors %}true{% else %}false{% endif %}">

@@ -1,10 +1,10 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django import forms
 from django.core.files.uploadedfile import UploadedFile
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import MaxLengthValidator, MinLengthValidator, RegexValidator
 from django.db import transaction
 from .models import CustomUser, Profile
-from .validators import valider_nom_propre
+from .validators import MAX_EMAIL_LENGTH, MAX_EMAIL_MESSAGE, MAX_NAME_LENGTH, MAX_NAME_MESSAGE, MAX_USERNAME_LENGTH, MAX_USERNAME_MESSAGE, valider_nom_propre
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024
 
@@ -34,11 +34,24 @@ class LoginForm(BootstrapMixin, AuthenticationForm):
 class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
     """Formulaire d'inscription avec les classes Bootstrap, incluant l'email."""
 
-    email = forms.EmailField(required=True, label="Adresse courriel")
+    email = forms.EmailField(
+        required=True,
+        label="Adresse courriel",
+        validators=[MaxLengthValidator(MAX_EMAIL_LENGTH, MAX_EMAIL_MESSAGE)],
+    )
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         fields = UserCreationForm.Meta.fields + ('email',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        username = self.fields["username"]
+        username.max_length = MAX_USERNAME_LENGTH
+        username.widget.attrs["maxlength"] = MAX_USERNAME_LENGTH
+        username.validators.append(
+            MaxLengthValidator(MAX_USERNAME_LENGTH, MAX_USERNAME_MESSAGE))
+        self.fields["email"].widget.attrs["maxlength"] = MAX_EMAIL_LENGTH
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
@@ -51,38 +64,49 @@ class CustomUserCreationForm(BootstrapMixin, UserCreationForm):
 class ProfileForm(forms.ModelForm):
     username = forms.CharField(
         label="Nom d'utilisateur",
-        max_length=150,
-        validators=CustomUser._meta.get_field("username").validators,
+        validators=[
+            *CustomUser._meta.get_field("username").validators,
+            MaxLengthValidator(MAX_USERNAME_LENGTH, MAX_USERNAME_MESSAGE),
+        ],
         widget=forms.TextInput(attrs={
             "class": "form-control",
+            "maxlength": MAX_USERNAME_LENGTH,
             "placeholder": "Veuillez inscrire un nom d'utilisateur",
         }),
     )
     first_name = forms.CharField(
         label="Prénom",
         required=False,
-        max_length=150,
-        validators=[valider_nom_propre],
+        validators=[
+            valider_nom_propre,
+            MaxLengthValidator(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+        ],
         widget=forms.TextInput(attrs={
             "class": "form-control",
+            "maxlength": MAX_NAME_LENGTH,
             "placeholder": "Veuillez inscrire votre prénom",
         }),
     )
     last_name = forms.CharField(
         label="Nom",
         required=False,
-        max_length=150,
-        validators=[valider_nom_propre],
+        validators=[
+            valider_nom_propre,
+            MaxLengthValidator(MAX_NAME_LENGTH, MAX_NAME_MESSAGE),
+        ],
         widget=forms.TextInput(attrs={
             "class": "form-control",
+            "maxlength": MAX_NAME_LENGTH,
             "placeholder": "Veuillez inscrire votre nom",
         }),
     )
     email = forms.EmailField(
         label="Adresse e-mail",
         required=True,
+        validators=[MaxLengthValidator(MAX_EMAIL_LENGTH, MAX_EMAIL_MESSAGE)],
         widget=forms.EmailInput(attrs={
             "class": "form-control",
+            "maxlength": MAX_EMAIL_LENGTH,
             "placeholder": "Veuillez inscrire votre adresse e-mail",
         }),
     )
